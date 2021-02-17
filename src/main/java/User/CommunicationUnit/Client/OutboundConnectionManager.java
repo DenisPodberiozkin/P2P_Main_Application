@@ -24,8 +24,9 @@ public class OutboundConnectionManager {
             connection.createConnection(isSingle);
             outboundConnections.add(connection);
         } catch (IOException e) {
-            System.out.println("Disconnected from " + ip + ":" + port);
+            System.out.println("Could not connect to " + ip + ":" + port);
             closeConnection(connection);
+            return null;
 
         }
         return connection;

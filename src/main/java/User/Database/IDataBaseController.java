@@ -2,7 +2,7 @@ package User.Database;
 
 import java.sql.Connection;
 
-interface IDataBaseController {
+public interface IDataBaseController {
 
     Connection connectToDatabase();
 }

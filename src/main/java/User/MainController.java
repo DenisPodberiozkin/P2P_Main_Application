@@ -4,7 +4,9 @@ import User.CommunicationUnit.Client.ClientController;
 import User.CommunicationUnit.Client.IClientController;
 import User.CommunicationUnit.Client.OutboundConnection;
 import User.Database.DataBaseController;
+import User.Database.IDataBaseController;
 import User.Encryption.EncryptionController;
+import User.Encryption.IEncryptionController;
 
 import java.security.KeyPair;
 import java.sql.Connection;
@@ -12,6 +14,8 @@ import java.sql.Connection;
 public class MainController implements IMainController {
     private static MainController instance;
     private final IClientController clientController;
+    private final IDataBaseController dataBaseController = DataBaseController.getInstance();
+    private final IEncryptionController encryptionController = EncryptionController.getInstance();
 
     public MainController() {
         this.clientController = ClientController.getInstance();
@@ -27,9 +31,7 @@ public class MainController implements IMainController {
 
     @Override
     public void createAccount(String password) {
-        DataBaseController dataBaseController = DataBaseController.getInstance();
         Connection connection = dataBaseController.connectToDatabase();
-        EncryptionController encryptionController = EncryptionController.getInstance();
         KeyPair keyPair = encryptionController.generateKeyPair();
 
 

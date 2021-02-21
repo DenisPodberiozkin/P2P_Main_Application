@@ -8,8 +8,8 @@ import java.sql.Statement;
 
 public class Database {
     private static Database instance;
-    private final String jdbc = "jdbc:sqlite:";
-    private final String path = "src/main/resources/db/";
+    private final static String JDBC = "jdbc:sqlite:";
+    private final static String PATH = "src/main/resources/db/";
     private Connection connection;
 
     public static Database getInstance() {
@@ -27,8 +27,8 @@ public class Database {
      * @return Connection to the database
      */
     public Connection connect(String dbName) {
-        String fullPath = path + dbName + ".db";
-        String fullURL = jdbc + fullPath;
+        String fullPath = PATH + dbName + ".db";
+        String fullURL = JDBC + fullPath;
 //        Connection connection = null;
 
         try {
@@ -40,6 +40,7 @@ public class Database {
             if (isNew) {
                 initCreatedDB(dbName, connection);
             }
+            connection.setTransactionIsolation(Connection.TRANSACTION_SERIALIZABLE);
             return connection;
         } catch (SQLException e) {
             e.printStackTrace();
@@ -50,6 +51,7 @@ public class Database {
     public Connection getConnection() {
         return connection;
     }
+
 
     private void initCreatedDB(String dbName, Connection connection) throws SQLException {
 

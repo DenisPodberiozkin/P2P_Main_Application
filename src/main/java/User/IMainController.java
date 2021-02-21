@@ -1,9 +1,9 @@
 package User;
 
 public interface IMainController {
-    void createAccount(String password);
+    String createAccount(String password);
 
-    void loginToAccount();
+    void loginToAccount(String password, String secretPassword);
 
     void connectToRing();
 

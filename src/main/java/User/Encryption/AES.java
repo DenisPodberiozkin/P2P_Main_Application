@@ -18,7 +18,7 @@ import java.util.Base64;
 
 public class AES {
 
-
+    private static AES instance;
     private final static int SECRET_KEY_SIZE = 32; // 32 bytes = 256 bits
     private final static String SECRET_KEY_TYPE = "PBKDF2WithHmacSHA512"; // 512 bit hash
     private final static int PBE_ITERATIONS_COUNT = 65536;
@@ -28,7 +28,7 @@ public class AES {
     private final static int INITIALIZATION_VECTOR_SIZE = 12; // 12 bytes = 96 bit
     private final static int AUTHENTICATION_TAG_LENGTH = 16 * 8; // 128 bits
 
-    public String generateSecretPassword() throws NoSuchAlgorithmException {
+    public static String generateSecretPassword() throws NoSuchAlgorithmException {
         SecureRandom secureRandom = SecureRandom.getInstanceStrong();
         byte[] secretKeyBytes = new byte[SECRET_KEY_SIZE];
         secureRandom.nextBytes(secretKeyBytes);
@@ -36,7 +36,7 @@ public class AES {
     }
 
 
-    public SecretKey generateSecretKey(String password, String secretPassword) throws NoSuchAlgorithmException, InvalidKeySpecException {
+    public static SecretKey generateSecretKey(String password, String secretPassword) throws NoSuchAlgorithmException, InvalidKeySpecException {
         SecretKeyFactory secretKeyFactory = SecretKeyFactory.getInstance(SECRET_KEY_TYPE);
 
         KeySpec spec = new PBEKeySpec(password.toCharArray(), secretPassword.getBytes(), PBE_ITERATIONS_COUNT, KDF_HASH_SIZE);
@@ -47,8 +47,7 @@ public class AES {
 
     }
 
-    public byte[] encryptFile(SecretKey key, File file) throws NoSuchPaddingException, NoSuchAlgorithmException, InvalidAlgorithmParameterException, InvalidKeyException, BadPaddingException, IllegalBlockSizeException {
-
+    public static byte[] encryptFile(SecretKey key, byte[] fileData) throws NoSuchPaddingException, NoSuchAlgorithmException, InvalidAlgorithmParameterException, InvalidKeyException, BadPaddingException, IllegalBlockSizeException {
         Cipher cipher = Cipher.getInstance(CIPHER_TYPE);
         byte[] initializationVector = generateInitializationVector();
 
@@ -56,7 +55,6 @@ public class AES {
 
         cipher.init(Cipher.ENCRYPT_MODE, key, spec);
 
-        byte[] fileData = readFile(file);
         if (fileData != null) {
             byte[] encryptedData = cipher.doFinal(fileData);
             ByteBuffer byteBuffer = ByteBuffer.allocate(INITIALIZATION_VECTOR_SIZE + encryptedData.length);
@@ -66,13 +64,18 @@ public class AES {
         }
 
         return null;
+    }
 
+    public static byte[] encryptFile(SecretKey key, File file) throws NoSuchPaddingException, NoSuchAlgorithmException, InvalidAlgorithmParameterException, InvalidKeyException, BadPaddingException, IllegalBlockSizeException {
+        return encryptFile(key, readFile(file));
     }
 
 
-    public byte[] decryptFile(SecretKey secretKey, File file) throws NoSuchPaddingException, NoSuchAlgorithmException, InvalidKeyException, BadPaddingException, IllegalBlockSizeException, InvalidAlgorithmParameterException {
+    public static byte[] decryptFile(SecretKey secretKey, File file) throws NoSuchPaddingException, NoSuchAlgorithmException, InvalidKeyException, BadPaddingException, IllegalBlockSizeException, InvalidAlgorithmParameterException {
+        return decryptFile(secretKey, readFile(file));
+    }
 
-        byte[] fileData = readFile(file);
+    public static byte[] decryptFile(SecretKey secretKey, byte[] fileData) throws NoSuchPaddingException, NoSuchAlgorithmException, InvalidKeyException, BadPaddingException, IllegalBlockSizeException, InvalidAlgorithmParameterException {
         if (fileData != null) {
 
             ByteBuffer byteBuffer = ByteBuffer.wrap(fileData);
@@ -93,7 +96,8 @@ public class AES {
         return null;
     }
 
-    private byte[] readFile(File file) {
+
+    private static byte[] readFile(File file) {
         try (FileInputStream inputStream = new FileInputStream(file)) {
             byte[] fileData = new byte[(int) file.length()];
             int numberOfBytesRead = inputStream.read(fileData);
@@ -109,7 +113,7 @@ public class AES {
         return null;
     }
 
-    private byte[] generateInitializationVector() throws NoSuchAlgorithmException {
+    private static byte[] generateInitializationVector() throws NoSuchAlgorithmException {
         SecureRandom secureRandom = SecureRandom.getInstanceStrong();
         byte[] ivBytes = new byte[INITIALIZATION_VECTOR_SIZE];
         secureRandom.nextBytes(ivBytes);

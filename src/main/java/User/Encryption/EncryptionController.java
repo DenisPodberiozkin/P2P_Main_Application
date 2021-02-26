@@ -32,7 +32,7 @@ public class EncryptionController implements IEncryptionController {
 
     @Override
     public byte[] hash(byte[] bytes) {
-        return Hash.getInstance().hash(bytes);
+        return Hash.hash(bytes);
     }
 
     @Override

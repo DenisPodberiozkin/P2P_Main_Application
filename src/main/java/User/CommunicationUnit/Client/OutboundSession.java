@@ -26,7 +26,15 @@ public class OutboundSession implements Callable<String> {
     public String call() throws InterruptedException {
         writer.println(id + " " + message);
         latch.await();
-        return messageReply;
+        StringBuilder editedMessage = new StringBuilder();
+        String[] tokens = messageReply.split(" ");
+        for (int i = 1; i < tokens.length; i++) {
+            editedMessage.append(tokens[i]);
+            if (i != tokens.length - 1) {
+                editedMessage.append(" ");
+            }
+        }
+        return editedMessage.toString();
     }
 
 

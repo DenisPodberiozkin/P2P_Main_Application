@@ -1,5 +1,7 @@
 package User.CommunicationUnit.Client;
 
+import User.Encryption.Hash;
+
 import java.io.BufferedReader;
 import java.io.IOException;
 import java.io.InputStreamReader;
@@ -12,7 +14,7 @@ import java.util.concurrent.FutureTask;
 import java.util.concurrent.TimeUnit;
 
 public class OutboundConnection implements AutoCloseable {
-    private final static int MAX_THREAD = 160;
+    private final static int MAX_THREAD = Hash.getHashSize();
     private final String ip;
     private final int port;
     private final HashMap<Integer, OutboundSession> sessions;

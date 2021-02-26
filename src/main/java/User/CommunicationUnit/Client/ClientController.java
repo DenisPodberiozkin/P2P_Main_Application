@@ -1,5 +1,8 @@
 package User.CommunicationUnit.Client;
 
+import java.io.IOException;
+import java.util.concurrent.FutureTask;
+
 public class ClientController implements IClientController {
 
     private static ClientController instance;
@@ -17,23 +20,14 @@ public class ClientController implements IClientController {
     }
 
     @Override
-    public OutboundConnection connect(String ip, int port, boolean isSingle) {
-        return OutboundConnectionManager.getInstance().createConnection(ip, port, isSingle);
+    public OutboundConnection connect(String ip, int port) throws IOException {
+        return OutboundConnectionManager.getInstance().createConnection(ip, port);
     }
 
     @Override
-    public void sendMessage(OutboundConnection connection, String message) {
-        connection.sendMessage(message);
+    public FutureTask<String> sendMessage(OutboundConnection connection, String message) {
+        return connection.sendMessage(message);
     }
 
 
-    @Override
-    public void closeConnection(OutboundConnection connection) {
-        manager.closeConnection(connection);
-    }
-
-    @Override
-    public String getLastResponse(OutboundConnection connection) {
-        return manager.getLastResponse(connection);
-    }
 }

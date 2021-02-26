@@ -5,70 +5,90 @@ import java.io.IOException;
 import java.io.InputStreamReader;
 import java.io.PrintWriter;
 import java.net.Socket;
-import java.util.concurrent.ExecutionException;
+import java.util.HashMap;
+import java.util.concurrent.ExecutorService;
+import java.util.concurrent.Executors;
 import java.util.concurrent.FutureTask;
+import java.util.concurrent.TimeUnit;
 
-public class OutboundConnection {
+public class OutboundConnection implements AutoCloseable {
+    private final static int MAX_THREAD = 160;
     private final String ip;
     private final int port;
-    protected BufferedReader reader;
-    private PrintWriter writer;
+    private final HashMap<Integer, OutboundSession> sessions;
+    private final ExecutorService executor;
     private Socket socket;
-    private OutboundSession session;
-    private FutureTask<String> response;
+    private BufferedReader reader;
+    private PrintWriter writer;
+    private ClientReceiver receiver;
 
     public OutboundConnection(String ip, int port) {
         this.ip = ip;
         this.port = port;
+        this.sessions = new HashMap<>();
+        this.executor = Executors.newFixedThreadPool(MAX_THREAD);
     }
 
-    public void createConnection(boolean isSingle) throws IOException {
+    @Override
+    public void close() throws IOException {
+        closeConnection();
+    }
+
+    public void createConnection() throws IOException {
         socket = new Socket(ip, port);
         reader = new BufferedReader(new InputStreamReader(socket.getInputStream()));
         writer = new PrintWriter(socket.getOutputStream(), true);
-        if (isSingle) {
-            session = new OutboundSessionSingle(socket, reader);
-        } else {
-            session = new OutboundSession(socket, reader);
-        }
-        response = new FutureTask<>(session);
-        new Thread(response).start();
+        receiver = new ClientReceiver(reader, this);
+        new Thread(receiver).start();
 
 
     }
 
-    public void sendMessage(String message) {
-        System.out.println(message);
-        writer.println(message);
+    public FutureTask<String> sendMessage(String message) {
+        OutboundSession session = new OutboundSession(writer, message, this);
+        sessions.put(session.getId(), session);
+        return (FutureTask<String>) executor.submit(session);
+//        System.out.println(message);
+//        writer.println(message);
     }
 
     public void closeConnection() throws IOException {
+        executor.shutdown();
+        try {
+            if (!executor.awaitTermination(5000, TimeUnit.MILLISECONDS)) {
+                executor.shutdownNow();
+            }
+
+        } catch (InterruptedException e) {
+            executor.shutdownNow();
+        }
+
+        System.out.println("Close socket");
+        OutboundConnectionManager.getInstance().closeConnection(this);
+        if (receiver != null) {
+            receiver.stopReceiver();
+        }
+
         if (reader != null) {
             reader.close();
         }
         if (writer != null) {
             writer.close();
         }
+
         if (socket != null) {
             socket.close();
         }
 
     }
 
-    public OutboundSession getSession() {
-        return session;
+    public void closeSession(int id) {
+        System.out.println(id + " removed");
+        sessions.remove(id);
     }
 
-    public String getSingleResponse() {
-        try {
-            if (session instanceof OutboundSessionSingle) {
-                return response.get();
-            } else {
-                System.err.println("Session must be single");
-            }
-        } catch (InterruptedException | ExecutionException e) {
-            e.printStackTrace();
-        }
-        return "";
+    public OutboundSession getSession(int id) {
+        return sessions.get(id);
     }
+
 }

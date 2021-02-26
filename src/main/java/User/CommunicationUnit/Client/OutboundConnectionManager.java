@@ -18,33 +18,16 @@ public class OutboundConnectionManager {
         return instance;
     }
 
-    public OutboundConnection createConnection(String ip, int port, boolean isSingle) {
+    public OutboundConnection createConnection(String ip, int port) throws IOException {
         OutboundConnection connection = new OutboundConnection(ip, port);
-        try {
-            connection.createConnection(isSingle);
-            outboundConnections.add(connection);
-        } catch (IOException e) {
-            System.out.println("Could not connect to " + ip + ":" + port);
-            closeConnection(connection);
-            return null;
-
-        }
+        connection.createConnection();
+        outboundConnections.add(connection);
         return connection;
     }
 
 
     public void closeConnection(OutboundConnection outboundConnection) {
-        try {
-            outboundConnection.closeConnection();
-            outboundConnections.remove(outboundConnection);
-        } catch (IOException e) {
-            e.printStackTrace();
-        }
-
-
+        outboundConnections.remove(outboundConnection);
     }
 
-    public String getLastResponse(OutboundConnection connection) {
-        return connection.getSingleResponse();
-    }
 }

@@ -1,12 +1,12 @@
 package User.CommunicationUnit.Client;
 
+import java.io.IOException;
+import java.util.concurrent.FutureTask;
+
 public interface IClientController {
 
-    OutboundConnection connect(String ip, int port, boolean isSingle);
+    OutboundConnection connect(String ip, int port) throws IOException;
 
-    void sendMessage(OutboundConnection connection, String message);
+    FutureTask<String> sendMessage(OutboundConnection connection, String message);
 
-    void closeConnection(OutboundConnection connection);
-
-    String getLastResponse(OutboundConnection connection);
 }

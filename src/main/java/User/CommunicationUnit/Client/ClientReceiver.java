@@ -1,14 +1,15 @@
 package User.CommunicationUnit.Client;
 
-import java.io.BufferedReader;
+import User.CommunicationUnit.MessageReader;
+
 import java.io.IOException;
 
 public class ClientReceiver implements Runnable {
-    private final BufferedReader reader;
+    private final MessageReader reader;
     private final OutboundConnection connection;
     private boolean isRunning;
 
-    public ClientReceiver(BufferedReader reader, OutboundConnection connection) {
+    public ClientReceiver(MessageReader reader, OutboundConnection connection) {
         this.reader = reader;
         this.connection = connection;
         this.isRunning = true;

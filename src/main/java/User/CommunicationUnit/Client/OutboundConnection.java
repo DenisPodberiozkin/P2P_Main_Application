@@ -1,8 +1,8 @@
 package User.CommunicationUnit.Client;
 
+import User.CommunicationUnit.MessageReader;
 import User.Encryption.Hash;
 
-import java.io.BufferedReader;
 import java.io.IOException;
 import java.io.InputStreamReader;
 import java.io.PrintWriter;
@@ -20,7 +20,7 @@ public class OutboundConnection implements AutoCloseable {
     private final HashMap<Integer, OutboundSession> sessions;
     private final ExecutorService executor;
     private Socket socket;
-    private BufferedReader reader;
+    private MessageReader reader;
     private PrintWriter writer;
     private ClientReceiver receiver;
 
@@ -38,7 +38,7 @@ public class OutboundConnection implements AutoCloseable {
 
     public void createConnection() throws IOException {
         socket = new Socket(ip, port);
-        reader = new BufferedReader(new InputStreamReader(socket.getInputStream()));
+        reader = new MessageReader(new InputStreamReader(socket.getInputStream()));
         writer = new PrintWriter(socket.getOutputStream(), true);
         receiver = new ClientReceiver(reader, this);
         new Thread(receiver).start();

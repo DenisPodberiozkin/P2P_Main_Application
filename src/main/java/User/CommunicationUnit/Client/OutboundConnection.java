@@ -12,8 +12,10 @@ import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 import java.util.concurrent.FutureTask;
 import java.util.concurrent.TimeUnit;
+import java.util.logging.Logger;
 
 public class OutboundConnection implements AutoCloseable {
+    private static final Logger LOGGER = Logger.getLogger(OutboundConnection.class.getName());
     private final static int MAX_THREAD = Hash.getHashSize();
     private final String ip;
     private final int port;
@@ -42,19 +44,20 @@ public class OutboundConnection implements AutoCloseable {
         writer = new SynchronisedWriter(socket.getOutputStream(), true);
         receiver = new ClientReceiver(reader, this);
         new Thread(receiver).start();
+        LOGGER.info("Established connection to " + ip + ":" + port);
 
 
     }
 
     public FutureTask<String> sendMessage(String message) {
         OutboundSession session = new OutboundSession(writer, message, this);
+        LOGGER.info("Session " + session.getId() + " is created to send message: " + message);
         sessions.put(session.getId(), session);
         return (FutureTask<String>) executor.submit(session);
-//        System.out.println(message);
-//        writer.println(message);
     }
 
     public void closeConnection() throws IOException {
+        LOGGER.info("Disconnecting from " + ip + ":" + port);
         executor.shutdown();
         try {
             if (!executor.awaitTermination(5000, TimeUnit.MILLISECONDS)) {
@@ -65,7 +68,6 @@ public class OutboundConnection implements AutoCloseable {
             executor.shutdownNow();
         }
 
-        System.out.println("Close socket");
         OutboundConnectionManager.getInstance().closeConnection(this);
         if (receiver != null) {
             receiver.stopReceiver();
@@ -85,7 +87,7 @@ public class OutboundConnection implements AutoCloseable {
     }
 
     public void closeSession(int id) {
-        System.out.println(id + " removed");
+        LOGGER.info("Session " + id + " is removed");
         sessions.remove(id);
     }
 
@@ -93,4 +95,11 @@ public class OutboundConnection implements AutoCloseable {
         return sessions.get(id);
     }
 
+    public String getIp() {
+        return ip;
+    }
+
+    public int getPort() {
+        return port;
+    }
 }

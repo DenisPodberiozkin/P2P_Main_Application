@@ -3,8 +3,10 @@ package User.CommunicationUnit.Client;
 import User.CommunicationUnit.MessageReader;
 
 import java.io.IOException;
+import java.util.logging.Logger;
 
 public class ClientReceiver implements Runnable {
+    private static final Logger LOGGER = Logger.getLogger(ClientReceiver.class.getName());
     private final MessageReader reader;
     private final OutboundConnection connection;
     private boolean isRunning;
@@ -20,17 +22,25 @@ public class ClientReceiver implements Runnable {
         try {
             while (isRunning) {
                 String message = reader.readLine();
-                System.out.println(message + " received");
+                LOGGER.info("Message " + message + " was received from " + connection.getIp() + ":" + connection.getPort());
                 String[] tokens = message.split(" ");
                 int sessionID = Integer.parseInt(tokens[0]);
                 OutboundSession session = connection.getSession(sessionID);
                 if (session != null) {
+                    LOGGER.info("Sending message to Outbound session " + sessionID);
                     session.notifyReply(message);
                 }
 
             }
         } catch (IOException e) {
-            e.printStackTrace();
+            LOGGER.warning("Connection was closed by host. Reason: " + e.toString());
+        } finally {
+            try {
+                connection.closeConnection();
+            } catch (IOException e) {
+                LOGGER.severe("Error while closing connection");
+                e.printStackTrace();
+            }
         }
     }
 

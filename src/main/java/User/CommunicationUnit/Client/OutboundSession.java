@@ -4,9 +4,10 @@ import User.CommunicationUnit.SynchronisedWriter;
 
 import java.util.concurrent.Callable;
 import java.util.concurrent.CountDownLatch;
+import java.util.logging.Logger;
 
 public class OutboundSession implements Callable<String> {
-
+    private static final Logger LOGGER = Logger.getLogger(OutboundSession.class.getName());
     private static int ID = 0;
     private final SynchronisedWriter writer;
     private final String message;
@@ -25,22 +26,28 @@ public class OutboundSession implements Callable<String> {
 
     @Override
     public String call() throws InterruptedException {
-        writer.sendReply(id, message);
-        latch.await();
-        StringBuilder editedMessage = new StringBuilder();
-        String[] tokens = messageReply.split(" ");
-        for (int i = 1; i < tokens.length; i++) {
-            editedMessage.append(tokens[i]);
-            if (i != tokens.length - 1) {
-                editedMessage.append(" ");
+        LOGGER.info("Sending message " + message + " to " + connection.getIp() + ":" + connection.getPort() + " from session " + id);
+
+        try {
+            writer.sendMessage(id, message);
+            latch.await();
+            LOGGER.info("Session " + id + " received reply " + messageReply + " form receiver");
+            StringBuilder editedMessage = new StringBuilder();
+            String[] tokens = messageReply.split(" ");
+            for (int i = 1; i < tokens.length; i++) {
+                editedMessage.append(tokens[i]);
+                if (i != tokens.length - 1) {
+                    editedMessage.append(" ");
+                }
             }
+            return editedMessage.toString();
+        } finally {
+            connection.closeSession(this.id);
         }
-        return editedMessage.toString();
     }
 
 
     public void notifyReply(String message) {
-        connection.closeSession(this.id);
         this.messageReply = message;
         latch.countDown();
     }

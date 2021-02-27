@@ -1,20 +1,21 @@
 package User.CommunicationUnit.Client;
 
-import java.io.PrintWriter;
+import User.CommunicationUnit.SynchronisedWriter;
+
 import java.util.concurrent.Callable;
 import java.util.concurrent.CountDownLatch;
 
 public class OutboundSession implements Callable<String> {
 
     private static int ID = 0;
-    private final PrintWriter writer;
+    private final SynchronisedWriter writer;
     private final String message;
     private final int id;
     private final CountDownLatch latch;
     private final OutboundConnection connection;
     private String messageReply = "";
 
-    public OutboundSession(PrintWriter writer, String message, OutboundConnection connection) {
+    public OutboundSession(SynchronisedWriter writer, String message, OutboundConnection connection) {
         this.writer = writer;
         this.message = message;
         this.connection = connection;
@@ -24,7 +25,7 @@ public class OutboundSession implements Callable<String> {
 
     @Override
     public String call() throws InterruptedException {
-        writer.println(id + " " + message);
+        writer.sendReply(id, message);
         latch.await();
         StringBuilder editedMessage = new StringBuilder();
         String[] tokens = messageReply.split(" ");

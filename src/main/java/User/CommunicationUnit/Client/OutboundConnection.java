@@ -1,11 +1,11 @@
 package User.CommunicationUnit.Client;
 
 import User.CommunicationUnit.MessageReader;
+import User.CommunicationUnit.SynchronisedWriter;
 import User.Encryption.Hash;
 
 import java.io.IOException;
 import java.io.InputStreamReader;
-import java.io.PrintWriter;
 import java.net.Socket;
 import java.util.HashMap;
 import java.util.concurrent.ExecutorService;
@@ -21,7 +21,7 @@ public class OutboundConnection implements AutoCloseable {
     private final ExecutorService executor;
     private Socket socket;
     private MessageReader reader;
-    private PrintWriter writer;
+    private SynchronisedWriter writer;
     private ClientReceiver receiver;
 
     public OutboundConnection(String ip, int port) {
@@ -39,7 +39,7 @@ public class OutboundConnection implements AutoCloseable {
     public void createConnection() throws IOException {
         socket = new Socket(ip, port);
         reader = new MessageReader(new InputStreamReader(socket.getInputStream()));
-        writer = new PrintWriter(socket.getOutputStream(), true);
+        writer = new SynchronisedWriter(socket.getOutputStream(), true);
         receiver = new ClientReceiver(reader, this);
         new Thread(receiver).start();
 

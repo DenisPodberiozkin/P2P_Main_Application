@@ -10,4 +10,9 @@ public class ServerController implements IServerController {
         return instance;
     }
 
+    @Override
+    public void startServer(int port) {
+        Server server = new Server(port);
+        new Thread(server).start();
+    }
 }

@@ -1,6 +1,7 @@
 package User.NodeManager;
 
 import User.ConnectionsData;
+import User.Encryption.EncryptionController;
 
 import java.io.BufferedReader;
 import java.io.IOException;
@@ -11,12 +12,15 @@ import java.net.URL;
 import java.security.KeyPair;
 import java.security.PrivateKey;
 import java.security.PublicKey;
+import java.util.Collections;
+import java.util.Comparator;
 import java.util.SortedMap;
+import java.util.TreeMap;
 
 public class User extends Node {
     private Node predecessor;
     private Node successor;
-    private SortedMap<String, Node> nodes;
+    private final SortedMap<String, Node> nodes = Collections.synchronizedSortedMap(new TreeMap<String, Node>(Comparator.naturalOrder()));
     private PrivateKey privateKey;
     private static User instance;
 
@@ -26,7 +30,13 @@ public class User extends Node {
     }
 
     public User(PublicKey publicKey) {
-        super(publicKey, ConnectionsData.USER_SERVER_PORT);
+        super(publicKey, ConnectionsData.getUserServerPort());
+        initialiseIP();
+        User.instance = this;
+    }
+
+    public User() {
+        super(EncryptionController.getInstance().generateKeyPair().getPublic(), ConnectionsData.getUserServerPort());
         initialiseIP();
         User.instance = this;
     }

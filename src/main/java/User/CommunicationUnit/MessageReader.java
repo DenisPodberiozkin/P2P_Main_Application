@@ -16,7 +16,9 @@ public class MessageReader extends BufferedReader {
     public String readLine() throws IOException {
         String line = super.readLine();
         //TODO decryption
-        LOGGER.info("Message " + line + " was received");
+        if (line != null) {
+            LOGGER.info("Message " + line + " was received");
+        }
         return line;
     }
 }

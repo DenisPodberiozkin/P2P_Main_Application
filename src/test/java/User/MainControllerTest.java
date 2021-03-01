@@ -21,4 +21,6 @@ class MainControllerTest {
         final String secretPassword = "m/4HibxszkM9XyYLrffCt1UKntC3qDEF7YsmO01tm38=";
         mainController.loginToAccount(password, secretPassword);
     }
+
+
 }

@@ -1,7 +1,7 @@
 package User.CommunicationUnit.Server;
 
 public enum InboundTokens {
-    HAS_NEIGHBOURS("HN"), PING("PING");
+    HAS_NEIGHBOURS("HN"), PING("PING"), FIND("FIND");
 
     private final String token;
 

@@ -20,18 +20,21 @@ public class OutboundSession implements Callable<String> {
         this.writer = writer;
         this.message = message;
         this.connection = connection;
-        this.id = ID++;
+        this.id = initId();
         this.latch = new CountDownLatch(1);
     }
 
-    @Override
-    public String call() throws InterruptedException {
-        LOGGER.info("Sending message " + message + " to " + connection.getIp() + ":" + connection.getPort() + " from session " + id);
+    private static synchronized int initId() {
+        return ID++;
+    }
 
+    @Override
+    public String call() throws InterruptedException, IllegalArgumentException {
+        LOGGER.info("Sending message " + message + " to " + connection.getIp() + ":" + connection.getPort() + " from session " + id);
         try {
             writer.sendMessage(id, message);
             latch.await();
-            LOGGER.info("Session " + id + " received reply " + messageReply + " form receiver");
+            LOGGER.info("Outbound Session " + id + " received reply " + messageReply + " form receiver");
             StringBuilder editedMessage = new StringBuilder();
             String[] tokens = messageReply.split(" ");
             for (int i = 1; i < tokens.length; i++) {
@@ -40,7 +43,13 @@ public class OutboundSession implements Callable<String> {
                     editedMessage.append(" ");
                 }
             }
-            return editedMessage.toString();
+
+            final String reply = editedMessage.toString();
+            if (reply.contains("ERROR")) {
+                LOGGER.warning("Outbound Session " + id + " received " + messageReply + " in response to message: " + message + " sent to " + connection.getIp() + ":" + connection.getPort());
+                throw new IllegalArgumentException("REQUEST ERROR");
+            }
+            return reply;
         } finally {
             connection.closeSession(this.id);
         }
@@ -55,4 +64,6 @@ public class OutboundSession implements Callable<String> {
     public int getId() {
         return id;
     }
+
+
 }

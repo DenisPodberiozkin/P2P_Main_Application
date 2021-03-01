@@ -22,25 +22,33 @@ public class ClientReceiver implements Runnable {
         try {
             while (isRunning) {
                 String message = reader.readLine();
-                LOGGER.info("Message " + message + " was received from " + connection.getIp() + ":" + connection.getPort());
-                String[] tokens = message.split(" ");
-                int sessionID = Integer.parseInt(tokens[0]);
-                OutboundSession session = connection.getSession(sessionID);
-                if (session != null) {
-                    LOGGER.info("Sending message to Outbound session " + sessionID);
-                    session.notifyReply(message);
+                if (message != null) {
+                    LOGGER.info("Message " + message + " was received from " + connection.getIp() + ":" + connection.getPort());
+                    String[] tokens = message.split(" ");
+                    int sessionID = Integer.parseInt(tokens[0]);
+                    OutboundSession session = connection.getSession(sessionID);
+                    if (session != null) {
+                        LOGGER.info("Sending message to Outbound session " + sessionID);
+                        session.notifyReply(message);
+                    }
+                } else {
+                    throw new IOException("Received null");
                 }
 
+
             }
+
         } catch (IOException e) {
-            LOGGER.warning("Connection was closed by host. Reason: " + e.toString());
-        } finally {
-            try {
-                connection.closeConnection();
-            } catch (IOException e) {
-                LOGGER.severe("Error while closing connection");
-                e.printStackTrace();
+            if (!e.getMessage().equals("Socket closed")) {
+                LOGGER.warning("Connection was closed by host. Reason: " + e.toString());
+                try {
+                    connection.closeConnection();
+                } catch (IOException ioException) {
+                    LOGGER.severe("Error while closing connection");
+                    ioException.printStackTrace();
+                }
             }
+
         }
     }
 

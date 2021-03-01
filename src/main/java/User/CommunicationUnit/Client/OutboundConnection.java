@@ -25,6 +25,7 @@ public class OutboundConnection implements AutoCloseable {
     private MessageReader reader;
     private SynchronisedWriter writer;
     private ClientReceiver receiver;
+    private HeartBeatSender heartBeatSender;
 
     public OutboundConnection(String ip, int port) {
         this.ip = ip;
@@ -43,7 +44,13 @@ public class OutboundConnection implements AutoCloseable {
         reader = new MessageReader(new InputStreamReader(socket.getInputStream()));
         writer = new SynchronisedWriter(socket.getOutputStream(), true);
         receiver = new ClientReceiver(reader, this);
-        new Thread(receiver).start();
+        heartBeatSender = new HeartBeatSender(this);
+        Thread receiverThread = new Thread(receiver);
+        receiverThread.setName("Outbound Receiver");
+        receiverThread.start();
+        Thread heartBeatSenderThread = new Thread(heartBeatSender);
+        heartBeatSenderThread.setName("Outbound Heart Beat Sender");
+        heartBeatSenderThread.start();
         LOGGER.info("Established connection to " + ip + ":" + port);
 
 
@@ -51,13 +58,17 @@ public class OutboundConnection implements AutoCloseable {
 
     public FutureTask<String> sendMessage(String message) {
         OutboundSession session = new OutboundSession(writer, message, this);
-        LOGGER.info("Session " + session.getId() + " is created to send message: " + message);
+        LOGGER.info("Outbound Session " + session.getId() + " is created to send message: " + message);
         sessions.put(session.getId(), session);
         return (FutureTask<String>) executor.submit(session);
     }
 
     public void closeConnection() throws IOException {
-        LOGGER.info("Disconnecting from " + ip + ":" + port);
+
+        if (heartBeatSender != null) {
+            heartBeatSender.stopHeartBeat();
+        }
+
         executor.shutdown();
         try {
             if (!executor.awaitTermination(5000, TimeUnit.MILLISECONDS)) {
@@ -67,10 +78,14 @@ public class OutboundConnection implements AutoCloseable {
         } catch (InterruptedException e) {
             executor.shutdownNow();
         }
-
         OutboundConnectionManager.getInstance().closeConnection(this);
+
         if (receiver != null) {
             receiver.stopReceiver();
+        }
+
+        if (socket != null) {
+            socket.close();
         }
 
         if (reader != null) {
@@ -80,14 +95,11 @@ public class OutboundConnection implements AutoCloseable {
             writer.close();
         }
 
-        if (socket != null) {
-            socket.close();
-        }
-
+        LOGGER.info("Disconnected from " + ip + ":" + port);
     }
 
     public void closeSession(int id) {
-        LOGGER.info("Session " + id + " is removed");
+        LOGGER.info("Outbound Session " + id + " is removed");
         sessions.remove(id);
     }
 

@@ -4,13 +4,13 @@ import User.CommunicationUnit.Client.ClientController;
 import User.CommunicationUnit.Client.IClientController;
 import User.CommunicationUnit.Client.OutboundConnection;
 import User.CommunicationUnit.Server.IServerController;
-import User.CommunicationUnit.Server.InboundTokens;
 import User.CommunicationUnit.Server.ServerController;
 import User.Database.DAO.UserDAO;
 import User.Database.DataBaseController;
 import User.Database.IDataBaseController;
 import User.Encryption.EncryptionController;
 import User.Encryption.IEncryptionController;
+import User.NodeManager.Node;
 import User.NodeManager.User;
 
 import javax.crypto.SecretKey;
@@ -30,6 +30,7 @@ public class MainController implements IMainController {
     private final IEncryptionController encryptionController = EncryptionController.getInstance();
     private final IServerController serverController = ServerController.getInstance();
 
+
     public MainController() {
         this.clientController = ClientController.getInstance();
     }
@@ -41,7 +42,6 @@ public class MainController implements IMainController {
         }
         return instance;
     }
-
 
     @Override
     public String createAccount(String password) {
@@ -85,51 +85,45 @@ public class MainController implements IMainController {
 
     @Override
     public void connectToRing() {
-
+        User user = new User(); //TODO delete later
         System.out.println("Inside");
         try (OutboundConnection serverConnection = clientController.connect(ConnectionsData.getLocalServerIp(), ConnectionsData.getLocalServerPort())) {
-            String lastResponse = clientController.sendMessage(serverConnection, "GETLN").get();
-
-
-            String[] tokens = lastResponse.split(" ");
 
 //                User user = User.getInstance(); //TODO uncomment later
-            User user = new User();
-
+            Node lastConnectedNode = clientController.getLastConnectedNode(serverConnection);
             if (user != null) {
-                if (tokens[0].equals("LN")) {
-                    if (!tokens[1].equalsIgnoreCase("null")) {
-                        final String lastNodeLocalIp = tokens[1];
-                        final String lastNodePublicIp = tokens[2];
-                        final int lastNodePort = Integer.parseInt(tokens[4]);
-
-                        try (OutboundConnection lastNodeConnection = clientController.connect(lastNodeLocalIp, lastNodePort)) {
-                            String lastNodeResponse = lastNodeConnection.sendMessage(InboundTokens.HAS_NEIGHBOURS.getToken()).get();
-                            //TODO continues joining
+                if (lastConnectedNode != null) {
+                    try {
+                        lastConnectedNode.connectToNode(false);
+                        if (lastConnectedNode.hasNeighbours()) {
+                            Node successorNode = Node.getNodeFromJSONSting(lastConnectedNode.lookUp(user.getId()).get());
+                            lastConnectedNode.closeConnection();
+                            user.join(successorNode);
+                        } else {
+                            user.join(lastConnectedNode);
                         }
-
+                    } catch (InterruptedException | ExecutionException interruptedException) {
+                        interruptedException.printStackTrace();
+                        LOGGER.warning("Unable to receive reply from FIND message session. Reason: " + interruptedException.toString());
                     }
-                    clientController.sendMessage(serverConnection, "SETLN " + user.getIp() + " " + user.getPublicIp() +
-                            " " + user.getId() + " " + user.getPort());
+                } else {
+                    user.join();
+                }
+            } else {
+                LOGGER.warning("User undefined");
+            }
+            clientController.sendLastNodeToServer(serverConnection, user);
 //
 //
 //                //TODO start checks
 //
 //                System.out.println(lastResponse);
-                } else {
-                    System.err.println("Could not connect to Local Server ");
-                }
-            } else {
-                LOGGER.warning("User undefined");
-            }
 
 
-        } catch (IOException e) {
-            LOGGER.warning("Unable to create connection. Reason: " + e.toString());
-        } catch (ExecutionException | InterruptedException e) {
-            LOGGER.warning("Unable to receive reply form message session. Reason: " + e.toString());
+        } catch (IOException ioException) {
+            ioException.printStackTrace();
         }
-
-
     }
+
+
 }

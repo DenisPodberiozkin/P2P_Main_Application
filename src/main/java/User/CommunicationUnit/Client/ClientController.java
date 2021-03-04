@@ -1,10 +1,20 @@
 package User.CommunicationUnit.Client;
 
+import User.CommunicationUnit.Server.InboundTokens;
+import User.NodeManager.Node;
+
 import java.io.IOException;
+import java.util.Arrays;
+import java.util.LinkedList;
+import java.util.Objects;
+import java.util.concurrent.ExecutionException;
 import java.util.concurrent.FutureTask;
+import java.util.concurrent.RejectedExecutionException;
+import java.util.logging.Logger;
 
 public class ClientController implements IClientController {
 
+    private static final Logger LOGGER = Logger.getLogger(ClientController.class.getName());
     private static ClientController instance;
     private final OutboundConnectionManager manager;
 
@@ -25,9 +35,117 @@ public class ClientController implements IClientController {
     }
 
     @Override
-    public FutureTask<String> sendMessage(OutboundConnection connection, String message) {
+    public OutboundConnection connect(String ip, int port, Node assignedNode) throws IOException {
+        return OutboundConnectionManager.getInstance().createConnection(ip, port, assignedNode);
+    }
+
+    private FutureTask<String> sendMessage(OutboundConnection connection, String message) {
         return connection.sendMessage(message);
     }
 
+    private String[] verifyAndCleanTokens(String message, String token) {
+        String[] tokens = message.split(" ");
+        if (tokens.length > 1) {
+            if (tokens[0].equals(token)) {
+                return Arrays.stream(tokens, 1, tokens.length).toArray(String[]::new);
+            }
+            LOGGER.warning("Illegal token - " + tokens[0] + " Expected - " + token);
+            return null;
+        } else {
+            return new String[0];
+        }
 
+    }
+
+
+    @Override
+    public Node getLastConnectedNode(OutboundConnection connection) {
+        try {
+            String token = OutboundTokens.GET_LAST_NODE.getToken();
+            String reply = sendMessage(connection, token).get();
+            String lastConnectedNodeJSON = Objects.requireNonNull(verifyAndCleanTokens(reply, "LN"))[0];
+            if (lastConnectedNodeJSON != null) {
+                return Node.getNodeFromJSONSting(lastConnectedNodeJSON);
+            }
+        } catch (InterruptedException | ExecutionException e) {
+            LOGGER.warning("Unable to receive reply from GETLN message session. Reason: " + e.toString());
+        }
+
+        return null;
+    }
+
+    @Override
+    public boolean hasNeighbours(OutboundConnection connection) {
+        try {
+            String token = InboundTokens.HAS_NEIGHBOURS.getToken();
+            String reply = sendMessage(connection, token).get();
+            int result = Integer.parseInt(Objects.requireNonNull(verifyAndCleanTokens(reply, token))[0]);
+            return result == 1;
+        } catch (InterruptedException | ExecutionException e) {
+            LOGGER.warning("Unable to receive reply from HN message session. Reason: " + e.toString());
+
+        }
+        return false;
+    }
+
+    @Override
+    public FutureTask<String> lookUp(OutboundConnection connection, String id) {
+        String token = InboundTokens.FIND.getToken();
+        String message = token + " " + id;
+        return sendMessage(connection, message);
+    }
+
+    @Override
+    public void sendLastNodeToServer(OutboundConnection connection, Node node) {
+        String token = OutboundTokens.SET_LAST_NODE.getToken();
+        String message = token + " " + node.getJSONString();
+        sendMessage(connection, message);
+    }
+
+    @Override
+    public void sendNotificationAboutNewPredecessor(OutboundConnection connection, Node node) {
+        final String token = InboundTokens.NEW_PREDECESSOR_NOTIFICATION.getToken();
+        final String message = token + " " + node.getJSONString();
+        sendMessage(connection, message);
+    }
+
+    @Override
+    public Node getPredecessor(OutboundConnection connection) throws RejectedExecutionException {
+        try {
+            String token = InboundTokens.GET_PREDECESSOR.getToken();
+            String reply = sendMessage(connection, token).get();
+            String predecessorJSON = Objects.requireNonNull(verifyAndCleanTokens(reply, token))[0];
+            return Node.getNodeFromJSONSting(predecessorJSON);
+        } catch (InterruptedException | ExecutionException e) {
+            LOGGER.warning("Unable to receive reply from GET PREDECESSOR message session. Reason: " + e.toString());
+        } catch (RejectedExecutionException e) {
+            LOGGER.warning("Connection is closed!");
+            throw new RejectedExecutionException();
+        }
+
+        return null;
+
+    }
+
+    @Override
+    public LinkedList<Node> getSuccessorsList(OutboundConnection connection) {
+        try {
+            final String token = InboundTokens.GET_SUCCESSORS_LIST.getToken();
+            String reply = sendMessage(connection, token).get();
+            String[] tokens = verifyAndCleanTokens(reply, token);
+            LinkedList<Node> successorsList = new LinkedList<>();
+            if (tokens != null) {
+                if (tokens.length > 0) {
+                    for (String jsonNode : tokens) {
+                        successorsList.add(Node.getNodeFromJSONSting(jsonNode));
+                    }
+                    return successorsList;
+                }
+            }
+        } catch (InterruptedException | ExecutionException e) {
+            LOGGER.warning("Unable to receive reply from GET SUCCESSORS LIST message session. Reason: " + e.toString());
+        }
+
+        return null;
+    }
 }

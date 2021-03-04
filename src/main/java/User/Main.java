@@ -2,6 +2,10 @@ package User;
 
 import User.CommunicationUnit.Server.ServerController;
 import javafx.application.Application;
+import javafx.application.Platform;
+import javafx.fxml.FXMLLoader;
+import javafx.scene.Parent;
+import javafx.scene.Scene;
 import javafx.stage.Stage;
 
 import java.security.Security;
@@ -21,19 +25,15 @@ public class Main extends Application {
 
     @Override
     public void start(Stage primaryStage) throws Exception {
-//        Parent root = FXMLLoader.load(getClass().getResource("../fxml/User.fxml"));
-//        primaryStage.setTitle("Hello World");
-//        primaryStage.setScene(new Scene(root, 300, 275));
-//        primaryStage.show();
+        Platform.setImplicitExit(true);
+        Parent root = FXMLLoader.load(getClass().getResource("../fxml/Test.fxml"));
+        primaryStage.setTitle("Hello World");
+        primaryStage.setScene(new Scene(root));
+        primaryStage.show();
 
 
-//        Thread t = new Thread();
-//
-//        Socket socket = new Socket("localhost", 4444);
-//        PrintWriter writer = new PrintWriter(socket.getOutputStream(), true);
-//        writer.println("GETLN");
         Security.setProperty("crypto.policy", "unlimited");
-        Runtime.getRuntime().addShutdownHook(new Thread(() -> System.out.println("Before closing")));
+//        Runtime.getRuntime().addShutdownHook(new Thread(() -> System.out.println("Before closing")));
 
 
         final MainController mainController = MainController.getInstance();

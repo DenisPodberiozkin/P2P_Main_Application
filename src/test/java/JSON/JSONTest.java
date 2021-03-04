@@ -1,16 +1,13 @@
 package JSON;
 
-import User.Encryption.EncryptionController;
 import User.JSON.NodeDeserializer;
 import User.JSON.NodeSerializer;
 import User.NodeManager.Node;
+import User.NodeManager.User;
 import com.fasterxml.jackson.core.Version;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.module.SimpleModule;
 import org.junit.jupiter.api.Test;
-
-import java.io.File;
-import java.io.IOException;
 
 public class JSONTest {
 
@@ -21,26 +18,66 @@ public class JSONTest {
         module.addSerializer(Node.class, new NodeSerializer());
         module.addDeserializer(Node.class, new NodeDeserializer());
         objectMapper.registerModule(module);
-        Node node = new Node(EncryptionController.getInstance().generateKeyPair().getPublic(), 4444);
-        node.setIp("123.123.123.123");
-        node.setPublicIp("456.456.456.456");
-        final String path = "src/main/resources/JSON/node.json";
+//        Node node = new Node(EncryptionController.getInstance().generateKeyPair().getPublic(), 4444);
+//        node.setIp("123.123.123.123");
+//        node.setPublicIp("456.456.456.456");
 
-        try {
-            objectMapper.writeValue(new File(path), node);
-            System.out.println(objectMapper.writeValueAsString(node));
-        } catch (IOException ioException) {
-            ioException.printStackTrace();
+        User user = new User();
+        final String path = "src/main/resources/JSON/node.json";
+        System.out.println(user.getJSONString());
+//        try {
+//            objectMapper.writeValue(new File(path), user);
+//            System.out.println(objectMapper.writeValueAsString(user));
+//        } catch (IOException ioException) {
+//            ioException.printStackTrace();
+//        }
+
+//        File jsonFile = new File(path);
+//        try {
+//            Node n = objectMapper.readValue(jsonFile, Node.class);
+//            System.out.println(n.toString());
+//        } catch (IOException e) {
+//            e.printStackTrace();
+//        }
+
+
+    }
+
+    @Test
+    public void threadTest() {
+        class Test {
+            private int a = 5;
+
+            public int getA() {
+                return a;
+            }
+
+            public synchronized void setA(int a) {
+
+                this.a = a;
+                try {
+                    Thread.sleep(10000);
+                } catch (InterruptedException e) {
+                    e.printStackTrace();
+                }
+            }
         }
 
-        File jsonFile = new File(path);
+        Test test = new Test();
         try {
-            Node n = objectMapper.readValue(jsonFile, Node.class);
-            System.out.println(n.toString());
-        } catch (IOException e) {
+            Thread t1 = new Thread(() -> test.setA(6));
+            t1.start();
+            Thread.sleep(1000);
+        } catch (InterruptedException e) {
             e.printStackTrace();
         }
-
+        Thread t2 = new Thread(() -> System.out.println(test.getA()));
+        t2.start();
+        try {
+            Thread.sleep(Long.MAX_VALUE);
+        } catch (InterruptedException e) {
+            e.printStackTrace();
+        }
 
     }
 

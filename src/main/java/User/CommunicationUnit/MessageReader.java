@@ -17,7 +17,7 @@ public class MessageReader extends BufferedReader {
         String line = super.readLine();
         //TODO decryption
         if (line != null) {
-            LOGGER.info("Message " + line + " was received");
+            LOGGER.config("Message " + line + " was received");
         }
         return line;
     }

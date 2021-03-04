@@ -1,5 +1,6 @@
 package User.CommunicationUnit.Client;
 
+import User.CommunicationUnit.Server.InboundTokens;
 import User.CommunicationUnit.SynchronisedWriter;
 
 import java.util.concurrent.Callable;
@@ -22,6 +23,13 @@ public class OutboundSession implements Callable<String> {
         this.connection = connection;
         this.id = initId();
         this.latch = new CountDownLatch(1);
+        if (message.contains(InboundTokens.PING.getToken())) {
+            LOGGER.config("Outbound Session " + this.id + " is created to send message: " + this.message + " from connection " + connection.toString() + " to " + this.connection.getIp() + ":" + this.connection.getPort());
+
+        } else {
+            LOGGER.info("Outbound Session " + this.id + " is created to send message: " + this.message + " from connection " + connection.toString() + " to " + this.connection.getIp() + ":" + this.connection.getPort());
+        }
+
     }
 
     private static synchronized int initId() {
@@ -30,11 +38,25 @@ public class OutboundSession implements Callable<String> {
 
     @Override
     public String call() throws InterruptedException, IllegalArgumentException {
-        LOGGER.info("Sending message " + message + " to " + connection.getIp() + ":" + connection.getPort() + " from session " + id);
+
+        if (message.equals(InboundTokens.PING.getToken())) {
+            LOGGER.fine("Sending message " + message + " to " + connection.getIp() + ":" + connection.getPort() + " from session " + id);
+        } else {
+            LOGGER.config("Sending message " + message + " to " + connection.getIp() + ":" + connection.getPort() + " from session " + id);
+        }
+
+
         try {
             writer.sendMessage(id, message);
             latch.await();
-            LOGGER.info("Outbound Session " + id + " received reply " + messageReply + " form receiver");
+
+            if (message.contains(InboundTokens.PING.getToken())) {
+                LOGGER.config("Outbound Session " + id + " received reply " + messageReply + " from" + connection.getIp() + ":" + connection.getPort());
+            } else {
+                LOGGER.info("Outbound Session " + id + " received reply " + messageReply + " from" + connection.getIp() + ":" + connection.getPort());
+            }
+
+
             StringBuilder editedMessage = new StringBuilder();
             String[] tokens = messageReply.split(" ");
             for (int i = 1; i < tokens.length; i++) {
@@ -65,5 +87,7 @@ public class OutboundSession implements Callable<String> {
         return id;
     }
 
-
+    public String getMessage() {
+        return message;
+    }
 }

@@ -21,6 +21,8 @@ public class InboundConnection extends Thread {
     private final HashMap<Integer, InboundSession> sessions;
     private final Server server;
     private final HeartBeatManager heartBeatManager;
+    private final int port;
+    private final String ip;
     private boolean isConnectionOpen;
 
 
@@ -31,6 +33,8 @@ public class InboundConnection extends Thread {
         this.executor = Executors.newFixedThreadPool(MAX_THREAD);
         this.sessions = new HashMap<>();
         this.heartBeatManager = new HeartBeatManager(this);
+        this.port = clientSocket.getPort();
+        this.ip = clientSocket.getInetAddress().toString();
     }
 
     @Override
@@ -74,7 +78,7 @@ public class InboundConnection extends Thread {
         }
 
         try {
-            LOGGER.info(clientSocket.getInetAddress() + ":" + clientSocket.getLocalPort() + " disconnected");
+            LOGGER.info(clientSocket.getInetAddress() + ":" + clientSocket.getPort() + " disconnected");
             if (!clientSocket.isClosed()) {
                 clientSocket.close();
             }
@@ -86,8 +90,12 @@ public class InboundConnection extends Thread {
     }
 
     public void closeSession(int id) {
+        if (this.sessions.get(id).getRequest() == InboundTokens.PING) {
+            LOGGER.config("Inbound Session " + id + " was closed");
+        } else {
+            LOGGER.info("Inbound Session " + id + " was closed");
+        }
         this.sessions.remove(id);
-        LOGGER.info("Inbound Session " + id + " was closed");
     }
 
     public HeartBeatManager getHeartBeatManager() {
@@ -96,5 +104,13 @@ public class InboundConnection extends Thread {
 
     public boolean isConnectionOpen() {
         return isConnectionOpen;
+    }
+
+    public int getPort() {
+        return port;
+    }
+
+    public String getIp() {
+        return ip;
     }
 }

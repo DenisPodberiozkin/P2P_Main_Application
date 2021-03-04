@@ -1,7 +1,8 @@
 package User.CommunicationUnit.Server;
 
 public enum InboundTokens {
-    HAS_NEIGHBOURS("HN"), PING("PING"), FIND("FIND");
+    HAS_NEIGHBOURS("HN"), PING("PING"), FIND("FIND"), NEW_PREDECESSOR_NOTIFICATION("NPN"), GET_PREDECESSOR("GP"),
+    GET_SUCCESSORS_LIST("GSL");
 
     private final String token;
 

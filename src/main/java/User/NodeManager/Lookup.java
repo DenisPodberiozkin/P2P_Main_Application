@@ -1,49 +1,60 @@
 package User.NodeManager;
 
 import java.util.Set;
+import java.util.concurrent.Callable;
+import java.util.concurrent.ExecutionException;
+import java.util.logging.Logger;
 
-public class Lookup {
+import static User.NodeManager.NodeUtil.isBigger;
+
+public class Lookup implements Callable<String> {
+    private static final Logger LOGGER = Logger.getLogger(Lookup.class.getName());
     private final User user;
+    private final String lookUpId;
 
-    public Lookup(User user) {
+    public Lookup(User user, String lookUpId) {
         this.user = user;
+        this.lookUpId = lookUpId;
     }
 
-    public Object lookup(String id) {
+
+    @Override
+    public String call() {
         //System.out.println("Node " + this.id + " is looking for node " + id);
         try {
 //            System.out.println(this.id + " START LOOKUP id " + id);
 
             final Node successor = user.getSuccessor();
-            if (isBigger(id, user.getId()) && (isBigger(successor.getId(), id)) || user.getId().equals(id)) {
+            if (isBigger(lookUpId, user.getId()) && (isBigger(successor.getId(), lookUpId)) || user.getId().equals(lookUpId)) {
 //            System.out.println("node " + this.id + "returns its successor" + getSuccessor().getId());
-                return successor;
+                return successor.getJSONString();
             } else {
-                final Node highestPredecessor = findHighestPredecessor(id);
+                final Node highestPredecessor = findHighestPredecessor(lookUpId);
 //                System.out.println("Highest predecessor is node " + highestPredecessor.getId());
 //            System.out.println("highest successor is " + highestPredecessor.getId());
                 //if highestPredecessor is the MAX node
                 if (highestPredecessor.equals(user)) {
 //                System.out.println("node " + this.id + " is a MAX node, returning its successor - min node " + highestPredecessor.getSuccessor().getId());
                     //if ID is either new MIN or MAX node then return current MIN node as ID's successor
-                    if (isBigger(id, user.getId()) || isBigger(successor.getId(), id)) {
-                        return user.getSuccessor();
+                    if (isBigger(lookUpId, user.getId()) || isBigger(successor.getId(), lookUpId)) {
+                        return user.getSuccessor().getJSONString();
                     }
                     /* if we are here, then current node is a MAX node which has only one connection in its finger table(successor only),
                      and ID is a NORMAL node; then we go to current node's successor;
                      */
-                    return null;
-//                    return user.getSuccessor().lookUp(id); //TODO UNCOMENT transfer lookp
+//                    return null;
+                    return user.getSuccessor().lookUp(lookUpId).get(); //TODO UNCOMENT transfer lookp
                 }
                 //if highest predecessor is the normal node then continues look up.
 //            System.out.println("node " + this.getId() + "sending lookup of node " + id + " to highest predecessor " + highestPredecessor.getId());
-                return null;
-//                return highestPredecessor.lookUp(id); // TODO UNCOMENT Transfer lookup
+//                return null;
+                return highestPredecessor.lookUp(lookUpId).get(); // TODO UNCOMENT Transfer lookup
             }
+        } catch (InterruptedException | ExecutionException e) {
+            LOGGER.warning("Unable to receive reply form message session. Reason: " + e.toString());
+            return null;
         } catch (Exception e) {
-            System.err.println("Lookup not found");
-            System.err.println(e.getLocalizedMessage());
-            System.err.println(e.toString());
+            LOGGER.warning("Lookup not found. Reason: " + e.toString());
             return null;
         }
     }
@@ -103,12 +114,6 @@ public class Lookup {
         return -1;
     }
 
-    public boolean isBigger(String id1, String id2) {
-        return id1.compareTo(id2) > 0;
-    }
 
-    public boolean isBigger(Node n1, Node n2) {
-        return n1.getId().compareTo(n2.getId()) > 0;
-    }
 
 }

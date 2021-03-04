@@ -1,17 +1,18 @@
 package User.CommunicationUnit.Client;
 
+import GUI.ControllerFactory;
 import User.CommunicationUnit.MessageReader;
+import User.CommunicationUnit.Server.InboundTokens;
 import User.CommunicationUnit.SynchronisedWriter;
 import User.Encryption.Hash;
+import User.NodeManager.Node;
+import User.NodeManager.User;
 
 import java.io.IOException;
 import java.io.InputStreamReader;
 import java.net.Socket;
 import java.util.HashMap;
-import java.util.concurrent.ExecutorService;
-import java.util.concurrent.Executors;
-import java.util.concurrent.FutureTask;
-import java.util.concurrent.TimeUnit;
+import java.util.concurrent.*;
 import java.util.logging.Logger;
 
 public class OutboundConnection implements AutoCloseable {
@@ -26,6 +27,7 @@ public class OutboundConnection implements AutoCloseable {
     private SynchronisedWriter writer;
     private ClientReceiver receiver;
     private HeartBeatSender heartBeatSender;
+    private Node assignedNode;
 
     public OutboundConnection(String ip, int port) {
         this.ip = ip;
@@ -34,12 +36,20 @@ public class OutboundConnection implements AutoCloseable {
         this.executor = Executors.newFixedThreadPool(MAX_THREAD);
     }
 
+    public OutboundConnection(String ip, int port, Node assignedNode) {
+        this(ip, port);
+        this.assignedNode = assignedNode;
+    }
+
     @Override
     public void close() throws IOException {
         closeConnection();
     }
 
     public void createConnection() throws IOException {
+        if (ip.equals(User.getInstance().getIp()) && port == User.getInstance().getPort()) {
+            LOGGER.warning("Trying to connect to yourself");
+        }
         socket = new Socket(ip, port);
         reader = new MessageReader(new InputStreamReader(socket.getInputStream()));
         writer = new SynchronisedWriter(socket.getOutputStream(), true);
@@ -51,20 +61,34 @@ public class OutboundConnection implements AutoCloseable {
         Thread heartBeatSenderThread = new Thread(heartBeatSender);
         heartBeatSenderThread.setName("Outbound Heart Beat Sender");
         heartBeatSenderThread.start();
+
+        ControllerFactory.getTestController().addOutboundConnection(this);
         LOGGER.info("Established connection to " + ip + ":" + port);
 
 
     }
 
-    public FutureTask<String> sendMessage(String message) {
+    public FutureTask<String> sendMessage(String message) throws RejectedExecutionException {
         OutboundSession session = new OutboundSession(writer, message, this);
-        LOGGER.info("Outbound Session " + session.getId() + " is created to send message: " + message);
+
         sessions.put(session.getId(), session);
-        return (FutureTask<String>) executor.submit(session);
+        try {
+            final FutureTask<String> futureTask = (FutureTask<String>) executor.submit(session);
+            return futureTask;
+        } catch (RejectedExecutionException e) {
+            closeSession(session.getId());
+            throw new RejectedExecutionException("Connection is closed!");
+        }
     }
 
     public void closeConnection() throws IOException {
+        LOGGER.config("START Disconnected from " + ip + ":" + port);
+//        if (assignedNode != null) {
+//            this.assignedNode.removeConnection();
+//            User.getInstance().removeFromTable(assignedNode);
+//        }
 
+        this.assignedNode = null;
         if (heartBeatSender != null) {
             heartBeatSender.stopHeartBeat();
         }
@@ -99,7 +123,12 @@ public class OutboundConnection implements AutoCloseable {
     }
 
     public void closeSession(int id) {
-        LOGGER.info("Outbound Session " + id + " is removed");
+        if (sessions.get(id).getMessage().contains(InboundTokens.PING.getToken())) {
+            LOGGER.config("Outbound Session " + id + " is removed");
+        } else {
+            LOGGER.info("Outbound Session " + id + " is removed");
+        }
+
         sessions.remove(id);
     }
 
@@ -114,4 +143,12 @@ public class OutboundConnection implements AutoCloseable {
     public int getPort() {
         return port;
     }
+
+    public Node getAssignedNode() {
+        return assignedNode;
+    }
+
+//    public void setAssignedNode(Node assignedNode) {
+//        this.assignedNode = assignedNode;
+//    }
 }

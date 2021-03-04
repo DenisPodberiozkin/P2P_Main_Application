@@ -1,0 +1,165 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+
+<?import javafx.geometry.*?>
+<?import javafx.scene.control.*?>
+<?import javafx.scene.layout.*?>
+<?import javafx.scene.text.*?>
+<AnchorPane xmlns:fx="http://javafx.com/fxml/1" prefHeight="999.0" prefWidth="1279.0"
+            xmlns="http://javafx.com/javafx/8.0.171" fx:controller="GUI.TestController">
+   <children>
+      <BorderPane layoutX="44.0" layoutY="187.0" prefHeight="768.0" prefWidth="600.0" AnchorPane.bottomAnchor="28.0"
+                  AnchorPane.leftAnchor="0.0" AnchorPane.rightAnchor="0.0" AnchorPane.topAnchor="0.0">
+         <top>
+            <Label fx:id="nodeNameLabel" text="Node Name" BorderPane.alignment="CENTER_LEFT">
+               <BorderPane.margin>
+                  <Insets bottom="15.0" left="15.0" right="15.0" top="15.0"/>
+               </BorderPane.margin>
+               <font>
+                  <Font size="20.0"/>
+               </font>
+            </Label>
+         </top>
+         <center>
+            <AnchorPane prefHeight="736.0" prefWidth="783.0" BorderPane.alignment="CENTER">
+               <children>
+                  <VBox layoutX="229.0" layoutY="21.0" prefHeight="736.0" prefWidth="725.0"
+                        AnchorPane.bottomAnchor="0.0" AnchorPane.leftAnchor="0.0" AnchorPane.rightAnchor="0.0"
+                        AnchorPane.topAnchor="0.0">
+                     <children>
+                        <Label fx:id="successorLabel" text="Successor ID">
+                           <font>
+                              <Font size="19.0"/>
+                           </font>
+                           <VBox.margin>
+                              <Insets bottom="15.0" left="15.0" right="15.0" top="15.0"/>
+                           </VBox.margin>
+                        </Label>
+                        <Label fx:id="predecessorLabel" text="Predecessor ID">
+                           <font>
+                              <Font size="19.0"/>
+                           </font>
+                           <VBox.margin>
+                              <Insets bottom="15.0" left="15.0" right="15.0" top="15.0"/>
+                           </VBox.margin>
+                        </Label>
+                        <Label fx:id="portLabel" text="Port">
+                           <font>
+                              <Font size="19.0"/>
+                           </font>
+                           <VBox.margin>
+                              <Insets bottom="15.0" left="15.0" right="15.0" top="15.0"/>
+                           </VBox.margin>
+                        </Label>
+                        <BorderPane>
+                           <VBox.margin>
+                              <Insets bottom="15.0" left="15.0" right="15.0" top="15.0"/>
+                           </VBox.margin>
+                           <center>
+                              <TableView fx:id="outboundTable" prefHeight="200.0" prefWidth="200.0">
+                                 <columns>
+                                    <TableColumn fx:id="outID" prefWidth="448.3333435058594" text="ID"/>
+                                    <TableColumn fx:id="outIP" prefWidth="153.66665649414062" text="IP"/>
+                                    <TableColumn fx:id="outPort" minWidth="9.666671752929688"
+                                                 prefWidth="92.66664123535156" text="Port"/>
+                                 </columns>
+                              </TableView>
+                           </center>
+                           <top>
+                              <Label text="Outbound Connections" BorderPane.alignment="CENTER">
+                                 <BorderPane.margin>
+                                    <Insets bottom="15.0" left="15.0" right="15.0" top="15.0"/>
+                                 </BorderPane.margin>
+                                 <font>
+                                    <Font size="18.0"/>
+                                 </font>
+                              </Label>
+                           </top>
+                        </BorderPane>
+                        <BorderPane prefHeight="287.0" prefWidth="725.0">
+                           <center>
+                              <TableView fx:id="inboundTable" prefHeight="200.0" prefWidth="200.0">
+                                 <columns>
+                                    <TableColumn fx:id="inID" prefWidth="453.6666793823242" text="ID"/>
+                                    <TableColumn fx:id="inIP" prefWidth="167.33332061767578" text="IP"/>
+                                    <TableColumn fx:id="inPort" prefWidth="73.33331298828125" text="Port"/>
+                                 </columns>
+                                 <BorderPane.margin>
+                                    <Insets bottom="15.0" left="15.0" right="15.0" top="15.0"/>
+                                 </BorderPane.margin>
+                              </TableView>
+                           </center>
+                           <top>
+                              <Label text="Inbound Connections" BorderPane.alignment="CENTER">
+                                 <BorderPane.margin>
+                                    <Insets bottom="15.0" left="15.0" right="15.0" top="15.0"/>
+                                 </BorderPane.margin>
+                                 <font>
+                                    <Font size="18.0"/>
+                                 </font>
+                              </Label>
+                           </top>
+                        </BorderPane>
+                        <BorderPane prefHeight="287.0" prefWidth="725.0">
+                           <center>
+                              <TableView fx:id="successorsTable" prefHeight="200.0" prefWidth="200.0">
+                                 <columns>
+                                    <TableColumn fx:id="successorID" prefWidth="453.6666793823242" text="ID"/>
+                                    <TableColumn fx:id="successorIP" prefWidth="167.33332061767578" text="IP"/>
+                                    <TableColumn fx:id="successorPort" prefWidth="73.33331298828125" text="Port"/>
+                                 </columns>
+                                 <BorderPane.margin>
+                                    <Insets bottom="15.0" left="15.0" right="15.0" top="15.0"/>
+                                 </BorderPane.margin>
+                              </TableView>
+                           </center>
+                           <top>
+                              <Label text="Successors List" BorderPane.alignment="CENTER">
+                                 <BorderPane.margin>
+                                    <Insets bottom="15.0" left="15.0" right="15.0" top="15.0"/>
+                                 </BorderPane.margin>
+                                 <font>
+                                    <Font size="18.0"/>
+                                 </font>
+                              </Label>
+                           </top>
+                        </BorderPane>
+                     </children>
+                  </VBox>
+               </children>
+            </AnchorPane>
+         </center>
+         <right>
+            <AnchorPane prefHeight="736.0" prefWidth="554.0" BorderPane.alignment="CENTER">
+               <children>
+                  <BorderPane layoutX="-93.0" prefHeight="736.0" prefWidth="424.0" AnchorPane.bottomAnchor="0.0"
+                              AnchorPane.leftAnchor="0.0" AnchorPane.rightAnchor="0.0" AnchorPane.topAnchor="0.0">
+                     <center>
+                        <TableView fx:id="fingerTable" prefHeight="649.0" prefWidth="461.0">
+                           <columns>
+                              <TableColumn fx:id="fingerID" prefWidth="303.6666259765625" text="ID"/>
+                              <TableColumn fx:id="fingerIP" minWidth="0.0" prefWidth="140.3333740234375" text="IP"/>
+                              <TableColumn fx:id="fingerPort" prefWidth="78.99993896484375" text="Port"/>
+                           </columns>
+                           <BorderPane.margin>
+                              <Insets bottom="15.0" left="15.0" right="15.0" top="15.0"/>
+                           </BorderPane.margin>
+                        </TableView>
+                     </center>
+                     <top>
+                        <Label text="Finger Table" BorderPane.alignment="CENTER">
+                           <BorderPane.margin>
+                              <Insets bottom="15.0" left="15.0" right="15.0" top="15.0"/>
+                           </BorderPane.margin>
+                           <font>
+                              <Font size="18.0"/>
+                           </font>
+                        </Label>
+                     </top>
+                  </BorderPane>
+               </children>
+            </AnchorPane>
+         </right>
+      </BorderPane>
+   </children>
+</AnchorPane>

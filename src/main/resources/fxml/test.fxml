@@ -1,12 +1,12 @@
 <?xml version="1.0" encoding="UTF-8"?>
 
-
 <?import javafx.geometry.*?>
 <?import javafx.scene.control.*?>
 <?import javafx.scene.layout.*?>
 <?import javafx.scene.text.*?>
 <AnchorPane xmlns:fx="http://javafx.com/fxml/1" prefHeight="999.0" prefWidth="1279.0"
-            xmlns="http://javafx.com/javafx/8.0.171" fx:controller="GUI.TestController">
+            stylesheets="@../styles/CSS/style.css" xmlns="http://javafx.com/javafx/8.0.171"
+            fx:controller="GUI.TestController">
    <children>
       <BorderPane layoutX="44.0" layoutY="187.0" prefHeight="768.0" prefWidth="600.0" AnchorPane.bottomAnchor="28.0"
                   AnchorPane.leftAnchor="0.0" AnchorPane.rightAnchor="0.0" AnchorPane.topAnchor="0.0">

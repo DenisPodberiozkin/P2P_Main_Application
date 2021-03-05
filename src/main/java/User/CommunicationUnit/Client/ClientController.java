@@ -7,6 +7,7 @@ import java.io.IOException;
 import java.util.Arrays;
 import java.util.LinkedList;
 import java.util.Objects;
+import java.util.Queue;
 import java.util.concurrent.ExecutionException;
 import java.util.concurrent.FutureTask;
 import java.util.concurrent.RejectedExecutionException;
@@ -128,18 +129,18 @@ public class ClientController implements IClientController {
     }
 
     @Override
-    public LinkedList<Node> getSuccessorsList(OutboundConnection connection) {
+    public Queue<Node> getSuccessorsQueue(OutboundConnection connection) {
         try {
-            final String token = InboundTokens.GET_SUCCESSORS_LIST.getToken();
+            final String token = InboundTokens.GET_SUCCESSORS_QUEUE.getToken();
             String reply = sendMessage(connection, token).get();
             String[] tokens = verifyAndCleanTokens(reply, token);
-            LinkedList<Node> successorsList = new LinkedList<>();
+            Queue<Node> successorsQueue = new LinkedList<>();
             if (tokens != null) {
                 if (tokens.length > 0) {
                     for (String jsonNode : tokens) {
-                        successorsList.add(Node.getNodeFromJSONSting(jsonNode));
+                        successorsQueue.offer(Node.getNodeFromJSONSting(jsonNode));
                     }
-                    return successorsList;
+                    return successorsQueue;
                 }
             }
         } catch (InterruptedException | ExecutionException e) {

@@ -25,7 +25,7 @@ import static User.NodeManager.NodeUtil.isBigger;
 
 public class User extends Node {
     private static final Logger LOGGER = Logger.getLogger(User.class.getName());
-    private final static int SUCCESSOR_LIST_SIZE = 10;
+    private final static int MAX_SUCCESSOR_QUEUE_SIZE = 10;
     private static User instance;
     private final SortedMap<String, Node> nodes = Collections.synchronizedSortedMap(new TreeMap<String, Node>(Comparator.naturalOrder()));
     private Node predecessor;
@@ -34,7 +34,7 @@ public class User extends Node {
     private final ReadWriteLock readWriteLock = new ReentrantReadWriteLock(true);
     private final ExecutorService executorService = Executors.newCachedThreadPool();
     private final Updater updater;
-    private final LinkedList<Node> successorsList = new LinkedList<>();
+    private final Queue<Node> successorsQueue = new LinkedList<>();
 
     public User(KeyPair keyPair) {
         this(keyPair.getPublic());
@@ -255,7 +255,7 @@ public class User extends Node {
         try {
             this.successor = successor;
             ControllerFactory.getTestController().setSuccessorLabelText(this.successor.getId());
-            addToHeadSuccessorList(successor);
+            addToSuccessorQueue(successor);
             LOGGER.info("The new successor of node " + getId() + " is node " + successor.getId());
         } finally {
             readWriteLock.writeLock().unlock();
@@ -305,10 +305,10 @@ public class User extends Node {
         }
     }
 
-    public void addToHeadSuccessorList(Node node) {
+    public void addToSuccessorQueue(Node node) {
         readWriteLock.writeLock().lock();
         try {
-            successorsList.addFirst(node);
+            successorsQueue.offer(node);
         } finally {
             readWriteLock.writeLock().unlock();
         }
@@ -317,7 +317,7 @@ public class User extends Node {
     public void addToSuccessorList(Node node) {
         readWriteLock.writeLock().lock();
         try {
-            successorsList.add(node);
+            successorsQueue.add(node);
         } finally {
             readWriteLock.writeLock().unlock();
         }
@@ -326,34 +326,37 @@ public class User extends Node {
     public void removeFromSuccessorList(Node node) {
         readWriteLock.writeLock().lock();
         try {
-            successorsList.remove(node);
+            successorsQueue.remove(node);
         } finally {
             readWriteLock.writeLock().unlock();
         }
     }
 
     @Override
-    public LinkedList<Node> getSuccessorsList() {
+    public Queue<Node> getSuccessorsQueue() {
         readWriteLock.readLock().lock();
         try {
-            return successorsList;
+            return successorsQueue;
         } finally {
             readWriteLock.readLock().unlock();
         }
     }
 
     public void updateSuccessorsList(Node successor) {
-        LinkedList<Node> successorsList = successor.getSuccessorsList();
-        LinkedList<Node> newSuccessorsList = new LinkedList<>();
-        newSuccessorsList.add(successor);
+        Queue<Node> successorsQueue = successor.getSuccessorsQueue();
+        Queue<Node> newSuccessorsQueue = new LinkedList<>();
+        newSuccessorsQueue.offer(successor);
 
-        if (successorsList != null) {
+        if (successorsQueue != null) {
             int i = 0;
             boolean isReachedEnd = false;
-            if (!successorsList.isEmpty()) {
-                while (!isReachedEnd && i < successorsList.size() && i < SUCCESSOR_LIST_SIZE) {
-                    if (!successorsList.get(i).equals(this)) {
-                        newSuccessorsList.add(successorsList.get(i));
+            final int successorsQueueSize = successorsQueue.size();
+            if (!successorsQueue.isEmpty()) {
+                while (!isReachedEnd && i < successorsQueueSize && i < MAX_SUCCESSOR_QUEUE_SIZE) {
+                    Node candidateNode = successorsQueue.remove();
+                    if (!candidateNode.equals(this)) {
+                        newSuccessorsQueue.offer(candidateNode);
+                        LOGGER.config("Node " + candidateNode.getPort() + " was added to successors queue");
                     } else {
                         isReachedEnd = true;
                     }
@@ -366,13 +369,13 @@ public class User extends Node {
 
         readWriteLock.writeLock().lock();
         try {
-            this.successorsList.clear();
-            this.successorsList.addAll(newSuccessorsList);
+            this.successorsQueue.clear();
+            this.successorsQueue.addAll(newSuccessorsQueue);
         } finally {
             readWriteLock.writeLock().unlock();
         }
 
-        ControllerFactory.getTestController().updateSuccessorsData(this.successorsList);
+        ControllerFactory.getTestController().updateSuccessorsData(this.successorsQueue);
 
     }
 }

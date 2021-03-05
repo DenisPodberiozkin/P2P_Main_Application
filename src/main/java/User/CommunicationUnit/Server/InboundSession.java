@@ -5,7 +5,7 @@ import User.NodeManager.Node;
 import User.NodeManager.User;
 
 import java.util.Arrays;
-import java.util.LinkedList;
+import java.util.Queue;
 import java.util.concurrent.ExecutionException;
 import java.util.logging.Logger;
 
@@ -91,10 +91,10 @@ public class InboundSession implements Runnable {
                     }
                     writer.sendMessage(clientSessionId, response);
                     break;
-                case GET_SUCCESSORS_LIST:
-                    final LinkedList<Node> successorsList = user.getSuccessorsList();
+                case GET_SUCCESSORS_QUEUE:
+                    final Queue<Node> successorsQueue = user.getSuccessorsQueue();
                     StringBuilder messageBuilder = new StringBuilder();
-                    for (Node node : successorsList) {
+                    for (Node node : successorsQueue) {
                         messageBuilder.append(node.getJSONString()).append(" ");
                     }
                     response = requestToken + " " + messageBuilder.toString();

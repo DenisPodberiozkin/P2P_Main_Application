@@ -7,7 +7,6 @@ import javafx.fxml.FXMLLoader;
 import javafx.scene.Parent;
 import javafx.scene.Scene;
 import javafx.stage.Stage;
-import javafx.stage.StageStyle;
 
 import java.security.Security;
 
@@ -32,7 +31,6 @@ public class Main extends Application {
         Scene mainScene = new Scene(root);
         mainScene.getStylesheets().add(getClass().getResource("../styles/CSS/style.css").toExternalForm());
         primaryStage.setScene(mainScene);
-        primaryStage.initStyle(StageStyle.TRANSPARENT);
         primaryStage.show();
 
 

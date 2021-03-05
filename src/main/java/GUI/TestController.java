@@ -22,7 +22,7 @@ import javafx.scene.control.TableView;
 import javafx.scene.control.cell.PropertyValueFactory;
 
 import java.net.URL;
-import java.util.LinkedList;
+import java.util.Queue;
 import java.util.ResourceBundle;
 
 public class TestController implements Initializable {
@@ -134,7 +134,7 @@ public class TestController implements Initializable {
         fingerTableData.remove(node);
     }
 
-    public void updateSuccessorsData(LinkedList<Node> successors) {
+    public void updateSuccessorsData(Queue<Node> successors) {
         successorsTableData.clear();
         successorsTableData.addAll(successors);
     }

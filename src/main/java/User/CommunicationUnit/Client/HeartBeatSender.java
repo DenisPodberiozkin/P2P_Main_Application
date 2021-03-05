@@ -29,7 +29,7 @@ public class HeartBeatSender implements Runnable {
             }
 
         } catch (InterruptedException | ExecutionException e) {
-            LOGGER.warning("Unable to receive reply form message session. Reason: " + e.toString());
+            LOGGER.warning("Unable to receive reply from PING message session. Reason: " + e.toString());
         }
     }
 

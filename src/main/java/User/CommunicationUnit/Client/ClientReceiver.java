@@ -43,7 +43,7 @@ public class ClientReceiver implements Runnable {
             if (!e.getMessage().equals("Socket closed")) {
                 LOGGER.warning("Connection was closed by host. Reason: " + e.toString());
 //                try {
-                User.getInstance().removeNodeFromTableAndDisconnect(connection.getAssignedNode());
+                User.getInstance().notifyDisconnection(connection.getAssignedNode());
 //                    connection.closeConnection();
 //                } catch (IOException ioException) {
 //                    LOGGER.severe("Error while closing connection");

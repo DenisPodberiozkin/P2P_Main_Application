@@ -34,7 +34,7 @@ public class User extends Node {
     private final ReadWriteLock readWriteLock = new ReentrantReadWriteLock(true);
     private final ExecutorService executorService = Executors.newCachedThreadPool();
     private final Updater updater;
-    private final Queue<Node> successorsQueue = new LinkedList<>();
+    private final Deque<Node> successorsQueue = new LinkedList<>();
 
     public User(KeyPair keyPair) {
         this(keyPair.getPublic());
@@ -86,12 +86,10 @@ public class User extends Node {
     public void join(Node successorNode) {
         readWriteLock.writeLock().lock();
         try {
-            addNodeToTableAndConnect(successorNode);
-            setSuccessor(successorNode);
+            setSuccessorAndConnect(successorNode);
         } finally {
             readWriteLock.writeLock().unlock();
         }
-        successor.notifyAboutNewPredecessor(this);
         //TODO check connections
         join();
     }
@@ -114,9 +112,7 @@ public class User extends Node {
     public void executeChanges(Node x, Node successor) {
         readWriteLock.writeLock().lock();
         try {
-            removeNodeFromTableAndDisconnect(successor);
-            addNodeToTableAndConnect(x);
-            setSuccessor(x);
+            setSuccessorAndConnect(x);
         } finally {
             readWriteLock.writeLock().unlock();
         }
@@ -125,14 +121,16 @@ public class User extends Node {
 
     public void updateFingerTable(LinkedHashMap<String, Node> updatedNodes) {
         readWriteLock.writeLock().lock();
-        SortedMap<String, Node> oldNodes = getNodes();
         Node successor = getSuccessor();
         try {
 
             Node updatedSuccessor = updatedNodes.entrySet().iterator().next().getValue();
             if (!successor.equals(updatedSuccessor)) {
-                setSuccessor(updatedSuccessor);
+                setSuccessorAndConnect(updatedSuccessor);
+                updatedNodes.remove(updatedSuccessor.getId());
             }
+
+            SortedMap<String, Node> oldNodes = getNodes();
 
             LinkedList<Node> toRemove = new LinkedList<>();
             LinkedList<Node> toAdd = new LinkedList<>();
@@ -178,8 +176,7 @@ public class User extends Node {
 
             if (!hasNeighbours()) {
                 Node candidateNodeClone = candidateNode.clone();
-                addNodeToTableAndConnect(candidateNodeClone);
-                setSuccessor(candidateNodeClone);
+                setSuccessorAndConnect(candidateNodeClone);
                 candidateNodeClone.notifyAboutNewPredecessor(this);
             }
 
@@ -225,20 +222,36 @@ public class User extends Node {
     public void setPredecessorAndConnect(Node predecessor) {
         readWriteLock.writeLock().lock();
         try {
-            if (this.predecessor != null) {
-                this.predecessor.closeConnection();
-            }
-            this.predecessor = predecessor;
-            ControllerFactory.getTestController().setPredecessorLabelText(this.predecessor.getId());
+            setPredecessor(predecessor);
             if (!predecessor.isConnected()) {
-//            LOGGER.severe("new connection to the same node as predecessor");//TODO make copy if it the same node
                 predecessor.connectToNode(false);
             }
-            LOGGER.info("The new predecessor of node " + getId() + " is node " + predecessor.getId());
         } finally {
             readWriteLock.writeLock().unlock();
         }
 
+    }
+
+    public void setPredecessor(Node predecessor) {
+        readWriteLock.writeLock().lock();
+        try {
+            Node currentPredecessor = getPredecessor();
+            if (currentPredecessor != null && currentPredecessor.isConnected()) {
+                this.predecessor.closeConnection();
+            }
+            this.predecessor = predecessor;
+
+            if (this.predecessor != null) {
+                ControllerFactory.getTestController().setPredecessorLabelText(this.predecessor.getId());
+                LOGGER.info("The new predecessor of node " + getId() + " is node " + predecessor.getId());
+            } else {
+                ControllerFactory.getTestController().setPredecessorLabelText("");
+                LOGGER.info("Predecessor is removed");
+            }
+
+        } finally {
+            readWriteLock.writeLock().unlock();
+        }
     }
 
     public Node getSuccessor() {
@@ -250,13 +263,24 @@ public class User extends Node {
         }
     }
 
-    public void setSuccessor(Node successor) {
+    public void setSuccessorAndConnect(Node newSuccessor) {
         readWriteLock.writeLock().lock();
         try {
-            this.successor = successor;
-            ControllerFactory.getTestController().setSuccessorLabelText(this.successor.getId());
-            addToSuccessorQueue(successor);
-            LOGGER.info("The new successor of node " + getId() + " is node " + successor.getId());
+            Node currentSuccessor = getSuccessor();
+            if (currentSuccessor != null) {
+                removeNodeFromTableAndDisconnect(currentSuccessor);
+            }
+
+            if (newSuccessor != null) {
+                replaceSuccessorsQueueHead(newSuccessor);
+                addNodeToTableAndConnect(newSuccessor);
+                newSuccessor.notifyAboutNewPredecessor(this);
+                this.successor = newSuccessor;
+                LOGGER.info("The new successor of node " + getId() + " is node " + newSuccessor.getId());
+                ControllerFactory.getTestController().setSuccessorLabelText(newSuccessor.getId());
+            } else {
+                setNewSuccessorFromSuccessorsQueue();
+            }
         } finally {
             readWriteLock.writeLock().unlock();
         }
@@ -299,41 +323,64 @@ public class User extends Node {
         try {
             ControllerFactory.getTestController().removeNodeFromFIngerTable(node);
             nodes.remove(node.getId());
-            node.closeConnection();
+            if (node.isConnected()) {
+                node.closeConnection();
+            }
         } finally {
             readWriteLock.writeLock().unlock();
         }
     }
 
-    public void addToSuccessorQueue(Node node) {
+    public void replaceSuccessorsQueueHead(Node node) {
         readWriteLock.writeLock().lock();
         try {
-            successorsQueue.offer(node);
+            successorsQueue.pollFirst();
+            successorsQueue.offerFirst(node);
+            ControllerFactory.getTestController().updateSuccessorsData(this.successorsQueue);
         } finally {
             readWriteLock.writeLock().unlock();
         }
     }
 
-    public void addToSuccessorList(Node node) {
+    private void setNewSuccessorFromSuccessorsQueue() {
         readWriteLock.writeLock().lock();
         try {
-            successorsQueue.add(node);
+
+            successorsQueue.pollFirst();
+            Node newSuccessor = successorsQueue.peekFirst();
+            if (newSuccessor != null) {
+                setSuccessorAndConnect(newSuccessor);
+            } else {
+                this.successor = null;
+                LOGGER.info("Current successor is removed");
+                ControllerFactory.getTestController().setSuccessorLabelText("");
+                ControllerFactory.getTestController().updateSuccessorsData(successorsQueue);
+            }
         } finally {
             readWriteLock.writeLock().unlock();
         }
     }
 
-    public void removeFromSuccessorList(Node node) {
-        readWriteLock.writeLock().lock();
-        try {
-            successorsQueue.remove(node);
-        } finally {
-            readWriteLock.writeLock().unlock();
-        }
-    }
+//    public void addToSuccessorList(Node node) {
+//        readWriteLock.writeLock().lock();
+//        try {
+//            successorsQueue.add(node);
+//        } finally {
+//            readWriteLock.writeLock().unlock();
+//        }
+//    }
+//
+//    public void removeFromSuccessorList(Node node) {
+//        readWriteLock.writeLock().lock();
+//        try {
+//            successorsQueue.remove(node);
+//        } finally {
+//            readWriteLock.writeLock().unlock();
+//        }
+//    }
 
     @Override
-    public Queue<Node> getSuccessorsQueue() {
+    public Deque<Node> getSuccessorsQueue() {
         readWriteLock.readLock().lock();
         try {
             return successorsQueue;
@@ -343,7 +390,7 @@ public class User extends Node {
     }
 
     public void updateSuccessorsList(Node successor) {
-        Queue<Node> successorsQueue = successor.getSuccessorsQueue();
+        Queue<Node> successorsQueue = getSuccessor().getSuccessorsQueue();
         Queue<Node> newSuccessorsQueue = new LinkedList<>();
         newSuccessorsQueue.offer(successor);
 
@@ -377,5 +424,22 @@ public class User extends Node {
 
         ControllerFactory.getTestController().updateSuccessorsData(this.successorsQueue);
 
+    }
+
+    public void notifyDisconnection(Node disconnectedNode) {
+        readWriteLock.writeLock().lock();
+        try {
+            Node currentSuccessor = getSuccessor();
+            Node currentPredecessor = getPredecessor();
+            if (disconnectedNode.equals(currentSuccessor)) {
+                setSuccessorAndConnect(null);
+            } else if (disconnectedNode.equals(currentPredecessor)) {
+                setPredecessor(null);
+            } else {
+                removeNodeFromTableAndDisconnect(disconnectedNode);
+            }
+        } finally {
+            readWriteLock.writeLock().unlock();
+        }
     }
 }

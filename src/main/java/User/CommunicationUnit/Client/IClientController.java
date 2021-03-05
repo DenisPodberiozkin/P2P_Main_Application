@@ -3,7 +3,7 @@ package User.CommunicationUnit.Client;
 import User.NodeManager.Node;
 
 import java.io.IOException;
-import java.util.Queue;
+import java.util.Deque;
 import java.util.concurrent.FutureTask;
 import java.util.concurrent.RejectedExecutionException;
 
@@ -27,5 +27,5 @@ public interface IClientController {
 
     Node getPredecessor(OutboundConnection connection) throws RejectedExecutionException;
 
-    Queue<Node> getSuccessorsQueue(OutboundConnection connection);
+    Deque<Node> getSuccessorsQueue(OutboundConnection connection);
 }

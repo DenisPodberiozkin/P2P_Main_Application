@@ -5,7 +5,7 @@ import User.NodeManager.Node;
 import User.NodeManager.User;
 
 import java.util.Arrays;
-import java.util.Queue;
+import java.util.Deque;
 import java.util.concurrent.ExecutionException;
 import java.util.logging.Logger;
 
@@ -92,7 +92,7 @@ public class InboundSession implements Runnable {
                     writer.sendMessage(clientSessionId, response);
                     break;
                 case GET_SUCCESSORS_QUEUE:
-                    final Queue<Node> successorsQueue = user.getSuccessorsQueue();
+                    final Deque<Node> successorsQueue = user.getSuccessorsQueue();
                     StringBuilder messageBuilder = new StringBuilder();
                     for (Node node : successorsQueue) {
                         messageBuilder.append(node.getJSONString()).append(" ");

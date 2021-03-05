@@ -15,8 +15,8 @@ import com.fasterxml.jackson.databind.module.SimpleModule;
 import java.io.IOException;
 import java.security.PublicKey;
 import java.util.Base64;
+import java.util.Deque;
 import java.util.Objects;
-import java.util.Queue;
 import java.util.concurrent.FutureTask;
 import java.util.concurrent.RejectedExecutionException;
 import java.util.logging.Logger;
@@ -181,7 +181,7 @@ public class Node implements AutoCloseable {
         return false;
     }
 
-    public Queue<Node> getSuccessorsQueue() {
+    public Deque<Node> getSuccessorsQueue() {
         return clientController.getSuccessorsQueue(connection);
     }
 

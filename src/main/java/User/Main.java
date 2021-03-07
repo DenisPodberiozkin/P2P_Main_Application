@@ -1,6 +1,5 @@
 package User;
 
-import User.CommunicationUnit.Server.ServerController;
 import javafx.application.Application;
 import javafx.application.Platform;
 import javafx.fxml.FXMLLoader;
@@ -19,7 +18,6 @@ public class Main extends Application {
 
     public static void main(String[] args) {
         ConnectionsData.setUserServerPort(Integer.parseInt(args[0]));
-        ServerController.getInstance().startServer(ConnectionsData.getUserServerPort());
         launch(args);
     }
 

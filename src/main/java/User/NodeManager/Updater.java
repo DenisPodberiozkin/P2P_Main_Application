@@ -17,10 +17,10 @@ public class Updater implements Runnable {
     public void run() {
         try {
             while (isRunning) {
-                Thread.sleep(10000);
+                Thread.sleep(2000);
 
                 LinkedHashMap<String, Node> updatedNodes = user.checkConnections().get();
-                if (updatedNodes != null) {
+                if (updatedNodes != null && updatedNodes.size() > 0) {
                     user.updateFingerTable(updatedNodes);
                 }
                 if (!user.stabilize().get()) {

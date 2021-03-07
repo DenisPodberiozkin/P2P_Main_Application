@@ -90,10 +90,16 @@ public class ClientController implements IClientController {
     }
 
     @Override
-    public FutureTask<String> lookUp(OutboundConnection connection, String id) {
-        String token = InboundTokens.FIND.getToken();
-        String message = token + " " + id;
-        return sendMessage(connection, message);
+    public String lookUp(OutboundConnection connection, String id) {
+        String reply = "NF";
+        try {
+            String token = InboundTokens.FIND.getToken();
+            String message = token + " " + id;
+            reply = sendMessage(connection, message).get();
+        } catch (InterruptedException | ExecutionException e) {
+            LOGGER.warning("Unable to receive reply from FIND message session. Reason: " + e.toString());
+        }
+        return reply;
     }
 
     @Override
@@ -148,5 +154,17 @@ public class ClientController implements IClientController {
         }
 
         return null;
+    }
+
+    @Override
+    public void removeUnreachableLastConnectedNode(OutboundConnection connection, String nodeJSON) {
+        try {
+            String token = OutboundTokens.REMOVE_UNREACHABLE_LAST_CONNECTED_NODE.getToken();
+            String message = token + " " + nodeJSON;
+            sendMessage(connection, message).get();
+        } catch (InterruptedException | ExecutionException e) {
+            LOGGER.warning("Unable to receive reply from REMOVE UNREACHABLE LAST CONNECTED NODE message session. Reason: " + e.toString());
+        }
+
     }
 }

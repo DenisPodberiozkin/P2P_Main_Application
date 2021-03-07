@@ -1,6 +1,8 @@
 package User.NodeManager;
 
 import GUI.ControllerFactory;
+import User.CommunicationUnit.Server.IServerController;
+import User.CommunicationUnit.Server.ServerController;
 import User.ConnectionsData;
 import User.Encryption.EncryptionController;
 
@@ -14,6 +16,7 @@ import java.security.KeyPair;
 import java.security.PrivateKey;
 import java.security.PublicKey;
 import java.util.*;
+import java.util.concurrent.ExecutionException;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 import java.util.concurrent.FutureTask;
@@ -26,15 +29,17 @@ import static User.NodeManager.NodeUtil.isBigger;
 public class User extends Node {
     private static final Logger LOGGER = Logger.getLogger(User.class.getName());
     private final static int MAX_SUCCESSOR_QUEUE_SIZE = 10;
+    private final static int MAX_RETRY_ATTEMPTS = 2;
     private static User instance;
     private final SortedMap<String, Node> nodes = Collections.synchronizedSortedMap(new TreeMap<String, Node>(Comparator.naturalOrder()));
-    private Node predecessor;
-    private Node successor;
-    private PrivateKey privateKey;
     private final ReadWriteLock readWriteLock = new ReentrantReadWriteLock(true);
     private final ExecutorService executorService = Executors.newCachedThreadPool();
     private final Updater updater;
     private final Deque<Node> successorsQueue = new LinkedList<>();
+    private final IServerController serverController = ServerController.getInstance();
+    private Node predecessor;
+    private Node successor;
+    private PrivateKey privateKey;
 
     public User(KeyPair keyPair) {
         this(keyPair.getPublic());
@@ -84,17 +89,19 @@ public class User extends Node {
     }
 
     public void join(Node successorNode) {
+        serverController.startServer(ConnectionsData.getUserServerPort());
         readWriteLock.writeLock().lock();
         try {
             setSuccessorAndConnect(successorNode);
         } finally {
             readWriteLock.writeLock().unlock();
         }
-        //TODO check connections
-        join();
+        executorService.execute(updater);
+        LOGGER.info("Joined to ring");
     }
 
     public void join() {
+        serverController.startServer(ConnectionsData.getUserServerPort());
         executorService.execute(updater);
         LOGGER.info("Joined to ring");
     }
@@ -116,7 +123,6 @@ public class User extends Node {
         } finally {
             readWriteLock.writeLock().unlock();
         }
-        x.notifyAboutNewPredecessor(this);
     }
 
     public void updateFingerTable(LinkedHashMap<String, Node> updatedNodes) {
@@ -175,9 +181,7 @@ public class User extends Node {
             }
 
             if (!hasNeighbours()) {
-                Node candidateNodeClone = candidateNode.clone();
-                setSuccessorAndConnect(candidateNodeClone);
-                candidateNodeClone.notifyAboutNewPredecessor(this);
+                setSuccessorAndConnect(candidateNode);
             }
 
             return result;
@@ -186,9 +190,33 @@ public class User extends Node {
         }
     }
 
-    public FutureTask<String> lookUp(String id) {
-        Lookup lookup = new Lookup(this, id);
-        return (FutureTask<String>) executorService.submit(lookup);
+    @Override
+    public String lookUp(String id) {
+        boolean isTryAgain;
+        int counter = 0;
+        String findResult = "NF";
+        do {
+            try {
+                Lookup lookup = new Lookup(this, id);
+                findResult = executorService.submit(lookup).get();
+                isTryAgain = findResult.equals("NF");
+            } catch (InterruptedException | ExecutionException e) {
+                LOGGER.warning("Unable to receive reply from LOOKUP message session. Reason: " + e.toString());
+                isTryAgain = true;
+            }
+
+            if (isTryAgain) {
+                counter++;
+                try {
+                    Thread.sleep(3000);
+                } catch (InterruptedException e) {
+                    LOGGER.warning("Unable to wait for retry. Reason " + e.toString());
+                }
+            }
+        } while (isTryAgain && counter < MAX_RETRY_ATTEMPTS);
+
+
+        return findResult;
     }
 
     public PrivateKey getPrivateKey() {
@@ -214,25 +242,7 @@ public class User extends Node {
         }
     }
 
-    @Override
-    public boolean hasNeighbours() {
-        return !getNodes().isEmpty();
-    }
-
-    public void setPredecessorAndConnect(Node predecessor) {
-        readWriteLock.writeLock().lock();
-        try {
-            setPredecessor(predecessor);
-            if (!predecessor.isConnected()) {
-                predecessor.connectToNode(false);
-            }
-        } finally {
-            readWriteLock.writeLock().unlock();
-        }
-
-    }
-
-    public void setPredecessor(Node predecessor) {
+    private void setPredecessor(Node predecessor) {
         readWriteLock.writeLock().lock();
         try {
             Node currentPredecessor = getPredecessor();
@@ -254,6 +264,31 @@ public class User extends Node {
         }
     }
 
+    @Override
+    public boolean hasNeighbours() {
+        return !getNodes().isEmpty();
+    }
+
+    public void setPredecessorAndConnect(Node predecessor) {
+        readWriteLock.writeLock().lock();
+        try {
+            Node currentSuccessor = getSuccessor();
+            if (predecessor != null && !predecessor.isConnected()) {
+                if (predecessor.equals(currentSuccessor)) {
+                    predecessor = predecessor.clone();
+                }
+                predecessor.connectToNode(false);
+            }
+            setPredecessor(predecessor);
+
+        } catch (IOException ioException) {
+            LOGGER.warning("Unable to connect to predecessor node");
+        } finally {
+            readWriteLock.writeLock().unlock();
+        }
+
+    }
+
     public Node getSuccessor() {
         readWriteLock.readLock().lock();
         try {
@@ -267,15 +302,28 @@ public class User extends Node {
         readWriteLock.writeLock().lock();
         try {
             Node currentSuccessor = getSuccessor();
+            Node currentPredecessor = getPredecessor();
             if (currentSuccessor != null) {
                 removeNodeFromTableAndDisconnect(currentSuccessor);
             }
 
             if (newSuccessor != null) {
+                if (newSuccessor.equals(currentPredecessor)) {
+                    newSuccessor = newSuccessor.clone();
+                }
                 replaceSuccessorsQueueHead(newSuccessor);
-                addNodeToTableAndConnect(newSuccessor);
-                newSuccessor.notifyAboutNewPredecessor(this);
-                this.successor = newSuccessor;
+
+                final Node nodeFromTable = getNodeFromTable(newSuccessor.getId());
+                if (nodeFromTable != null) {
+                    nodeFromTable.notifyAboutNewPredecessor(this);
+                    this.successor = nodeFromTable;
+                } else {
+                    addNodeToTableAndConnect(newSuccessor);
+                    newSuccessor.notifyAboutNewPredecessor(this);
+                    this.successor = newSuccessor;
+                }
+
+
                 LOGGER.info("The new successor of node " + getId() + " is node " + newSuccessor.getId());
                 ControllerFactory.getTestController().setSuccessorLabelText(newSuccessor.getId());
             } else {
@@ -308,11 +356,13 @@ public class User extends Node {
     public void addNodeToTableAndConnect(Node node) {
         readWriteLock.writeLock().lock();
         try {
-            nodes.put(node.getId(), node);
             ControllerFactory.getTestController().addNodeToFingerTable(node);
             if (!node.isConnected()) {
                 node.connectToNode(false);
             }
+            nodes.put(node.getId(), node);
+        } catch (IOException ioException) {
+            LOGGER.warning("Unable to connect to node " + node.getIp() + ":" + node.getPort() + ". Reason " + ioException.toString());
         } finally {
             readWriteLock.writeLock().unlock();
         }
@@ -431,11 +481,17 @@ public class User extends Node {
         try {
             Node currentSuccessor = getSuccessor();
             Node currentPredecessor = getPredecessor();
+            LOGGER.info(disconnectedNode + "");
             if (disconnectedNode.equals(currentSuccessor)) {
+                LOGGER.info(currentSuccessor.getId());
                 setSuccessorAndConnect(null);
-            } else if (disconnectedNode.equals(currentPredecessor)) {
-                setPredecessor(null);
-            } else {
+            }
+            if (disconnectedNode.equals(currentPredecessor)) {
+                LOGGER.info(currentPredecessor.getId());
+                setPredecessorAndConnect(null);
+            }
+
+            if (!disconnectedNode.equals(currentPredecessor) && !disconnectedNode.equals(currentSuccessor)) {
                 removeNodeFromTableAndDisconnect(disconnectedNode);
             }
         } finally {

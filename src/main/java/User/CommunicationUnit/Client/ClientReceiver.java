@@ -40,6 +40,7 @@ public class ClientReceiver implements Runnable {
             }
 
         } catch (IOException e) {
+            //System.err.println(e.toString() + " " + connection.toString() + " " + connection.getAssignedNode());
             if (!e.getMessage().equals("Socket closed")) {
                 LOGGER.warning("Connection was closed by host. Reason: " + e.toString());
 //                try {

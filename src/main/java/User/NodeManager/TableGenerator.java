@@ -5,7 +5,6 @@ import User.Encryption.Hash;
 import java.math.BigInteger;
 import java.util.LinkedHashMap;
 import java.util.concurrent.Callable;
-import java.util.concurrent.ExecutionException;
 
 public class TableGenerator implements Callable<LinkedHashMap<String, Node>> {
     private final User user;
@@ -15,7 +14,7 @@ public class TableGenerator implements Callable<LinkedHashMap<String, Node>> {
     }
 
     @Override
-    public LinkedHashMap<String, Node> call() throws ExecutionException, InterruptedException {
+    public LinkedHashMap<String, Node> call() {
 //            System.out.println("Node " + id + " started checking connections");
         BigInteger id = NodeUtil.hexToInt(user.getId());
         String hex;
@@ -29,15 +28,15 @@ public class TableGenerator implements Callable<LinkedHashMap<String, Node>> {
             BigInteger result = candidateId.mod(maxId);
             hex = NodeUtil.byteToHex(result);
 //            System.out.println("Node " + id + " looking for node " + hex + " with initial int " + result);
-            String candidateNodeJSON = user.lookUp(hex).get();
-            if (candidateNodeJSON == null) {
-                return null;
-            }
-            Node candidate = Node.getNodeFromJSONSting(candidateNodeJSON);
+            String candidateNodeJSON = user.lookUp(hex);
+            if (candidateNodeJSON != null && !candidateNodeJSON.equals("NF")) {
+
+                Node candidate = Node.getNodeFromJSONSting(candidateNodeJSON);
 
 
-            if (!candidate.equals(user)) {
-                temp.put(candidate.getId(), candidate);
+                if (!candidate.equals(user)) {
+                    temp.put(candidate.getId(), candidate);
+                }
             }
         }
 

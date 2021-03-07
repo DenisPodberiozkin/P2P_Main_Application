@@ -56,7 +56,7 @@ public class OutboundConnection implements AutoCloseable {
         receiver = new ClientReceiver(reader, this);
         heartBeatSender = new HeartBeatSender(this);
         Thread receiverThread = new Thread(receiver);
-        receiverThread.setName("Outbound Receiver");
+        receiverThread.setName("Outbound Receiver " + toString());
         receiverThread.start();
         Thread heartBeatSenderThread = new Thread(heartBeatSender);
         heartBeatSenderThread.setName("Outbound Heart Beat Sender");
@@ -73,8 +73,7 @@ public class OutboundConnection implements AutoCloseable {
 
         sessions.put(session.getId(), session);
         try {
-            final FutureTask<String> futureTask = (FutureTask<String>) executor.submit(session);
-            return futureTask;
+            return (FutureTask<String>) executor.submit(session);
         } catch (RejectedExecutionException e) {
             closeSession(session.getId());
             throw new RejectedExecutionException("Connection is closed!");

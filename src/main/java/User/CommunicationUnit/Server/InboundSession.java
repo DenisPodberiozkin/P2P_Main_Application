@@ -6,7 +6,6 @@ import User.NodeManager.User;
 
 import java.util.Arrays;
 import java.util.Deque;
-import java.util.concurrent.ExecutionException;
 import java.util.logging.Logger;
 
 public class InboundSession implements Runnable {
@@ -57,21 +56,8 @@ public class InboundSession implements Runnable {
                     writer.sendMessage(clientSessionId, response);
                     break;
                 case FIND:
-                    try {
-                        String lookUpId = this.tokens[1];
-                        String findResult = user.lookUp(lookUpId).get();
-                        String[] findResultTokens = findResult.split(" ");
-                        final int length = findResultTokens.length;
-                        if ((length > 1 && findResultTokens[0].equals("FR")) || length == 1) {
-                            response = length == 1 ? findResultTokens[0] : findResultTokens[1];
-                        } else {
-                            LOGGER.warning("Unexpected token in FIND RESULT - " + findResultTokens[0] + " , was expected \"FR\"");
-                            response = "ERROR : Unexpected token";
-                        }
-                    } catch (InterruptedException | ExecutionException e) {
-                        LOGGER.warning("Unable to receive reply form FIND message session. Reason: " + e.toString());
-                        response = "ERROR : Unable to receive reply form FIND message session. Reason: " + e.toString();
-                    }
+                    String lookUpId = this.tokens[1];
+                    response = user.lookUp(lookUpId);
                     writer.sendMessage(clientSessionId, response);
                     break;
                 case NEW_PREDECESSOR_NOTIFICATION:

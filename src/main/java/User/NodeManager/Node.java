@@ -14,10 +14,8 @@ import com.fasterxml.jackson.databind.module.SimpleModule;
 
 import java.io.IOException;
 import java.security.PublicKey;
-import java.util.Base64;
 import java.util.Deque;
 import java.util.Objects;
-import java.util.concurrent.FutureTask;
 import java.util.concurrent.RejectedExecutionException;
 import java.util.logging.Logger;
 
@@ -106,7 +104,7 @@ public class Node implements AutoCloseable {
         this.connection = null;
     }
 
-    public FutureTask<String> lookUp(String id) {
+    public String lookUp(String id) {
         return clientController.lookUp(connection, id);
     }
 
@@ -130,16 +128,10 @@ public class Node implements AutoCloseable {
         }
     }
 
-    public OutboundConnection connectToNode(boolean isPublicConnection) {
+    public OutboundConnection connectToNode(boolean isPublicConnection) throws IOException {
         String ip = isPublicConnection ? this.publicIp : this.ip;
-        try {
-            this.connection = clientController.connect(ip, port, this);
-            return this.connection;
-        } catch (IOException ioException) {
-            LOGGER.warning("Unable to connect to node " + ip + ":" + port + " Reason: " + ioException.toString());
-            ioException.printStackTrace();
-        }
-        return null;
+        this.connection = clientController.connect(ip, port, this);
+        return this.connection;
     }
 
     protected boolean isConnected() {
@@ -164,8 +156,13 @@ public class Node implements AutoCloseable {
             try {
                 return clientController.getPredecessor(connection);
             } catch (RejectedExecutionException e) {
-                connection = connectToNode(false);
-                return clientController.getPredecessor(connection);
+                LOGGER.warning("Connection to node " + getIp() + ":" + getPort() + " is closed, trying to reconnect");
+                try {
+                    connection = connectToNode(false);
+                    return clientController.getPredecessor(connection);
+                } catch (IOException ioException) {
+                    LOGGER.warning("Reconnection to node " + getIp() + ":" + getPort() + " is failed");
+                }
             }
         } else {
             LOGGER.warning("Connection to node " + ip + ":" + port + " is not established to get predecessor");
@@ -191,7 +188,7 @@ public class Node implements AutoCloseable {
     }
 
     @Override
-    public void close() throws Exception {
+    public void close() {
         closeConnection();
     }
 
@@ -208,16 +205,16 @@ public class Node implements AutoCloseable {
         return Objects.hash(id);
     }
 
-    @Override
-    public String toString() {
-        return "Node{" +
-                "id='" + id + '\'' +
-                ", ip='" + ip + '\'' +
-                ", publicIp='" + publicIp + '\'' +
-                ", port=" + port +
-                ", publicKey=" + Base64.getEncoder().encodeToString(publicKey.getEncoded()) +
-                '}';
-    }
+//    @Override
+//    public String toString() {
+//        return "Node{" +
+//                "id='" + id + '\'' +
+//                ", ip='" + ip + '\'' +
+//                ", publicIp='" + publicIp + '\'' +
+//                ", port=" + port +
+//                ", publicKey=" + Base64.getEncoder().encodeToString(publicKey.getEncoded()) +
+//                '}';
+//    }
 
 
 }

@@ -2,7 +2,6 @@ package User.NodeManager;
 
 import java.util.Set;
 import java.util.concurrent.Callable;
-import java.util.concurrent.ExecutionException;
 import java.util.logging.Logger;
 
 import static User.NodeManager.NodeUtil.isBigger;
@@ -43,19 +42,16 @@ public class Lookup implements Callable<String> {
                      and ID is a NORMAL node; then we go to current node's successor;
                      */
 //                    return null;
-                    return user.getSuccessor().lookUp(lookUpId).get(); //TODO UNCOMENT transfer lookp
+                    return user.getSuccessor().lookUp(lookUpId); //TODO UNCOMENT transfer lookp
                 }
                 //if highest predecessor is the normal node then continues look up.
 //            System.out.println("node " + this.getId() + "sending lookup of node " + id + " to highest predecessor " + highestPredecessor.getId());
 //                return null;
-                return highestPredecessor.lookUp(lookUpId).get(); // TODO UNCOMENT Transfer lookup
+                return highestPredecessor.lookUp(lookUpId); // TODO UNCOMENT Transfer lookup
             }
-        } catch (InterruptedException | ExecutionException e) {
-            LOGGER.warning("Unable to receive reply form message session. Reason: " + e.toString());
-            return null;
         } catch (Exception e) {
             LOGGER.warning("Lookup not found. Reason: " + e.toString());
-            return null;
+            return "NF";
         }
     }
 

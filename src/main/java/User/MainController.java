@@ -19,7 +19,6 @@ import java.security.KeyPair;
 import java.security.PrivateKey;
 import java.sql.Connection;
 import java.sql.SQLException;
-import java.util.concurrent.ExecutionException;
 import java.util.logging.Logger;
 
 public class MainController implements IMainController {
@@ -90,28 +89,47 @@ public class MainController implements IMainController {
         try (OutboundConnection serverConnection = clientController.connect(ConnectionsData.getLocalServerIp(), ConnectionsData.getLocalServerPort())) {
 
 //                User user = User.getInstance(); //TODO uncomment later
-            Node lastConnectedNode = clientController.getLastConnectedNode(serverConnection);
-            if (user != null) {
-                if (lastConnectedNode != null) {
-                    try {
-                        lastConnectedNode.connectToNode(false);
-                        if (lastConnectedNode.hasNeighbours()) {
-                            Node successorNode = Node.getNodeFromJSONSting(lastConnectedNode.lookUp(user.getId()).get());
-                            lastConnectedNode.closeConnection();
-                            user.join(successorNode);
-                        } else {
-                            user.join(lastConnectedNode);
+            boolean isLastConnectedNodeReachable = false;
+            boolean isLastConnectedNodePresent = false;
+            do {
+                Node lastConnectedNode = clientController.getLastConnectedNode(serverConnection);
+                if (user != null) {
+                    if (lastConnectedNode != null) {
+                        isLastConnectedNodePresent = true;
+//                        String oldIp = lastConnectedNode.getIp(); //TODO remove later
+//                        lastConnectedNode.setIp("132.456.789.123"); //TODO remove later
+                        try {
+                            lastConnectedNode.connectToNode(false);
+                            isLastConnectedNodeReachable = true;
+                            if (lastConnectedNode.hasNeighbours()) {
+                                final String successorJson = lastConnectedNode.lookUp(user.getId());
+                                if (successorJson.equals("NF")) {
+                                    throw new IOException("Successor not found");
+                                }
+                                Node successorNode = Node.getNodeFromJSONSting(successorJson);
+                                lastConnectedNode.closeConnection();
+                                user.join(successorNode);
+                            } else {
+                                user.join(lastConnectedNode);
+                            }
+                        } catch (IOException ioException) {
+                            LOGGER.warning("Unable to connect to last node. Reason " + ioException.toString());
+                            isLastConnectedNodeReachable = false;
+//                            lastConnectedNode.setIp(oldIp); //TODO remove later
+                            clientController.removeUnreachableLastConnectedNode(serverConnection, lastConnectedNode.getJSONString());
                         }
-                    } catch (InterruptedException | ExecutionException interruptedException) {
-                        interruptedException.printStackTrace();
-                        LOGGER.warning("Unable to receive reply from FIND message session. Reason: " + interruptedException.toString());
+                    } else {
+                        if (!isLastConnectedNodePresent) {
+                            user.join();
+                        } else {
+                            LOGGER.severe("ALL last connected nodes are unreachable");
+                            isLastConnectedNodePresent = false;
+                        }
                     }
                 } else {
-                    user.join();
+                    LOGGER.warning("User undefined");
                 }
-            } else {
-                LOGGER.warning("User undefined");
-            }
+            } while (isLastConnectedNodePresent && !isLastConnectedNodeReachable);
             clientController.sendLastNodeToServer(serverConnection, user);
 //
 //
@@ -121,7 +139,7 @@ public class MainController implements IMainController {
 
 
         } catch (IOException ioException) {
-            ioException.printStackTrace();
+            LOGGER.warning("Unable to connect to local server. Reason " + ioException.toString());
         }
     }
 

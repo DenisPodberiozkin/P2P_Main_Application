@@ -4,7 +4,6 @@ import User.NodeManager.Node;
 
 import java.io.IOException;
 import java.util.Deque;
-import java.util.concurrent.FutureTask;
 import java.util.concurrent.RejectedExecutionException;
 
 public interface IClientController {
@@ -19,7 +18,7 @@ public interface IClientController {
 
     boolean hasNeighbours(OutboundConnection connection);
 
-    FutureTask<String> lookUp(OutboundConnection connection, String id);
+    String lookUp(OutboundConnection connection, String id);
 
     void sendLastNodeToServer(OutboundConnection connection, Node node);
 
@@ -28,4 +27,6 @@ public interface IClientController {
     Node getPredecessor(OutboundConnection connection) throws RejectedExecutionException;
 
     Deque<Node> getSuccessorsQueue(OutboundConnection connection);
+
+    void removeUnreachableLastConnectedNode(OutboundConnection connection, String nodeJSON);
 }

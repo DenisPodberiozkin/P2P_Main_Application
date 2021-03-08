@@ -8,6 +8,7 @@ import javafx.scene.Scene;
 import javafx.stage.Stage;
 
 import java.security.Security;
+import java.util.logging.*;
 
 public class Main extends Application {
 
@@ -19,6 +20,17 @@ public class Main extends Application {
     public static void main(String[] args) {
         ConnectionsData.setUserServerPort(Integer.parseInt(args[0]));
         launch(args);
+    }
+
+
+    public static void setDebugLevel(Level newLvl) {
+        Logger rootLogger = LogManager.getLogManager().getLogger("");
+        Handler[] handlers = rootLogger.getHandlers();
+        rootLogger.setLevel(newLvl);
+        for (Handler h : handlers) {
+            if (h instanceof FileHandler)
+                h.setLevel(newLvl);
+        }
     }
 
     @Override
@@ -35,7 +47,7 @@ public class Main extends Application {
         Security.setProperty("crypto.policy", "unlimited");
 //        Runtime.getRuntime().addShutdownHook(new Thread(() -> System.out.println("Before closing")));
 
-
+        setDebugLevel(Level.FINE);
         final MainController mainController = MainController.getInstance();
         mainController.connectToRing();
 //        System.exit(0);

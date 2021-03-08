@@ -29,81 +29,99 @@ public class InboundSession implements Runnable {
 
     @Override
     public void run() {
-        if (request != null) {
+        try {
 
-            if (request == InboundTokens.PING) {
-                LOGGER.config("Inbound Session " + id + " was created to process request " + request.getToken() + " from " + connection.getIp() + ":" + connection.getPort());
+
+            if (request != null) {
+
+                if (request == InboundTokens.PING) {
+                    LOGGER.config("Inbound Session " + id + " was created to process request " + request.getToken() + " from " + connection.getIp() + ":" + connection.getPort());
+                } else {
+                    LOGGER.info("Inbound Session " + id + " was created to process request " + request.getToken() + " from " + connection.getIp() + ":" + connection.getPort());
+                }
+
+
+                final String requestToken = request.getToken();
+                String response;
+                final User user = User.getInstance();
+                switch (request) {
+                    case HAS_NEIGHBOURS:
+                        if (user.hasNeighbours()) {
+                            response = requestToken + " 1";
+                        } else {
+                            response = requestToken + " 0";
+                        }
+                        writer.sendMessage(clientSessionId, response);
+                        break;
+                    case PING:
+                        connection.getHeartBeatManager().pingReceived();
+                        response = requestToken + " OK";
+                        writer.sendMessage(clientSessionId, response);
+                        break;
+                    case FIND:
+                        String lookUpId = this.tokens[1];
+                        response = user.findNode(lookUpId);
+                        writer.sendMessage(clientSessionId, response);
+                        break;
+                    case NEW_PREDECESSOR_NOTIFICATION:
+                        Node candidateNode = Node.getNodeFromJSONSting(tokens[1]);
+                        boolean isNewPredecessorUpdated = user.checkAndUpdateNewPredecessor(candidateNode);
+                        String status = isNewPredecessorUpdated ? " ACCEPTED" : " DECLINED";
+                        response = requestToken + status;
+                        writer.sendMessage(clientSessionId, response);
+                        break;
+                    case GET_PREDECESSOR:
+                        Node predecessor = user.getPredecessor();
+                        if (predecessor != null) {
+                            String predecessorJOSN = user.getPredecessor().getJSONString();
+                            response = requestToken + " " + predecessorJOSN;
+                        } else {
+                            response = requestToken + " null";
+                        }
+                        writer.sendMessage(clientSessionId, response);
+                        break;
+                    case GET_SUCCESSORS_QUEUE:
+                        final Deque<Node> successorsQueue = user.getSuccessorsQueue();
+                        StringBuilder messageBuilder = new StringBuilder();
+                        for (Node node : successorsQueue) {
+                            messageBuilder.append(node.getJSONString()).append(" ");
+                        }
+                        response = requestToken + " " + messageBuilder.toString();
+                        writer.sendMessage(clientSessionId, response);
+                        break;
+                    case TRANSFER_MESSAGE:
+                        String receiverId = tokens[1];
+
+                        String payload = tokens[2] + " " + tokens[3]; //TODO change later to tokens[] 2 only since it will be encrypted
+                        response = requestToken + " " + user.transferMessage(receiverId, payload);
+                        writer.sendMessage(clientSessionId, response);
+                        break;
+                    default:
+                        LOGGER.warning("Unexpected value: " + request);
+                        response = "ERROR : Unexpected value: " + request;
+                        writer.sendMessage(clientSessionId, response);
+                        break;
+                }
+
+                if (response.contains(InboundTokens.PING.getToken())) {
+                    LOGGER.config("Inbound Session " + id + " sends reply " + response + " in response to " + requestToken + " to " + connection.getIp() + ":" + connection.getPort());
+                } else {
+                    LOGGER.info("Inbound Session " + id + " sends reply " + response + " in response to " + requestToken + " to " + connection.getIp() + ":" + connection.getPort());
+                }
             } else {
-                LOGGER.info("Inbound Session " + id + " was created to process request " + request.getToken() + " from " + connection.getIp() + ":" + connection.getPort());
+                writer.sendMessage(clientSessionId, "ERROR : Unexpected token");
             }
 
 
-            final String requestToken = request.getToken();
-            String response;
-            final User user = User.getInstance();
-            switch (request) {
-                case HAS_NEIGHBOURS:
-                    if (user.hasNeighbours()) {
-                        response = requestToken + " 1";
-                    } else {
-                        response = requestToken + " 0";
-                    }
-                    writer.sendMessage(clientSessionId, response);
-                    break;
-                case PING:
-                    connection.getHeartBeatManager().pingReceived();
-                    response = requestToken + " OK";
-                    writer.sendMessage(clientSessionId, response);
-                    break;
-                case FIND:
-                    String lookUpId = this.tokens[1];
-                    response = user.lookUp(lookUpId);
-                    writer.sendMessage(clientSessionId, response);
-                    break;
-                case NEW_PREDECESSOR_NOTIFICATION:
-                    Node candidateNode = Node.getNodeFromJSONSting(tokens[1]);
-                    boolean isNewPredecessorUpdated = user.checkAndUpdateNewPredecessor(candidateNode);
-                    String status = isNewPredecessorUpdated ? " ACCEPTED" : " DECLINED";
-                    response = requestToken + status;
-                    writer.sendMessage(clientSessionId, response);
-                    break;
-                case GET_PREDECESSOR:
-                    Node predecessor = user.getPredecessor();
-                    if (predecessor != null) {
-                        String predecessorJOSN = user.getPredecessor().getJSONString();
-                        response = requestToken + " " + predecessorJOSN;
-                    } else {
-                        response = requestToken + " null";
-                    }
-                    writer.sendMessage(clientSessionId, response);
-                    break;
-                case GET_SUCCESSORS_QUEUE:
-                    final Deque<Node> successorsQueue = user.getSuccessorsQueue();
-                    StringBuilder messageBuilder = new StringBuilder();
-                    for (Node node : successorsQueue) {
-                        messageBuilder.append(node.getJSONString()).append(" ");
-                    }
-                    response = requestToken + " " + messageBuilder.toString();
-                    writer.sendMessage(clientSessionId, response);
-                    break;
-                default:
-                    LOGGER.warning("Unexpected value: " + request);
-                    response = "ERROR : Unexpected value: " + request;
-                    writer.sendMessage(clientSessionId, response);
-                    break;
-            }
+        } catch (Exception e) {
+            LOGGER.severe("ERROR in inbound session " + id);
+            e.printStackTrace();
+        } finally {
+            connection.closeSession(this.id);
 
-            if (response.contains(InboundTokens.PING.getToken())) {
-                LOGGER.config("Inbound Session " + id + " sends reply " + response + " in response to " + requestToken + " to " + connection.getIp() + ":" + connection.getPort());
-            } else {
-                LOGGER.info("Inbound Session " + id + " sends reply " + response + " in response to " + requestToken + " to " + connection.getIp() + ":" + connection.getPort());
-            }
-        } else {
-            writer.sendMessage(clientSessionId, "ERROR : Unexpected token");
         }
 
 
-        connection.closeSession(this.id);
     }
 
     public int getId() {

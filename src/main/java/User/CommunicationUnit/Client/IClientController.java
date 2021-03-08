@@ -29,4 +29,6 @@ public interface IClientController {
     Deque<Node> getSuccessorsQueue(OutboundConnection connection);
 
     void removeUnreachableLastConnectedNode(OutboundConnection connection, String nodeJSON);
+
+    String transferMessage(OutboundConnection connection, String receiverId, String payload);
 }

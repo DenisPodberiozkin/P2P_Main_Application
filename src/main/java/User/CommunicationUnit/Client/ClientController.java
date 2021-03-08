@@ -53,6 +53,7 @@ public class ClientController implements IClientController {
             LOGGER.warning("Illegal token - " + tokens[0] + " Expected - " + token);
             return null;
         } else {
+            LOGGER.warning("Message without token or without data received. Message " + message);
             return new String[0];
         }
 
@@ -165,6 +166,25 @@ public class ClientController implements IClientController {
         } catch (InterruptedException | ExecutionException e) {
             LOGGER.warning("Unable to receive reply from REMOVE UNREACHABLE LAST CONNECTED NODE message session. Reason: " + e.toString());
         }
+
+    }
+
+    @Override
+    public String transferMessage(OutboundConnection connection, String receiverId, String payload) {
+        try {
+            String token = InboundTokens.TRANSFER_MESSAGE.getToken();
+            String message = token + " " + receiverId + " " + payload;
+            String reply = sendMessage(connection, message).get();
+            String[] tokens = verifyAndCleanTokens(reply, token);
+            if (tokens != null) {
+                return tokens[0];
+            }
+        } catch (InterruptedException | ExecutionException e) {
+            LOGGER.warning("Unable to receive reply from TRANSFER MESSAGE message session. Reason: " + e.toString());
+            return "NF";
+        }
+
+        return "NF";
 
     }
 }

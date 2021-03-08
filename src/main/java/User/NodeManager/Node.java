@@ -104,7 +104,7 @@ public class Node implements AutoCloseable {
         this.connection = null;
     }
 
-    public String lookUp(String id) {
+    public String findNode(String id) {
         return clientController.lookUp(connection, id);
     }
 
@@ -182,6 +182,10 @@ public class Node implements AutoCloseable {
         return clientController.getSuccessorsQueue(connection);
     }
 
+    public String transferMessage(String receiverId, String payload) {
+        return clientController.transferMessage(connection, receiverId, payload);
+    }
+
     @Override
     public Node clone() {
         return getNodeFromJSONSting(getJSONString());
@@ -204,6 +208,7 @@ public class Node implements AutoCloseable {
     public int hashCode() {
         return Objects.hash(id);
     }
+
 
 //    @Override
 //    public String toString() {

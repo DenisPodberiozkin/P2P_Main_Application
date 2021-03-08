@@ -5,6 +5,10 @@ import User.CommunicationUnit.Server.IServerController;
 import User.CommunicationUnit.Server.ServerController;
 import User.ConnectionsData;
 import User.Encryption.EncryptionController;
+import User.NodeManager.Lookup.FindLookupLogic;
+import User.NodeManager.Lookup.LookupEngine;
+import User.NodeManager.Lookup.LookupLogic;
+import User.NodeManager.Lookup.TransferMessageLookupLogic;
 
 import java.io.BufferedReader;
 import java.io.IOException;
@@ -37,6 +41,7 @@ public class User extends Node {
     private final Updater updater;
     private final Deque<Node> successorsQueue = new LinkedList<>();
     private final IServerController serverController = ServerController.getInstance();
+    private final HashMap<String, Conversation> conversations = new HashMap<>();
     private Node predecessor;
     private Node successor;
     private PrivateKey privateKey;
@@ -191,32 +196,10 @@ public class User extends Node {
     }
 
     @Override
-    public String lookUp(String id) {
-        boolean isTryAgain;
-        int counter = 0;
-        String findResult = "NF";
-        do {
-            try {
-                Lookup lookup = new Lookup(this, id);
-                findResult = executorService.submit(lookup).get();
-                isTryAgain = findResult.equals("NF");
-            } catch (InterruptedException | ExecutionException e) {
-                LOGGER.warning("Unable to receive reply from LOOKUP message session. Reason: " + e.toString());
-                isTryAgain = true;
-            }
-
-            if (isTryAgain) {
-                counter++;
-                try {
-                    Thread.sleep(3000);
-                } catch (InterruptedException e) {
-                    LOGGER.warning("Unable to wait for retry. Reason " + e.toString());
-                }
-            }
-        } while (isTryAgain && counter < MAX_RETRY_ATTEMPTS);
-
-
-        return findResult;
+    public String findNode(String id) {
+        Node successor = getSuccessor();
+        LookupLogic lookupLogic = new FindLookupLogic(successor, id);
+        return lookup(id, successor, lookupLogic, "find");
     }
 
     public PrivateKey getPrivateKey() {
@@ -411,24 +394,6 @@ public class User extends Node {
         }
     }
 
-//    public void addToSuccessorList(Node node) {
-//        readWriteLock.writeLock().lock();
-//        try {
-//            successorsQueue.add(node);
-//        } finally {
-//            readWriteLock.writeLock().unlock();
-//        }
-//    }
-//
-//    public void removeFromSuccessorList(Node node) {
-//        readWriteLock.writeLock().lock();
-//        try {
-//            successorsQueue.remove(node);
-//        } finally {
-//            readWriteLock.writeLock().unlock();
-//        }
-//    }
-
     @Override
     public Deque<Node> getSuccessorsQueue() {
         readWriteLock.readLock().lock();
@@ -497,5 +462,72 @@ public class User extends Node {
         } finally {
             readWriteLock.writeLock().unlock();
         }
+    }
+
+    public Conversation createNewConversation(String participantId) {
+        Conversation conversation = new Conversation(participantId);
+        conversations.put(participantId, conversation);
+        return conversation;
+    }
+
+    public void processMessage(String payload) {
+        //TODO decryption
+        String[] tokens = payload.split(" ");
+        String senderId = tokens[0];
+        String text = tokens[1];
+        addMessage(senderId, senderId, text);
+        LOGGER.info("Received message " + text + " from " + senderId);
+    }
+
+    public void addMessage(String participantId, String senderId, String text) {
+        Conversation conversation = conversations.get(senderId);
+        if (conversation == null) {
+            conversation = createNewConversation(participantId);
+        }
+        conversation.addMessage(senderId, text);
+    }
+
+    public void sendMessage(String receiverId, String text) {
+        String userId = getId();
+        addMessage(receiverId, userId, text);
+
+        String payload = userId + " " + text; //TODO encryption
+
+        transferMessage(receiverId, payload);
+    }
+
+    @Override
+    public String transferMessage(String receiverId, String payload) {
+        Node successor = getSuccessor();
+        LookupLogic lookupLogic = new TransferMessageLookupLogic(receiverId, payload);
+        return lookup(receiverId, successor, lookupLogic, "Transfer Message");
+    }
+
+    private String lookup(String lookupId, Node successor, LookupLogic lookupLogic, String taskName) {
+        boolean isTryAgain;
+        int counter = 0;
+        String findResult = "NF";
+        do {
+            try {
+                LookupEngine lookupEngine = new LookupEngine(this, lookupId, successor, lookupLogic);
+                findResult = executorService.submit(lookupEngine).get();
+                isTryAgain = findResult.equals("NF");
+            } catch (InterruptedException | ExecutionException e) {
+                LOGGER.warning("Unable to receive reply from " + taskName.toUpperCase() + " message session. Reason: " + e.toString());
+                isTryAgain = true;
+            }
+
+            if (isTryAgain) {
+                counter++;
+                try {
+                    Thread.sleep(3000);
+                } catch (InterruptedException e) {
+                    LOGGER.warning("Unable to wait for retry. Reason " + e.toString());
+                }
+            }
+        } while (isTryAgain && counter < MAX_RETRY_ATTEMPTS);
+
+
+        return findResult;
     }
 }

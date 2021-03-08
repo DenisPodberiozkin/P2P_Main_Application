@@ -102,7 +102,7 @@ public class MainController implements IMainController {
                             lastConnectedNode.connectToNode(false);
                             isLastConnectedNodeReachable = true;
                             if (lastConnectedNode.hasNeighbours()) {
-                                final String successorJson = lastConnectedNode.lookUp(user.getId());
+                                final String successorJson = lastConnectedNode.findNode(user.getId());
                                 if (successorJson.equals("NF")) {
                                     throw new IOException("Successor not found");
                                 }

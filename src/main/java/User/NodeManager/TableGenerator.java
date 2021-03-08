@@ -28,7 +28,7 @@ public class TableGenerator implements Callable<LinkedHashMap<String, Node>> {
             BigInteger result = candidateId.mod(maxId);
             hex = NodeUtil.byteToHex(result);
 //            System.out.println("Node " + id + " looking for node " + hex + " with initial int " + result);
-            String candidateNodeJSON = user.lookUp(hex);
+            String candidateNodeJSON = user.findNode(hex);
             if (candidateNodeJSON != null && !candidateNodeJSON.equals("NF")) {
 
                 Node candidate = Node.getNodeFromJSONSting(candidateNodeJSON);

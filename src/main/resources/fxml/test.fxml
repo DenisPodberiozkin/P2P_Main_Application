@@ -160,6 +160,32 @@
                </children>
             </AnchorPane>
          </right>
+         <bottom>
+            <AnchorPane BorderPane.alignment="CENTER">
+               <children>
+                  <HBox alignment="CENTER" prefHeight="100.0" prefWidth="1279.0" AnchorPane.bottomAnchor="0.0"
+                        AnchorPane.leftAnchor="0.0" AnchorPane.rightAnchor="0.0" AnchorPane.topAnchor="0.0">
+                     <children>
+                        <Button mnemonicParsing="false" onAction="#sendButtonAction" text="Send">
+                           <HBox.margin>
+                              <Insets bottom="15.0" left="15.0" right="15.0" top="15.0"/>
+                           </HBox.margin>
+                        </Button>
+                        <TextField fx:id="receiverIdField" prefHeight="25.0" prefWidth="364.0" promptText="ID">
+                           <HBox.margin>
+                              <Insets bottom="15.0" left="15.0" right="15.0" top="15.0"/>
+                           </HBox.margin>
+                        </TextField>
+                        <TextField fx:id="messageField" prefHeight="25.0" prefWidth="537.0" promptText="Message">
+                           <HBox.margin>
+                              <Insets bottom="15.0" left="15.0" right="15.0" top="15.0"/>
+                           </HBox.margin>
+                        </TextField>
+                     </children>
+                  </HBox>
+               </children>
+            </AnchorPane>
+         </bottom>
       </BorderPane>
    </children>
 </AnchorPane>

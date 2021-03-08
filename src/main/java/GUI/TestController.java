@@ -10,6 +10,7 @@ package GUI;
 
 import User.CommunicationUnit.Client.OutboundConnection;
 import User.NodeManager.Node;
+import User.NodeManager.User;
 import javafx.application.Platform;
 import javafx.beans.property.SimpleStringProperty;
 import javafx.collections.FXCollections;
@@ -19,6 +20,7 @@ import javafx.fxml.Initializable;
 import javafx.scene.control.Label;
 import javafx.scene.control.TableColumn;
 import javafx.scene.control.TableView;
+import javafx.scene.control.TextField;
 import javafx.scene.control.cell.PropertyValueFactory;
 
 import java.net.URL;
@@ -31,6 +33,10 @@ public class TestController implements Initializable {
     private final ObservableList<Node> fingerTableData = FXCollections.observableArrayList();
     private final ObservableList<Node> successorsTableData = FXCollections.observableArrayList();
 
+    @FXML
+    private TextField receiverIdField;
+    @FXML
+    private TextField messageField;
     @FXML
     private TableColumn<Node, String> successorPort;
     @FXML
@@ -137,5 +143,12 @@ public class TestController implements Initializable {
     public void updateSuccessorsData(Queue<Node> successors) {
         successorsTableData.clear();
         successorsTableData.addAll(successors);
+    }
+
+    @FXML
+    private void sendButtonAction() {
+        String receiverId = receiverIdField.getText();
+        String text = messageField.getText();
+        User.getInstance().sendMessage(receiverId, text);
     }
 }

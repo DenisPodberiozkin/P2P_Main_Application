@@ -1,4 +1,7 @@
-package User.NodeManager;
+package User.NodeManager.Lookup;
+
+import User.NodeManager.Node;
+import User.NodeManager.User;
 
 import java.util.Set;
 import java.util.concurrent.Callable;
@@ -6,14 +9,18 @@ import java.util.logging.Logger;
 
 import static User.NodeManager.NodeUtil.isBigger;
 
-public class Lookup implements Callable<String> {
-    private static final Logger LOGGER = Logger.getLogger(Lookup.class.getName());
+public class LookupEngine implements Callable<String> {
+    private static final Logger LOGGER = Logger.getLogger(LookupEngine.class.getName());
     private final User user;
     private final String lookUpId;
+    private final Node successor;
+    private final LookupLogic lookupLogic;
 
-    public Lookup(User user, String lookUpId) {
+    public LookupEngine(User user, String lookUpId, Node successor, LookupLogic lookupLogic) {
         this.user = user;
         this.lookUpId = lookUpId;
+        this.successor = successor;
+        this.lookupLogic = lookupLogic;
     }
 
 
@@ -23,10 +30,9 @@ public class Lookup implements Callable<String> {
         try {
 //            System.out.println(this.id + " START LOOKUP id " + id);
 
-            final Node successor = user.getSuccessor();
             if (isBigger(lookUpId, user.getId()) && (isBigger(successor.getId(), lookUpId)) || user.getId().equals(lookUpId)) {
 //            System.out.println("node " + this.id + "returns its successor" + getSuccessor().getId());
-                return successor.getJSONString();
+                return lookupLogic.finish();
             } else {
                 final Node highestPredecessor = findHighestPredecessor(lookUpId);
 //                System.out.println("Highest predecessor is node " + highestPredecessor.getId());
@@ -36,21 +42,25 @@ public class Lookup implements Callable<String> {
 //                System.out.println("node " + this.id + " is a MAX node, returning its successor - min node " + highestPredecessor.getSuccessor().getId());
                     //if ID is either new MIN or MAX node then return current MIN node as ID's successor
                     if (isBigger(lookUpId, user.getId()) || isBigger(successor.getId(), lookUpId)) {
-                        return user.getSuccessor().getJSONString();
+                        return lookupLogic.finish();
                     }
                     /* if we are here, then current node is a MAX node which has only one connection in its finger table(successor only),
                      and ID is a NORMAL node; then we go to current node's successor;
                      */
-//                    return null;
-                    return user.getSuccessor().lookUp(lookUpId); //TODO UNCOMENT transfer lookp
+
+
+                    return lookupLogic.proceed(successor);
+
                 }
                 //if highest predecessor is the normal node then continues look up.
 //            System.out.println("node " + this.getId() + "sending lookup of node " + id + " to highest predecessor " + highestPredecessor.getId());
 //                return null;
-                return highestPredecessor.lookUp(lookUpId); // TODO UNCOMENT Transfer lookup
+                return lookupLogic.proceed(highestPredecessor);
+
             }
         } catch (Exception e) {
             LOGGER.warning("Lookup not found. Reason: " + e.toString());
+            e.printStackTrace();
             return "NF";
         }
     }
@@ -59,7 +69,6 @@ public class Lookup implements Callable<String> {
         final Set<String> userConnections = user.getNodes().keySet();
         final int size = userConnections.size();
         final String[] arr = new String[size];
-        final Node successor = user.getSuccessor();
         userConnections.toArray(arr);
         int resId = binarySearch(arr, 0, size - 1, id);
 //        System.out.println("Highest is " + resId + " was choosen from");
@@ -109,7 +118,6 @@ public class Lookup implements Callable<String> {
 
         return -1;
     }
-
 
 
 }

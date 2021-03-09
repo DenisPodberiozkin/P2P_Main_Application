@@ -2,6 +2,8 @@ package User.CommunicationUnit.Client;
 
 import User.CommunicationUnit.Server.InboundTokens;
 import User.CommunicationUnit.SynchronisedWriter;
+import User.Encryption.EncryptionController;
+import User.Encryption.IEncryptionController;
 
 import java.util.concurrent.Callable;
 import java.util.concurrent.CountDownLatch;
@@ -15,12 +17,15 @@ public class OutboundSession implements Callable<String> {
     private final int id;
     private final CountDownLatch latch;
     private final OutboundConnection connection;
+    private final IEncryptionController encryptionController = EncryptionController.getInstance();
     private String messageReply = "";
+    private final boolean isEncrypted;
 
-    public OutboundSession(SynchronisedWriter writer, String message, OutboundConnection connection) {
+    public OutboundSession(SynchronisedWriter writer, String message, OutboundConnection connection, boolean isEncrypted) {
         this.writer = writer;
         this.message = message;
         this.connection = connection;
+        this.isEncrypted = isEncrypted;
         this.id = initId();
         this.latch = new CountDownLatch(1);
         if (message.contains(InboundTokens.PING.getToken())) {
@@ -47,15 +52,15 @@ public class OutboundSession implements Callable<String> {
 
 
         try {
-            writer.sendMessage(id, message);
-            latch.await();
-
-            if (message.contains(InboundTokens.PING.getToken())) {
-                LOGGER.config("Outbound Session " + id + " received reply " + messageReply + " from" + connection.getIp() + ":" + connection.getPort());
+            String messageToSend;
+            if (isEncrypted) {
+                messageToSend = encryptionController.encryptStringByAES(connection.getSecretKey(), message);
             } else {
-                LOGGER.info("Outbound Session " + id + " received reply " + messageReply + " from" + connection.getIp() + ":" + connection.getPort());
+                messageToSend = message;
             }
 
+            writer.sendMessage(id, messageToSend);
+            latch.await();
 
             StringBuilder editedMessage = new StringBuilder();
             String[] tokens = messageReply.split(" ");
@@ -65,13 +70,24 @@ public class OutboundSession implements Callable<String> {
                     editedMessage.append(" ");
                 }
             }
+            messageReply = editedMessage.toString();
 
-            final String reply = editedMessage.toString();
-            if (reply.contains("ERROR")) {
-                LOGGER.warning("Outbound Session " + id + " received " + messageReply + " in response to message: " + message + " sent to " + connection.getIp() + ":" + connection.getPort());
-                throw new IllegalArgumentException("REQUEST ERROR");
+            if (isEncrypted) {
+                messageReply = encryptionController.decryptStringByAES(connection.getSecretKey(), messageReply);
             }
-            return reply;
+
+            if (message.contains(InboundTokens.PING.getToken())) {
+                LOGGER.config("Outbound Session " + id + " received reply " + messageReply + " from" + connection.getIp() + ":" + connection.getPort());
+            } else {
+                LOGGER.info("Outbound Session " + id + " received reply " + messageReply + " from" + connection.getIp() + ":" + connection.getPort());
+            }
+
+
+            if (messageReply.contains("ERROR")) {
+                LOGGER.warning("Outbound Session " + id + " received " + messageReply + " in response to message: " + message + " sent to " + connection.getIp() + ":" + connection.getPort());
+                throw new IllegalArgumentException("REQUEST ERROR " + messageReply);
+            }
+            return messageReply;
         } finally {
             connection.closeSession(this.id);
         }

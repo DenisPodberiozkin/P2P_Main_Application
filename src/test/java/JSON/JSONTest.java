@@ -18,7 +18,7 @@ public class JSONTest {
         module.addSerializer(Node.class, new NodeSerializer());
         module.addDeserializer(Node.class, new NodeDeserializer());
         objectMapper.registerModule(module);
-//        Node node = new Node(EncryptionController.getInstance().generateKeyPair().getPublic(), 4444);
+//        Node node = new Node(EncryptionController.getInstance().generateRSAKeyPair().getPublic(), 4444);
 //        node.setIp("123.123.123.123");
 //        node.setPublicIp("456.456.456.456");
 

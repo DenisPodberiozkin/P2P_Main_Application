@@ -12,7 +12,6 @@ public class RSA {
     public static KeyPair generateKeyPair() throws NoSuchAlgorithmException {
         KeyPairGenerator keyPairGenerator = KeyPairGenerator.getInstance(ALGORITHM_TYPE);
         return keyPairGenerator.generateKeyPair();
-
     }
 
     public static PublicKey getPublicKeyFromBytes(byte[] data) throws NoSuchAlgorithmException, InvalidKeySpecException {
@@ -22,4 +21,8 @@ public class RSA {
     public static PrivateKey getPrivateKeyFromBytes(byte[] data) throws NoSuchAlgorithmException, InvalidKeySpecException {
         return KeyFactory.getInstance(ALGORITHM_TYPE).generatePrivate(new PKCS8EncodedKeySpec(data));
     }
+
+//    public static byte[] encrypt(String data, PublicKey publicKey) {
+//
+//    }
 }

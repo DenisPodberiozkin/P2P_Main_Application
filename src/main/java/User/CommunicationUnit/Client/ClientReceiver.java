@@ -1,6 +1,8 @@
 package User.CommunicationUnit.Client;
 
 import User.CommunicationUnit.MessageReader;
+import User.Encryption.EncryptionController;
+import User.Encryption.IEncryptionController;
 import User.NodeManager.User;
 
 import java.io.IOException;
@@ -10,7 +12,9 @@ public class ClientReceiver implements Runnable {
     private static final Logger LOGGER = Logger.getLogger(ClientReceiver.class.getName());
     private final MessageReader reader;
     private final OutboundConnection connection;
+    private final IEncryptionController encryptionController = EncryptionController.getInstance();
     private boolean isRunning;
+
 
     public ClientReceiver(MessageReader reader, OutboundConnection connection) {
         this.reader = reader;
@@ -22,9 +26,15 @@ public class ClientReceiver implements Runnable {
     public void run() {
         try {
             while (isRunning) {
+
                 String message = reader.readLine();
                 if (message != null) {
-                    LOGGER.config("Message " + message + " was received from " + connection.getIp() + ":" + connection.getPort());
+//                    final SecretKey secretKey = connection.getSecretKey();
+//                    if (secretKey != null) {
+//                        message = encryptionController.decryptStringByAES(secretKey, message);
+//                    }
+
+                    LOGGER.info("Message " + message + " was received from " + connection.getIp() + ":" + connection.getPort());
                     String[] tokens = message.split(" ");
                     int sessionID = Integer.parseInt(tokens[0]);
                     OutboundSession session = connection.getSession(sessionID);

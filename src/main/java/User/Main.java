@@ -18,6 +18,7 @@ public class Main extends Application {
     }
 
     public static void main(String[] args) {
+//        Security.addProvider(new BouncyCastleProvider());
         ConnectionsData.setUserServerPort(Integer.parseInt(args[0]));
         launch(args);
     }

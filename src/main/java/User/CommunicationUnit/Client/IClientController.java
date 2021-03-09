@@ -3,7 +3,10 @@ package User.CommunicationUnit.Client;
 import User.NodeManager.Node;
 
 import java.io.IOException;
+import java.security.GeneralSecurityException;
+import java.security.PublicKey;
 import java.util.Deque;
+import java.util.concurrent.ExecutionException;
 import java.util.concurrent.RejectedExecutionException;
 
 public interface IClientController {
@@ -31,4 +34,6 @@ public interface IClientController {
     void removeUnreachableLastConnectedNode(OutboundConnection connection, String nodeJSON);
 
     String transferMessage(OutboundConnection connection, String receiverId, String payload);
+
+    PublicKey exchangePublicKeys(OutboundConnection connection, PublicKey publicKeyToSend) throws ExecutionException, InterruptedException, IllegalArgumentException, GeneralSecurityException;
 }

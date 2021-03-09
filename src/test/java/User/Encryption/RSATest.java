@@ -13,7 +13,7 @@ class RSATest {
     @Test
     public void signatureTest() {
         try {
-            KeyPair keyPair = EncryptionController.getInstance().generateKeyPair();
+            KeyPair keyPair = EncryptionController.getInstance().generateRSAKeyPair();
             RSAPublicKey publicKey = ((RSAPublicKey) keyPair.getPublic());
             RSAPrivateKey privateKey = (RSAPrivateKey) keyPair.getPrivate();
             System.out.println(privateKey.getModulus().toString());

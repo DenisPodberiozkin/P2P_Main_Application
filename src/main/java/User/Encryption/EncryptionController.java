@@ -7,9 +7,10 @@ import javax.crypto.SecretKey;
 import java.io.File;
 import java.security.*;
 import java.security.spec.InvalidKeySpecException;
+import java.util.logging.Logger;
 
 public class EncryptionController implements IEncryptionController {
-
+    private static final Logger LOGGER = Logger.getLogger(EncryptionController.class.getName());
     private static EncryptionController instance;
 
     public static EncryptionController getInstance() {
@@ -20,11 +21,11 @@ public class EncryptionController implements IEncryptionController {
     }
 
     @Override
-    public KeyPair generateKeyPair() {
+    public KeyPair generateRSAKeyPair() {
         try {
             return RSA.generateKeyPair();
         } catch (NoSuchAlgorithmException e) {
-            System.err.println("Error while generating RSA keypair");
+            LOGGER.warning("Error while generating RSA keypair");
             e.printStackTrace();
         }
         return null;
@@ -40,7 +41,7 @@ public class EncryptionController implements IEncryptionController {
         try {
             return AES.generateSecretPassword();
         } catch (Exception e) {
-            System.err.println("Error generating secret password");
+            LOGGER.warning("Error generating secret password");
             e.printStackTrace();
         }
         return "";
@@ -51,7 +52,7 @@ public class EncryptionController implements IEncryptionController {
         try {
             return AES.generateSecretKey(password, secretPassword);
         } catch (Exception e) {
-            System.err.println("Error generating secret AES key");
+            LOGGER.warning("Error generating secret AES key");
             e.printStackTrace();
         }
         return null;
@@ -62,18 +63,18 @@ public class EncryptionController implements IEncryptionController {
         try {
             return AES.encryptFile(key, file);
         } catch (Exception e) {
-            System.err.println("Error encrypting file: " + file.getPath());
+            LOGGER.warning("Error encrypting file: " + file.getPath());
             e.printStackTrace();
         }
         return null;
     }
 
     @Override
-    public byte[] encryptFileByAES(SecretKey key, byte[] fileData) {
+    public byte[] encryptDataByAES(SecretKey key, byte[] data) {
         try {
-            return AES.encryptFile(key, fileData);
+            return AES.encryptData(key, data);
         } catch (Exception e) {
-            System.err.println("Error encrypting file data");
+            LOGGER.warning("Error encrypting file data");
             e.printStackTrace();
         }
         return null;
@@ -84,18 +85,39 @@ public class EncryptionController implements IEncryptionController {
         try {
             return AES.decryptFile(secretKey, file);
         } catch (NoSuchAlgorithmException | InvalidKeyException | InvalidAlgorithmParameterException | NoSuchPaddingException | BadPaddingException | IllegalBlockSizeException e) {
-            System.err.println("Error decrypting file: " + file.getPath());
+            LOGGER.warning("Error decrypting file: " + file.getPath());
+            e.printStackTrace();
+        }
+        return null;
+    }
+
+
+    @Override
+    public String encryptStringByAES(SecretKey key, String s) {
+        try {
+            return AES.encryptString(key, s);
+        } catch (GeneralSecurityException e) {
             e.printStackTrace();
         }
         return null;
     }
 
     @Override
-    public byte[] decryptFileByAES(SecretKey secretKey, byte[] fileData) {
+    public String decryptStringByAES(SecretKey key, String s) {
         try {
-            return AES.decryptFile(secretKey, fileData);
+            return AES.decryptString(key, s);
+        } catch (GeneralSecurityException e) {
+            e.printStackTrace();
+        }
+        return null;
+    }
+
+    @Override
+    public byte[] decryptDataByAES(SecretKey secretKey, byte[] data) {
+        try {
+            return AES.decryptData(secretKey, data);
         } catch (NoSuchAlgorithmException | InvalidKeyException | InvalidAlgorithmParameterException | NoSuchPaddingException | BadPaddingException | IllegalBlockSizeException e) {
-            System.err.println("Error decrypting file data");
+            LOGGER.warning("Error decrypting file data");
             e.printStackTrace();
         }
         return null;
@@ -106,7 +128,7 @@ public class EncryptionController implements IEncryptionController {
         try {
             return RSA.getPublicKeyFromBytes(data);
         } catch (NoSuchAlgorithmException | InvalidKeySpecException e) {
-            System.err.println("Error while generating Public Key form data");
+            LOGGER.warning("Error while generating Public Key form data");
             e.printStackTrace();
         }
         return null;
@@ -117,7 +139,7 @@ public class EncryptionController implements IEncryptionController {
         try {
             return RSA.getPrivateKeyFromBytes(data);
         } catch (NoSuchAlgorithmException | InvalidKeySpecException e) {
-            System.err.println("Error while generating Private Key form data");
+            LOGGER.warning("Error while generating Private Key form data");
 
             e.printStackTrace();
         }

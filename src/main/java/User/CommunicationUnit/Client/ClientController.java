@@ -1,13 +1,13 @@
 package User.CommunicationUnit.Client;
 
 import User.CommunicationUnit.Server.InboundTokens;
+import User.Encryption.DH;
 import User.NodeManager.Node;
 
 import java.io.IOException;
-import java.util.Arrays;
-import java.util.Deque;
-import java.util.LinkedList;
-import java.util.Objects;
+import java.security.GeneralSecurityException;
+import java.security.PublicKey;
+import java.util.*;
 import java.util.concurrent.ExecutionException;
 import java.util.concurrent.FutureTask;
 import java.util.concurrent.RejectedExecutionException;
@@ -40,8 +40,8 @@ public class ClientController implements IClientController {
         return OutboundConnectionManager.getInstance().createConnection(ip, port, assignedNode);
     }
 
-    private FutureTask<String> sendMessage(OutboundConnection connection, String message) {
-        return connection.sendMessage(message);
+    private FutureTask<String> sendMessage(OutboundConnection connection, String message, boolean isEncrypted) {
+        return connection.sendMessage(message, isEncrypted);
     }
 
     private String[] verifyAndCleanTokens(String message, String token) {
@@ -64,7 +64,7 @@ public class ClientController implements IClientController {
     public Node getLastConnectedNode(OutboundConnection connection) {
         try {
             String token = OutboundTokens.GET_LAST_NODE.getToken();
-            String reply = sendMessage(connection, token).get();
+            String reply = sendMessage(connection, token, true).get();
             String lastConnectedNodeJSON = Objects.requireNonNull(verifyAndCleanTokens(reply, "LN"))[0];
             if (lastConnectedNodeJSON != null) {
                 return Node.getNodeFromJSONSting(lastConnectedNodeJSON);
@@ -80,7 +80,7 @@ public class ClientController implements IClientController {
     public boolean hasNeighbours(OutboundConnection connection) {
         try {
             String token = InboundTokens.HAS_NEIGHBOURS.getToken();
-            String reply = sendMessage(connection, token).get();
+            String reply = sendMessage(connection, token, true).get();
             int result = Integer.parseInt(Objects.requireNonNull(verifyAndCleanTokens(reply, token))[0]);
             return result == 1;
         } catch (InterruptedException | ExecutionException e) {
@@ -96,7 +96,7 @@ public class ClientController implements IClientController {
         try {
             String token = InboundTokens.FIND.getToken();
             String message = token + " " + id;
-            reply = sendMessage(connection, message).get();
+            reply = sendMessage(connection, message, true).get();
         } catch (InterruptedException | ExecutionException e) {
             LOGGER.warning("Unable to receive reply from FIND message session. Reason: " + e.toString());
         }
@@ -107,21 +107,21 @@ public class ClientController implements IClientController {
     public void sendLastNodeToServer(OutboundConnection connection, Node node) {
         String token = OutboundTokens.SET_LAST_NODE.getToken();
         String message = token + " " + node.getJSONString();
-        sendMessage(connection, message);
+        sendMessage(connection, message, true);
     }
 
     @Override
     public void sendNotificationAboutNewPredecessor(OutboundConnection connection, Node node) {
         final String token = InboundTokens.NEW_PREDECESSOR_NOTIFICATION.getToken();
         final String message = token + " " + node.getJSONString();
-        sendMessage(connection, message);
+        sendMessage(connection, message, true);
     }
 
     @Override
     public Node getPredecessor(OutboundConnection connection) throws RejectedExecutionException {
         try {
             String token = InboundTokens.GET_PREDECESSOR.getToken();
-            String reply = sendMessage(connection, token).get();
+            String reply = sendMessage(connection, token, true).get();
             String predecessorJSON = Objects.requireNonNull(verifyAndCleanTokens(reply, token))[0];
             return Node.getNodeFromJSONSting(predecessorJSON);
         } catch (InterruptedException | ExecutionException e) {
@@ -139,7 +139,7 @@ public class ClientController implements IClientController {
     public Deque<Node> getSuccessorsQueue(OutboundConnection connection) {
         try {
             final String token = InboundTokens.GET_SUCCESSORS_QUEUE.getToken();
-            String reply = sendMessage(connection, token).get();
+            String reply = sendMessage(connection, token, true).get();
             String[] tokens = verifyAndCleanTokens(reply, token);
             Deque<Node> successorsQueue = new LinkedList<>();
             if (tokens != null) {
@@ -162,7 +162,7 @@ public class ClientController implements IClientController {
         try {
             String token = OutboundTokens.REMOVE_UNREACHABLE_LAST_CONNECTED_NODE.getToken();
             String message = token + " " + nodeJSON;
-            sendMessage(connection, message).get();
+            sendMessage(connection, message, true).get();
         } catch (InterruptedException | ExecutionException e) {
             LOGGER.warning("Unable to receive reply from REMOVE UNREACHABLE LAST CONNECTED NODE message session. Reason: " + e.toString());
         }
@@ -174,7 +174,7 @@ public class ClientController implements IClientController {
         try {
             String token = InboundTokens.TRANSFER_MESSAGE.getToken();
             String message = token + " " + receiverId + " " + payload;
-            String reply = sendMessage(connection, message).get();
+            String reply = sendMessage(connection, message, true).get();
             String[] tokens = verifyAndCleanTokens(reply, token);
             if (tokens != null) {
                 return tokens[0];
@@ -186,5 +186,22 @@ public class ClientController implements IClientController {
 
         return "NF";
 
+    }
+
+    @Override
+    public PublicKey exchangePublicKeys(OutboundConnection connection, PublicKey publicKeyToSend) throws ExecutionException, InterruptedException, IllegalArgumentException, GeneralSecurityException {
+        String publicKeyToSend64 = Base64.getEncoder().encodeToString(publicKeyToSend.getEncoded());
+        System.out.println(publicKeyToSend64);
+        final String token = InboundTokens.CREATE_SECURE_CHANNEL.getToken();
+        final String message = token + " " + publicKeyToSend64;
+        String response = sendMessage(connection, message, false).get();
+        String[] tokens = verifyAndCleanTokens(response, token);
+        if (tokens != null) {
+            String receivedPublicKey64 = tokens[0];
+            final byte[] receivedPublicKeyData = Base64.getDecoder().decode(receivedPublicKey64);
+            return DH.getDHPublicKeyFromData(receivedPublicKeyData);
+        } else {
+            throw new IllegalArgumentException("Unexpected Token");
+        }
     }
 }

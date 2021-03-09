@@ -44,11 +44,11 @@ public class MainController implements IMainController {
 
     @Override
     public String createAccount(String password) {
-        KeyPair keyPair = encryptionController.generateKeyPair();
+        KeyPair keyPair = encryptionController.generateRSAKeyPair();
         User user = new User(keyPair);
         String secretPassword = encryptionController.generateSecretPassword();
         SecretKey secretKey = encryptionController.generateAESKey(password, secretPassword);
-        byte[] encryptedPrivateKey = encryptionController.encryptFileByAES(secretKey, user.getPrivateKey().getEncoded());
+        byte[] encryptedPrivateKey = encryptionController.encryptDataByAES(secretKey, user.getPrivateKey().getEncoded());
         try (Connection connection = dataBaseController.connectToDatabase()) {
             UserDAO userDAO = new UserDAO(connection);
             userDAO.addUser(user.getId(), user.getPublicKey().getEncoded(), encryptedPrivateKey);
@@ -70,7 +70,7 @@ public class MainController implements IMainController {
 
             SecretKey secretKey = encryptionController.generateAESKey(password, secretPassword);
 
-            byte[] decryptedPrivateKeyData = encryptionController.decryptFileByAES(secretKey, encryptedPrivateKeyData);
+            byte[] decryptedPrivateKeyData = encryptionController.decryptDataByAES(secretKey, encryptedPrivateKeyData);
 
             PrivateKey privateKey = encryptionController.getPrivateKeyFromBytes(decryptedPrivateKeyData);
             user.setPrivateKey(privateKey);
@@ -96,8 +96,6 @@ public class MainController implements IMainController {
                 if (user != null) {
                     if (lastConnectedNode != null) {
                         isLastConnectedNodePresent = true;
-//                        String oldIp = lastConnectedNode.getIp(); //TODO remove later
-//                        lastConnectedNode.setIp("132.456.789.123"); //TODO remove later
                         try {
                             lastConnectedNode.connectToNode(false);
                             isLastConnectedNodeReachable = true;
@@ -115,7 +113,6 @@ public class MainController implements IMainController {
                         } catch (IOException ioException) {
                             LOGGER.warning("Unable to connect to last node. Reason " + ioException.toString());
                             isLastConnectedNodeReachable = false;
-//                            lastConnectedNode.setIp(oldIp); //TODO remove later
                             clientController.removeUnreachableLastConnectedNode(serverConnection, lastConnectedNode.getJSONString());
                         }
                     } else {
@@ -131,12 +128,6 @@ public class MainController implements IMainController {
                 }
             } while (isLastConnectedNodePresent && !isLastConnectedNodeReachable);
             clientController.sendLastNodeToServer(serverConnection, user);
-//
-//
-//                //TODO start checks
-//
-//                System.out.println(lastResponse);
-
 
         } catch (IOException ioException) {
             LOGGER.warning("Unable to connect to local server. Reason " + ioException.toString());

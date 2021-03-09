@@ -4,13 +4,17 @@ import GUI.ControllerFactory;
 import User.CommunicationUnit.MessageReader;
 import User.CommunicationUnit.Server.InboundTokens;
 import User.CommunicationUnit.SynchronisedWriter;
+import User.Encryption.DH;
 import User.Encryption.Hash;
 import User.NodeManager.Node;
 import User.NodeManager.User;
 
+import javax.crypto.SecretKey;
 import java.io.IOException;
 import java.io.InputStreamReader;
 import java.net.Socket;
+import java.security.GeneralSecurityException;
+import java.security.PublicKey;
 import java.util.HashMap;
 import java.util.concurrent.*;
 import java.util.logging.Logger;
@@ -22,12 +26,14 @@ public class OutboundConnection implements AutoCloseable {
     private final int port;
     private final HashMap<Integer, OutboundSession> sessions;
     private final ExecutorService executor;
+    private final IClientController clientController = ClientController.getInstance();
     private Socket socket;
     private MessageReader reader;
     private SynchronisedWriter writer;
     private ClientReceiver receiver;
     private HeartBeatSender heartBeatSender;
     private Node assignedNode;
+    private SecretKey secretKey;
 
     public OutboundConnection(String ip, int port) {
         this.ip = ip;
@@ -46,7 +52,7 @@ public class OutboundConnection implements AutoCloseable {
         closeConnection();
     }
 
-    public void createConnection() throws IOException {
+    public void createConnection() throws IOException, SecurityException {
         if (ip.equals(User.getInstance().getIp()) && port == User.getInstance().getPort()) {
             LOGGER.warning("Trying to connect to yourself");
         }
@@ -54,22 +60,28 @@ public class OutboundConnection implements AutoCloseable {
         reader = new MessageReader(new InputStreamReader(socket.getInputStream()));
         writer = new SynchronisedWriter(socket.getOutputStream(), true);
         receiver = new ClientReceiver(reader, this);
-        heartBeatSender = new HeartBeatSender(this);
         Thread receiverThread = new Thread(receiver);
         receiverThread.setName("Outbound Receiver " + toString());
         receiverThread.start();
-        Thread heartBeatSenderThread = new Thread(heartBeatSender);
-        heartBeatSenderThread.setName("Outbound Heart Beat Sender");
-        heartBeatSenderThread.start();
-
-        ControllerFactory.getTestController().addOutboundConnection(this);
-        LOGGER.info("Established connection to " + ip + ":" + port);
 
 
+        if (createSecureChannel()) {
+            heartBeatSender = new HeartBeatSender(this);
+            Thread heartBeatSenderThread = new Thread(heartBeatSender);
+            heartBeatSenderThread.setName("Outbound Heart Beat Sender");
+            heartBeatSenderThread.start();
+
+            ControllerFactory.getTestController().addOutboundConnection(this);
+            LOGGER.info("Established connection to " + ip + ":" + port);
+        } else {
+            closeConnection();
+            throw new SecurityException("Unable to create secure channel");
+        }
     }
 
-    public FutureTask<String> sendMessage(String message) throws RejectedExecutionException {
-        OutboundSession session = new OutboundSession(writer, message, this);
+
+    public FutureTask<String> sendMessage(String message, boolean isEncrypted) throws RejectedExecutionException {
+        OutboundSession session = new OutboundSession(writer, message, this, isEncrypted);
 
         sessions.put(session.getId(), session);
         try {
@@ -150,4 +162,22 @@ public class OutboundConnection implements AutoCloseable {
 //    public void setAssignedNode(Node assignedNode) {
 //        this.assignedNode = assignedNode;
 //    }
+
+
+    public SecretKey getSecretKey() {
+        return secretKey;
+    }
+
+    private boolean createSecureChannel() {
+        try {
+            DH dh = new DH();
+            PublicKey receivedPublicKey = clientController.exchangePublicKeys(this, dh.initSender());
+            secretKey = dh.initSecretKey(receivedPublicKey);
+            return true;
+        } catch (GeneralSecurityException | InterruptedException | ExecutionException e) {
+            LOGGER.warning("Unable to create security channel. Reason " + e.toString());
+        }
+
+        return false;
+    }
 }

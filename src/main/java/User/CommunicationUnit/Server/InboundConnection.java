@@ -4,6 +4,7 @@ import User.CommunicationUnit.MessageReader;
 import User.CommunicationUnit.SynchronisedWriter;
 import User.Encryption.Hash;
 
+import javax.crypto.SecretKey;
 import java.io.IOException;
 import java.io.InputStreamReader;
 import java.net.Socket;
@@ -24,6 +25,7 @@ public class InboundConnection extends Thread {
     private final int port;
     private final String ip;
     private boolean isConnectionOpen;
+    private SecretKey secretKey;
 
 
     public InboundConnection(Socket clientSocket, Server server) {
@@ -112,5 +114,13 @@ public class InboundConnection extends Thread {
 
     public String getIp() {
         return ip;
+    }
+
+    public SecretKey getSecretKey() {
+        return secretKey;
+    }
+
+    public void setSecretKey(SecretKey secretKey) {
+        this.secretKey = secretKey;
     }
 }

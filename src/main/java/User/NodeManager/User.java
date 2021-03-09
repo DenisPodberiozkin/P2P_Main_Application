@@ -61,7 +61,7 @@ public class User extends Node {
     }
 
     public User() { // TODO delete later
-        super(EncryptionController.getInstance().generateKeyPair().getPublic(), ConnectionsData.getUserServerPort());
+        super(EncryptionController.getInstance().generateRSAKeyPair().getPublic(), ConnectionsData.getUserServerPort());
         initialiseIP();
         User.instance = this;
         this.updater = new Updater(this);

@@ -8,6 +8,7 @@ import java.io.File;
 import java.io.FileInputStream;
 import java.io.IOException;
 import java.nio.ByteBuffer;
+import java.nio.charset.StandardCharsets;
 import java.security.InvalidAlgorithmParameterException;
 import java.security.InvalidKeyException;
 import java.security.NoSuchAlgorithmException;
@@ -47,7 +48,7 @@ public class AES {
 
     }
 
-    public static byte[] encryptFile(SecretKey key, byte[] fileData) throws NoSuchPaddingException, NoSuchAlgorithmException, InvalidAlgorithmParameterException, InvalidKeyException, BadPaddingException, IllegalBlockSizeException {
+    public static byte[] encryptData(SecretKey key, byte[] data) throws NoSuchPaddingException, NoSuchAlgorithmException, InvalidAlgorithmParameterException, InvalidKeyException, BadPaddingException, IllegalBlockSizeException {
         Cipher cipher = Cipher.getInstance(CIPHER_TYPE);
         byte[] initializationVector = generateInitializationVector();
 
@@ -55,8 +56,8 @@ public class AES {
 
         cipher.init(Cipher.ENCRYPT_MODE, key, spec);
 
-        if (fileData != null) {
-            byte[] encryptedData = cipher.doFinal(fileData);
+        if (data != null) {
+            byte[] encryptedData = cipher.doFinal(data);
             ByteBuffer byteBuffer = ByteBuffer.allocate(INITIALIZATION_VECTOR_SIZE + encryptedData.length);
             byteBuffer.put(initializationVector);
             byteBuffer.put(encryptedData);
@@ -66,19 +67,10 @@ public class AES {
         return null;
     }
 
-    public static byte[] encryptFile(SecretKey key, File file) throws NoSuchPaddingException, NoSuchAlgorithmException, InvalidAlgorithmParameterException, InvalidKeyException, BadPaddingException, IllegalBlockSizeException {
-        return encryptFile(key, readFile(file));
-    }
+    public static byte[] decryptData(SecretKey secretKey, byte[] data) throws NoSuchPaddingException, NoSuchAlgorithmException, InvalidKeyException, BadPaddingException, IllegalBlockSizeException, InvalidAlgorithmParameterException {
+        if (data != null) {
 
-
-    public static byte[] decryptFile(SecretKey secretKey, File file) throws NoSuchPaddingException, NoSuchAlgorithmException, InvalidKeyException, BadPaddingException, IllegalBlockSizeException, InvalidAlgorithmParameterException {
-        return decryptFile(secretKey, readFile(file));
-    }
-
-    public static byte[] decryptFile(SecretKey secretKey, byte[] fileData) throws NoSuchPaddingException, NoSuchAlgorithmException, InvalidKeyException, BadPaddingException, IllegalBlockSizeException, InvalidAlgorithmParameterException {
-        if (fileData != null) {
-
-            ByteBuffer byteBuffer = ByteBuffer.wrap(fileData);
+            ByteBuffer byteBuffer = ByteBuffer.wrap(data);
             byte[] initializationVector = new byte[INITIALIZATION_VECTOR_SIZE];
             byteBuffer.get(initializationVector);
 
@@ -94,6 +86,26 @@ public class AES {
         }
 
         return null;
+    }
+
+    public static byte[] encryptFile(SecretKey key, File file) throws NoSuchPaddingException, NoSuchAlgorithmException, InvalidAlgorithmParameterException, InvalidKeyException, BadPaddingException, IllegalBlockSizeException {
+        return encryptData(key, readFile(file));
+    }
+
+
+    public static byte[] decryptFile(SecretKey secretKey, File file) throws NoSuchPaddingException, NoSuchAlgorithmException, InvalidKeyException, BadPaddingException, IllegalBlockSizeException, InvalidAlgorithmParameterException {
+        return decryptData(secretKey, readFile(file));
+    }
+
+    public static String encryptString(SecretKey key, String s) throws NoSuchPaddingException, InvalidKeyException, NoSuchAlgorithmException, IllegalBlockSizeException, BadPaddingException, InvalidAlgorithmParameterException {
+        final byte[] encryptedData = encryptData(key, s.getBytes());
+        return Base64.getEncoder().encodeToString(encryptedData);
+    }
+
+    public static String decryptString(SecretKey key, String encryptedString) throws NoSuchPaddingException, InvalidAlgorithmParameterException, NoSuchAlgorithmException, IllegalBlockSizeException, BadPaddingException, InvalidKeyException {
+        final byte[] encryptedData = Base64.getDecoder().decode(encryptedString);
+        final byte[] decryptedData = decryptData(key, encryptedData);
+        return new String(decryptedData, StandardCharsets.UTF_8);
     }
 
 

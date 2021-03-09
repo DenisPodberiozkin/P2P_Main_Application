@@ -1,22 +1,31 @@
 package User.CommunicationUnit.Server;
 
 import User.CommunicationUnit.SynchronisedWriter;
+import User.Encryption.DH;
+import User.Encryption.EncryptionController;
+import User.Encryption.IEncryptionController;
 import User.NodeManager.Node;
 import User.NodeManager.User;
 
+import javax.crypto.SecretKey;
+import java.security.GeneralSecurityException;
+import java.security.PublicKey;
 import java.util.Arrays;
+import java.util.Base64;
 import java.util.Deque;
 import java.util.logging.Logger;
 
 public class InboundSession implements Runnable {
     private static final Logger LOGGER = Logger.getLogger(InboundSession.class.getName());
     private static int GLOBAL_ID = 0;
-    private final InboundTokens request;
+    private final IEncryptionController encryptionController = EncryptionController.getInstance();
     private final int id;
     private final int clientSessionId;
-    private final String[] tokens;
     private final SynchronisedWriter writer;
     private final InboundConnection connection;
+    private InboundTokens request;
+    private String[] tokens;
+
 
     public InboundSession(String[] tokens, SynchronisedWriter writer, InboundConnection connection) {
         this.writer = writer;
@@ -24,13 +33,16 @@ public class InboundSession implements Runnable {
         this.id = GLOBAL_ID++;
         this.clientSessionId = Integer.parseInt(tokens[0]);
         this.tokens = Arrays.stream(tokens, 1, tokens.length).toArray(String[]::new);
-        this.request = validateRequest(this.tokens[0]);
     }
 
     @Override
     public void run() {
         try {
-
+            final SecretKey sk = connection.getSecretKey();
+            if (sk != null) {
+                tokens = encryptionController.decryptStringByAES(sk, tokens[0]).split(" ");
+            }
+            request = validateRequest(tokens[0]);
 
             if (request != null) {
 
@@ -51,24 +63,24 @@ public class InboundSession implements Runnable {
                         } else {
                             response = requestToken + " 0";
                         }
-                        writer.sendMessage(clientSessionId, response);
+                        send(response);
                         break;
                     case PING:
                         connection.getHeartBeatManager().pingReceived();
                         response = requestToken + " OK";
-                        writer.sendMessage(clientSessionId, response);
+                        send(response);
                         break;
                     case FIND:
                         String lookUpId = this.tokens[1];
                         response = user.findNode(lookUpId);
-                        writer.sendMessage(clientSessionId, response);
+                        send(response);
                         break;
                     case NEW_PREDECESSOR_NOTIFICATION:
                         Node candidateNode = Node.getNodeFromJSONSting(tokens[1]);
                         boolean isNewPredecessorUpdated = user.checkAndUpdateNewPredecessor(candidateNode);
                         String status = isNewPredecessorUpdated ? " ACCEPTED" : " DECLINED";
                         response = requestToken + status;
-                        writer.sendMessage(clientSessionId, response);
+                        send(response);
                         break;
                     case GET_PREDECESSOR:
                         Node predecessor = user.getPredecessor();
@@ -78,7 +90,7 @@ public class InboundSession implements Runnable {
                         } else {
                             response = requestToken + " null";
                         }
-                        writer.sendMessage(clientSessionId, response);
+                        send(response);
                         break;
                     case GET_SUCCESSORS_QUEUE:
                         final Deque<Node> successorsQueue = user.getSuccessorsQueue();
@@ -87,19 +99,44 @@ public class InboundSession implements Runnable {
                             messageBuilder.append(node.getJSONString()).append(" ");
                         }
                         response = requestToken + " " + messageBuilder.toString();
-                        writer.sendMessage(clientSessionId, response);
+                        send(response);
                         break;
                     case TRANSFER_MESSAGE:
                         String receiverId = tokens[1];
 
                         String payload = tokens[2] + " " + tokens[3]; //TODO change later to tokens[] 2 only since it will be encrypted
                         response = requestToken + " " + user.transferMessage(receiverId, payload);
-                        writer.sendMessage(clientSessionId, response);
+                        send(response);
+                        break;
+                    case CREATE_SECURE_CHANNEL:
+                        boolean isSecure = true;
+                        SecretKey secretKey = null;
+                        try {
+                            final String receivedPublicKey64 = tokens[1];
+                            final byte[] receivedPublicKeyData = Base64.getDecoder().decode(receivedPublicKey64);
+                            final PublicKey receivedPublicKey = DH.getDHPublicKeyFromData(receivedPublicKeyData);
+                            DH dh = new DH();
+                            final PublicKey publicKeyToSend = dh.initReceiver(receivedPublicKey);
+                            secretKey = dh.initSecretKey(receivedPublicKey);
+                            final String publicKeyToSend64 = Base64.getEncoder().encodeToString(publicKeyToSend.getEncoded());
+                            response = requestToken + " " + publicKeyToSend64;
+                        } catch (GeneralSecurityException e) {
+                            e.printStackTrace();
+                            LOGGER.warning(" ERROR. Unable to create secure channel in connection " + connection.getIp() + ":" + connection.getPort() + " Reason " + e.toString());
+                            response = requestToken + " ERROR. Unable to create secure channel in connection " + connection.getIp() + ":" + connection.getPort() + " Reason " + e.toString();
+                            isSecure = false;
+                        }
+
+                        send(response);
+                        connection.setSecretKey(secretKey);
+                        if (!isSecure) {
+                            connection.closeConnection();
+                        }
                         break;
                     default:
                         LOGGER.warning("Unexpected value: " + request);
                         response = "ERROR : Unexpected value: " + request;
-                        writer.sendMessage(clientSessionId, response);
+                        send(response);
                         break;
                 }
 
@@ -109,13 +146,10 @@ public class InboundSession implements Runnable {
                     LOGGER.info("Inbound Session " + id + " sends reply " + response + " in response to " + requestToken + " to " + connection.getIp() + ":" + connection.getPort());
                 }
             } else {
-                writer.sendMessage(clientSessionId, "ERROR : Unexpected token");
+                send("ERROR : Unexpected token");
             }
 
 
-        } catch (Exception e) {
-            LOGGER.severe("ERROR in inbound session " + id);
-            e.printStackTrace();
         } finally {
             connection.closeSession(this.id);
 
@@ -139,5 +173,17 @@ public class InboundSession implements Runnable {
             LOGGER.warning("Unexpected token " + value + " received");
             return null;
         }
+    }
+
+    private void send(String reply) {
+        final SecretKey secretKey = connection.getSecretKey();
+        String response;
+        if (secretKey != null) {
+            response = encryptionController.encryptStringByAES(secretKey, reply);
+        } else {
+            response = reply;
+        }
+        writer.sendMessage(clientSessionId, response);
+
     }
 }

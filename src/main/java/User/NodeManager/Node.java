@@ -186,6 +186,10 @@ public class Node implements AutoCloseable {
         return clientController.transferMessage(connection, receiverId, payload);
     }
 
+    public String transferPublicKey(String receiverId, String publicKey64, long messageSessionId) {
+        return clientController.transferPublicKey(connection, publicKey64, receiverId, messageSessionId);
+    }
+
     @Override
     public Node clone() {
         return getNodeFromJSONSting(getJSONString());

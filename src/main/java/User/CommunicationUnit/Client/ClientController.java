@@ -191,7 +191,6 @@ public class ClientController implements IClientController {
     @Override
     public PublicKey exchangePublicKeys(OutboundConnection connection, PublicKey publicKeyToSend) throws ExecutionException, InterruptedException, IllegalArgumentException, GeneralSecurityException {
         String publicKeyToSend64 = Base64.getEncoder().encodeToString(publicKeyToSend.getEncoded());
-        System.out.println(publicKeyToSend64);
         final String token = InboundTokens.CREATE_SECURE_CHANNEL.getToken();
         final String message = token + " " + publicKeyToSend64;
         String response = sendMessage(connection, message, false).get();
@@ -203,5 +202,27 @@ public class ClientController implements IClientController {
         } else {
             throw new IllegalArgumentException("Unexpected Token");
         }
+    }
+
+
+    @Override
+    public String transferPublicKey(OutboundConnection connection, String publicKeyToSend64, String receiverId, long messageSessionId) {
+        try {
+            final String token = InboundTokens.CREATE_SECURE_MESSAGE_SESSION.getToken();
+            final String payload = messageSessionId + " " + publicKeyToSend64;
+            final String message = token + " " + receiverId + " " + payload;
+            String reply = sendMessage(connection, message, true).get();
+            if (reply.contains("Error")) {
+                return reply;
+            }
+            String[] tokens = verifyAndCleanTokens(reply, token);
+            if (tokens != null) {
+                return tokens[0] + " " + tokens[1];
+            }
+        } catch (InterruptedException | ExecutionException e) {
+            LOGGER.warning("Unable to receive reply from TRANSFER PUBLIC KEY message session. Reason: " + e.toString());
+            return "NF";
+        }
+        return "NF";
     }
 }

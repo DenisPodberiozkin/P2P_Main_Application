@@ -5,10 +5,10 @@ import User.CommunicationUnit.Server.IServerController;
 import User.CommunicationUnit.Server.ServerController;
 import User.ConnectionsData;
 import User.Encryption.EncryptionController;
-import User.NodeManager.Lookup.FindLookupLogic;
-import User.NodeManager.Lookup.LookupEngine;
-import User.NodeManager.Lookup.LookupLogic;
-import User.NodeManager.Lookup.TransferMessageLookupLogic;
+import User.NodeManager.Lookup.*;
+import User.NodeManager.MessageSession.InboundMessageSession;
+import User.NodeManager.MessageSession.OutboundMessageSession;
+import User.NodeManager.MessageSession.OutboundMessageSessionBuilder;
 
 import java.io.BufferedReader;
 import java.io.IOException;
@@ -16,6 +16,7 @@ import java.io.InputStreamReader;
 import java.net.DatagramSocket;
 import java.net.InetAddress;
 import java.net.URL;
+import java.security.GeneralSecurityException;
 import java.security.KeyPair;
 import java.security.PrivateKey;
 import java.security.PublicKey;
@@ -42,6 +43,8 @@ public class User extends Node {
     private final Deque<Node> successorsQueue = new LinkedList<>();
     private final IServerController serverController = ServerController.getInstance();
     private final HashMap<String, Conversation> conversations = new HashMap<>();
+    private final HashMap<Long, OutboundMessageSession> outboundMessageSessions = new HashMap<>();
+    private final HashMap<Long, InboundMessageSession> inboundMessageSessions = new HashMap<>();
     private Node predecessor;
     private Node successor;
     private PrivateKey privateKey;
@@ -470,13 +473,15 @@ public class User extends Node {
         return conversation;
     }
 
-    public void processMessage(String payload) {
-        //TODO decryption
-        String[] tokens = payload.split(" ");
-        String senderId = tokens[0];
-        String text = tokens[1];
-        addMessage(senderId, senderId, text);
-        LOGGER.info("Received message " + text + " from " + senderId);
+    public void processMessage(String payload) throws InboundMessageSessionNotFound {
+        final String[] tokens = payload.split(" ");
+        final long inboundMessageSessionId = Long.parseLong(tokens[0]);
+        final InboundMessageSession inboundMessageSession = findInboundMessageSessionById(inboundMessageSessionId);
+        final String encryptedPayload = tokens[1];
+        inboundMessageSession.messageNotify(encryptedPayload);
+        removeInboundMessageSession(inboundMessageSessionId);
+
+//        addMessage(senderId, senderId, text);
     }
 
     public void addMessage(String participantId, String senderId, String text) {
@@ -488,19 +493,63 @@ public class User extends Node {
     }
 
     public void sendMessage(String receiverId, String text) {
-        String userId = getId();
-        addMessage(receiverId, userId, text);
-
-        String payload = userId + " " + text; //TODO encryption
-
-        transferMessage(receiverId, payload);
+        try {
+            String userId = getId();
+            final String reply = createOutboundMessageSession(receiverId, text).get();
+            if (reply.equals("OK")) {
+                addMessage(receiverId, userId, text);
+                LOGGER.info("Message " + text + " to " + receiverId + " was delivered successfully");
+            } else if (reply.equals("NF")) {
+                LOGGER.warning("Message undelivered. Reason - recipient not found.");
+            } else if (reply.contains("Error")) {
+                LOGGER.warning("Message undelivered due to Error - " + reply);
+            }
+        } catch (InterruptedException | ExecutionException e) {
+            LOGGER.warning("Unable to get reply from outbound message session due to " + e.toString());
+        }
     }
+
+    private FutureTask<String> createOutboundMessageSession(String receiverId, String text) {
+        OutboundMessageSession outboundMessageSession = new OutboundMessageSessionBuilder().setMessageText(text)
+                .setParticipantNodeId(receiverId)
+                .createOutboundMessageSession();
+        outboundMessageSessions.put(outboundMessageSession.getId(), outboundMessageSession);
+
+        return (FutureTask<String>) executorService.submit(outboundMessageSession);
+    }
+
+    public InboundMessageSession createInboundMessageSession(long participantMessageSessionId, PublicKey receivedPublicKey) throws GeneralSecurityException {
+        InboundMessageSession inboundMessageSession = new InboundMessageSession(participantMessageSessionId, receivedPublicKey);
+        inboundMessageSessions.put(inboundMessageSession.getId(), inboundMessageSession);
+        executorService.submit(inboundMessageSession);
+        return inboundMessageSession;
+    }
+
+    private InboundMessageSession findInboundMessageSessionById(long id) throws InboundMessageSessionNotFound {
+        if (inboundMessageSessions.containsKey(id)) {
+            return inboundMessageSessions.get(id);
+        } else {
+            throw new InboundMessageSessionNotFound("Inbound Message Session with id " + id + " not found!");
+        }
+    }
+
+    private void removeInboundMessageSession(long id) {
+        inboundMessageSessions.remove(id);
+    }
+
 
     @Override
     public String transferMessage(String receiverId, String payload) {
         Node successor = getSuccessor();
         LookupLogic lookupLogic = new TransferMessageLookupLogic(receiverId, payload);
         return lookup(receiverId, successor, lookupLogic, "Transfer Message");
+    }
+
+    @Override
+    public String transferPublicKey(String receiverId, String publicKey64, long messageSessionId) {
+        Node successor = getSuccessor();
+        LookupLogic lookupLogic = new TransferPublicKeyLookupLogic(receiverId, publicKey64, messageSessionId);
+        return lookup(receiverId, successor, lookupLogic, "Transfer Public Key");
     }
 
     private String lookup(String lookupId, Node successor, LookupLogic lookupLogic, String taskName) {

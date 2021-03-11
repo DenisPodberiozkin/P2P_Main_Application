@@ -36,4 +36,6 @@ public interface IClientController {
     String transferMessage(OutboundConnection connection, String receiverId, String payload);
 
     PublicKey exchangePublicKeys(OutboundConnection connection, PublicKey publicKeyToSend) throws ExecutionException, InterruptedException, IllegalArgumentException, GeneralSecurityException;
+
+    String transferPublicKey(OutboundConnection connection, String publicKeyToSend64, String receiverId, long messageSessionId);
 }

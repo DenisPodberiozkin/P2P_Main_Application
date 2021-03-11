@@ -47,9 +47,11 @@ public class InboundSession implements Runnable {
             if (request != null) {
 
                 if (request == InboundTokens.PING) {
-                    LOGGER.config("Inbound Session " + id + " was created to process request " + request.getToken() + " from " + connection.getIp() + ":" + connection.getPort());
+                    LOGGER.config("Inbound Session " + id + " was created to process request "
+                            + request.getToken() + " from " + connection.getIp() + ":" + connection.getPort());
                 } else {
-                    LOGGER.info("Inbound Session " + id + " was created to process request " + request.getToken() + " from " + connection.getIp() + ":" + connection.getPort());
+                    LOGGER.info("Inbound Session " + id + " was created to process request "
+                            + request.getToken() + " from " + connection.getIp() + ":" + connection.getPort());
                 }
 
 
@@ -104,7 +106,7 @@ public class InboundSession implements Runnable {
                     case TRANSFER_MESSAGE:
                         String receiverId = tokens[1];
 
-                        String payload = tokens[2] + " " + tokens[3]; //TODO change later to tokens[] 2 only since it will be encrypted
+                        String payload = tokens[2] + " " + tokens[3];
                         response = requestToken + " " + user.transferMessage(receiverId, payload);
                         send(response);
                         break;
@@ -122,8 +124,10 @@ public class InboundSession implements Runnable {
                             response = requestToken + " " + publicKeyToSend64;
                         } catch (GeneralSecurityException e) {
                             e.printStackTrace();
-                            LOGGER.warning(" ERROR. Unable to create secure channel in connection " + connection.getIp() + ":" + connection.getPort() + " Reason " + e.toString());
-                            response = requestToken + " ERROR. Unable to create secure channel in connection " + connection.getIp() + ":" + connection.getPort() + " Reason " + e.toString();
+                            LOGGER.warning(" ERROR. Unable to create secure channel in connection "
+                                    + connection.getIp() + ":" + connection.getPort() + " Reason " + e.toString());
+                            response = requestToken + " ERROR. Unable to create secure channel in connection "
+                                    + connection.getIp() + ":" + connection.getPort() + " Reason " + e.toString();
                             isSecure = false;
                         }
 
@@ -133,6 +137,15 @@ public class InboundSession implements Runnable {
                             connection.closeConnection();
                         }
                         break;
+                    case CREATE_SECURE_MESSAGE_SESSION:
+
+                        final String resId = tokens[1];
+                        final long messageSessionId = Long.parseLong(tokens[2]);
+                        final String publicKey64 = tokens[3];
+                        String result = user.transferPublicKey(resId, publicKey64, messageSessionId);
+                        response = requestToken + " " + result;
+                        send(response);
+                        break;
                     default:
                         LOGGER.warning("Unexpected value: " + request);
                         response = "ERROR : Unexpected value: " + request;
@@ -141,9 +154,11 @@ public class InboundSession implements Runnable {
                 }
 
                 if (response.contains(InboundTokens.PING.getToken())) {
-                    LOGGER.config("Inbound Session " + id + " sends reply " + response + " in response to " + requestToken + " to " + connection.getIp() + ":" + connection.getPort());
+                    LOGGER.config("Inbound Session " + id + " sends reply " + response + " in response to "
+                            + requestToken + " to " + connection.getIp() + ":" + connection.getPort());
                 } else {
-                    LOGGER.info("Inbound Session " + id + " sends reply " + response + " in response to " + requestToken + " to " + connection.getIp() + ":" + connection.getPort());
+                    LOGGER.info("Inbound Session " + id + " sends reply " + response + " in response to "
+                            + requestToken + " to " + connection.getIp() + ":" + connection.getPort());
                 }
             } else {
                 send("ERROR : Unexpected token");

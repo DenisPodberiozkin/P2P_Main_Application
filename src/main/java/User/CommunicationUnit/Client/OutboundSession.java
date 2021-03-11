@@ -1,9 +1,9 @@
 package User.CommunicationUnit.Client;
 
+import Encryption.EncryptionController;
+import Encryption.IEncryptionController;
 import User.CommunicationUnit.Server.InboundTokens;
 import User.CommunicationUnit.SynchronisedWriter;
-import User.Encryption.EncryptionController;
-import User.Encryption.IEncryptionController;
 
 import java.util.concurrent.Callable;
 import java.util.concurrent.CountDownLatch;

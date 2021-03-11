@@ -1,7 +1,7 @@
 package User.NodeManager.MessageSession;
 
-import User.Encryption.EncryptionController;
-import User.Encryption.IEncryptionController;
+import Encryption.EncryptionController;
+import Encryption.IEncryptionController;
 
 import javax.crypto.SecretKey;
 import java.util.concurrent.Callable;

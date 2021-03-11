@@ -1,5 +1,7 @@
 package User;
 
+import Encryption.EncryptionController;
+import Encryption.IEncryptionController;
 import User.CommunicationUnit.Client.ClientController;
 import User.CommunicationUnit.Client.IClientController;
 import User.CommunicationUnit.Client.OutboundConnection;
@@ -8,8 +10,6 @@ import User.CommunicationUnit.Server.ServerController;
 import User.Database.DAO.UserDAO;
 import User.Database.DataBaseController;
 import User.Database.IDataBaseController;
-import User.Encryption.EncryptionController;
-import User.Encryption.IEncryptionController;
 import User.NodeManager.Node;
 import User.NodeManager.User;
 

@@ -1,5 +1,6 @@
 package User.Encryption;
 
+import Encryption.EncryptionController;
 import org.junit.jupiter.api.Test;
 
 import java.security.*;

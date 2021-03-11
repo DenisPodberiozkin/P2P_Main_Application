@@ -1,9 +1,9 @@
 package User.CommunicationUnit.Server;
 
+import Encryption.DH;
+import Encryption.EncryptionController;
+import Encryption.IEncryptionController;
 import User.CommunicationUnit.SynchronisedWriter;
-import User.Encryption.DH;
-import User.Encryption.EncryptionController;
-import User.Encryption.IEncryptionController;
 import User.NodeManager.Node;
 import User.NodeManager.User;
 

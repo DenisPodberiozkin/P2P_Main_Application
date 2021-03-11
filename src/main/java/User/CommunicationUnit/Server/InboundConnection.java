@@ -1,8 +1,8 @@
 package User.CommunicationUnit.Server;
 
+import Encryption.Hash;
 import User.CommunicationUnit.MessageReader;
 import User.CommunicationUnit.SynchronisedWriter;
-import User.Encryption.Hash;
 
 import javax.crypto.SecretKey;
 import java.io.IOException;

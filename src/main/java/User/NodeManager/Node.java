@@ -1,10 +1,10 @@
 package User.NodeManager;
 
+import Encryption.EncryptionController;
+import Encryption.EncryptionUtil;
 import User.CommunicationUnit.Client.ClientController;
 import User.CommunicationUnit.Client.IClientController;
 import User.CommunicationUnit.Client.OutboundConnection;
-import User.Encryption.EncryptionController;
-import User.Encryption.EncryptionUtil;
 import User.JSON.NodeDeserializer;
 import User.JSON.NodeSerializer;
 import com.fasterxml.jackson.core.JsonProcessingException;

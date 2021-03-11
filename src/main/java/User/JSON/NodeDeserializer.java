@@ -1,7 +1,7 @@
 package User.JSON;
 
-import User.Encryption.EncryptionController;
-import User.Encryption.IEncryptionController;
+import Encryption.EncryptionController;
+import Encryption.IEncryptionController;
 import User.NodeManager.Node;
 import com.fasterxml.jackson.core.JsonParser;
 import com.fasterxml.jackson.core.ObjectCodec;

@@ -1,10 +1,10 @@
 package User.NodeManager;
 
+import Encryption.EncryptionController;
 import GUI.ControllerFactory;
 import User.CommunicationUnit.Server.IServerController;
 import User.CommunicationUnit.Server.ServerController;
 import User.ConnectionsData;
-import User.Encryption.EncryptionController;
 import User.NodeManager.Lookup.*;
 import User.NodeManager.MessageSession.InboundMessageSession;
 import User.NodeManager.MessageSession.OutboundMessageSession;

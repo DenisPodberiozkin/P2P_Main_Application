@@ -1,7 +1,7 @@
 package User.CommunicationUnit.Client;
 
+import Encryption.DH;
 import User.CommunicationUnit.Server.InboundTokens;
-import User.Encryption.DH;
 import User.NodeManager.Node;
 
 import java.io.IOException;

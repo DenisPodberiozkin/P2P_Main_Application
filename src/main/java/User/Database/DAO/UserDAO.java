@@ -1,7 +1,7 @@
 package User.Database.DAO;
 
-import User.Encryption.EncryptionController;
-import User.Encryption.IEncryptionController;
+import Encryption.EncryptionController;
+import Encryption.IEncryptionController;
 import User.NodeManager.User;
 
 import java.security.PublicKey;

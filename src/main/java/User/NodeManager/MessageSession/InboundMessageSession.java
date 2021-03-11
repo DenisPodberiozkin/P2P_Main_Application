@@ -1,6 +1,6 @@
 package User.NodeManager.MessageSession;
 
-import User.Encryption.DH;
+import Encryption.DH;
 import User.NodeManager.User;
 
 import java.security.GeneralSecurityException;

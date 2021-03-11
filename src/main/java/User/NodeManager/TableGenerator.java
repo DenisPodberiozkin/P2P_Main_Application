@@ -1,6 +1,6 @@
 package User.NodeManager;
 
-import User.Encryption.Hash;
+import Encryption.Hash;
 
 import java.math.BigInteger;
 import java.util.LinkedHashMap;

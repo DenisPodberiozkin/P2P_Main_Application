@@ -1,11 +1,11 @@
 package User.CommunicationUnit.Client;
 
+import Encryption.DH;
+import Encryption.Hash;
 import GUI.ControllerFactory;
 import User.CommunicationUnit.MessageReader;
 import User.CommunicationUnit.Server.InboundTokens;
 import User.CommunicationUnit.SynchronisedWriter;
-import User.Encryption.DH;
-import User.Encryption.Hash;
 import User.NodeManager.Node;
 import User.NodeManager.User;
 

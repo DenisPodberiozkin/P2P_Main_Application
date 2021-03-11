@@ -1,5 +1,6 @@
 package User.Encryption;
 
+import Encryption.AES;
 import org.junit.jupiter.api.Test;
 
 import javax.crypto.SecretKey;
@@ -11,9 +12,8 @@ class AESTest {
 
     @Test
     void generateSecretKey() {
-        AES aes = new AES();
         try {
-            System.out.println(aes.generateSecretPassword());
+            System.out.println(AES.generateSecretPassword());
         } catch (NoSuchAlgorithmException e) {
             e.printStackTrace();
         }
@@ -32,22 +32,21 @@ class AESTest {
     @Test
     void encryptionDecryptionTest() {
         try {
-            AES aes = new AES();
             String password = "123456789";
-            String secretPassword = aes.generateSecretPassword();
-            SecretKey key = aes.generateSecretKey(password, secretPassword);
+            String secretPassword = AES.generateSecretPassword();
+            SecretKey key = AES.generateSecretKey(password, secretPassword);
             File file = new File("src/main/resources/db/Userdata.db");
 
-            byte[] encryptedData = aes.encryptFile(key, file);
+            byte[] encryptedData = AES.encryptFile(key, file);
             FileOutputStream outputStream = new FileOutputStream("src/main/resources/db/EncryptedUserdata.db");
             outputStream.write(encryptedData);
             outputStream.close();
 
             File encryptedFile = new File("src/main/resources/db/EncryptedUserdata.db");
 
-            key = aes.generateSecretKey(password, secretPassword);
+            key = AES.generateSecretKey(password, secretPassword);
 
-            byte[] decryptedData = aes.decryptFile(key, encryptedFile);
+            byte[] decryptedData = AES.decryptFile(key, encryptedFile);
 
             outputStream = new FileOutputStream("src/main/resources/db/DecryptedUserdata.db");
             outputStream.write(decryptedData);

@@ -1,5 +1,6 @@
 package User.Encryption;
 
+import Encryption.Hash;
 import org.junit.jupiter.api.Test;
 
 class HashTest {

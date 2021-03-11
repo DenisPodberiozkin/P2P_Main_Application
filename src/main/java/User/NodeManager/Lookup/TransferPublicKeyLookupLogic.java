@@ -1,6 +1,6 @@
 package User.NodeManager.Lookup;
 
-import User.Encryption.DH;
+import Encryption.DH;
 import User.NodeManager.MessageSession.InboundMessageSession;
 import User.NodeManager.Node;
 import User.NodeManager.User;

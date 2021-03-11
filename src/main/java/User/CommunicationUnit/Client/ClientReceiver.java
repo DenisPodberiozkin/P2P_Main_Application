@@ -1,8 +1,8 @@
 package User.CommunicationUnit.Client;
 
+import Encryption.EncryptionController;
+import Encryption.IEncryptionController;
 import User.CommunicationUnit.MessageReader;
-import User.Encryption.EncryptionController;
-import User.Encryption.IEncryptionController;
 import User.NodeManager.User;
 
 import java.io.IOException;

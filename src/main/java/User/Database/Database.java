@@ -7,17 +7,9 @@ import java.sql.SQLException;
 import java.sql.Statement;
 
 public class Database {
-    private static Database instance;
     private final static String JDBC = "jdbc:sqlite:";
     private final static String PATH = "src/main/resources/db/";
     private Connection connection;
-
-    public static Database getInstance() {
-        if (instance == null) {
-            instance = new Database();
-        }
-        return instance;
-    }
 
 
     /**

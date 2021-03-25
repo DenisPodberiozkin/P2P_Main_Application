@@ -468,9 +468,14 @@ public class User extends Node {
     }
 
     public Conversation createNewConversation(String participantId) {
-        Conversation conversation = new Conversation(participantId);
-        conversations.put(participantId, conversation);
-        return conversation;
+        readWriteLock.writeLock().lock();
+        try {
+            final Conversation conversation = new Conversation(participantId);
+            conversations.put(participantId, conversation);
+            return conversation;
+        } finally {
+            readWriteLock.writeLock().unlock();
+        }
     }
 
     public void processMessage(String payload) throws InboundMessageSessionNotFound {
@@ -478,18 +483,32 @@ public class User extends Node {
         final long inboundMessageSessionId = Long.parseLong(tokens[0]);
         final InboundMessageSession inboundMessageSession = findInboundMessageSessionById(inboundMessageSessionId);
         final String encryptedPayload = tokens[1];
+
         inboundMessageSession.messageNotify(encryptedPayload);
         removeInboundMessageSession(inboundMessageSessionId);
 
-//        addMessage(senderId, senderId, text);
     }
 
     public void addMessage(String participantId, String senderId, String text) {
-        Conversation conversation = conversations.get(senderId);
+        Conversation conversation = getConversation(senderId);
         if (conversation == null) {
             conversation = createNewConversation(participantId);
         }
-        conversation.addMessage(senderId, text);
+        readWriteLock.writeLock().lock();
+        try {
+            conversation.addMessage(senderId, text);
+        } finally {
+            readWriteLock.writeLock().unlock();
+        }
+    }
+
+    private Conversation getConversation(String senderId) {
+        readWriteLock.readLock().lock();
+        try {
+            return conversations.get(senderId);
+        } finally {
+            readWriteLock.readLock().unlock();
+        }
     }
 
     public void sendMessage(String receiverId, String text) {
@@ -513,28 +532,48 @@ public class User extends Node {
         OutboundMessageSession outboundMessageSession = new OutboundMessageSessionBuilder().setMessageText(text)
                 .setParticipantNodeId(receiverId)
                 .createOutboundMessageSession();
-        outboundMessageSessions.put(outboundMessageSession.getId(), outboundMessageSession);
+        readWriteLock.writeLock().lock();
+        try {
+            outboundMessageSessions.put(outboundMessageSession.getId(), outboundMessageSession);
+        } finally {
+            readWriteLock.writeLock().unlock();
+        }
 
         return (FutureTask<String>) executorService.submit(outboundMessageSession);
     }
 
     public InboundMessageSession createInboundMessageSession(long participantMessageSessionId, PublicKey receivedPublicKey) throws GeneralSecurityException {
         InboundMessageSession inboundMessageSession = new InboundMessageSession(participantMessageSessionId, receivedPublicKey);
-        inboundMessageSessions.put(inboundMessageSession.getId(), inboundMessageSession);
+        readWriteLock.writeLock().lock();
+        try {
+            inboundMessageSessions.put(inboundMessageSession.getId(), inboundMessageSession);
+        } finally {
+            readWriteLock.writeLock().unlock();
+        }
         executorService.submit(inboundMessageSession);
         return inboundMessageSession;
     }
 
     private InboundMessageSession findInboundMessageSessionById(long id) throws InboundMessageSessionNotFound {
-        if (inboundMessageSessions.containsKey(id)) {
-            return inboundMessageSessions.get(id);
-        } else {
-            throw new InboundMessageSessionNotFound("Inbound Message Session with id " + id + " not found!");
+        readWriteLock.writeLock().lock();
+        try {
+            if (inboundMessageSessions.containsKey(id)) {
+                return inboundMessageSessions.get(id);
+            } else {
+                throw new InboundMessageSessionNotFound("Inbound Message Session with id " + id + " not found!");
+            }
+        } finally {
+            readWriteLock.writeLock().unlock();
         }
     }
 
     private void removeInboundMessageSession(long id) {
-        inboundMessageSessions.remove(id);
+        readWriteLock.writeLock().lock();
+        try {
+            inboundMessageSessions.remove(id);
+        } finally {
+            readWriteLock.writeLock().unlock();
+        }
     }
 
 

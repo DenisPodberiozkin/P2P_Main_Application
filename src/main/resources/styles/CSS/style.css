@@ -1,3 +1,4 @@
+
 .root {
     -fx-accent: #1e74c6;
     -fx-focus-color: -fx-accent;
@@ -21,6 +22,11 @@
 
 .text-field {
     -fx-prompt-text-fill: gray;
+
+}
+
+.password-field {
+
 }
 
 .titulo {

@@ -37,10 +37,12 @@ public class Main extends Application {
     @Override
     public void start(Stage primaryStage) throws Exception {
         Platform.setImplicitExit(true);
-        Parent root = FXMLLoader.load(getClass().getResource("../fxml/Test.fxml"));
-        primaryStage.setTitle("Hello World");
+//        Parent root = FXMLLoader.load(getClass().getResource("../fxml/Test.fxml"));
+        Parent root = FXMLLoader.load(getClass().getResource("../fxml/Login.fxml"));
+        primaryStage.setTitle("Westwood v0.1");
         Scene mainScene = new Scene(root);
         mainScene.getStylesheets().add(getClass().getResource("../styles/CSS/style.css").toExternalForm());
+        mainScene.getStylesheets().add(getClass().getResource("../styles/CSS/customStyle.css").toExternalForm());
         primaryStage.setScene(mainScene);
         primaryStage.show();
 
@@ -49,8 +51,8 @@ public class Main extends Application {
 //        Runtime.getRuntime().addShutdownHook(new Thread(() -> System.out.println("Before closing")));
 
         setDebugLevel(Level.FINE);
-        final MainController mainController = MainController.getInstance();
-        mainController.connectToRing();
+//        final MainController mainController = MainController.getInstance();
+//        mainController.connectToRing();
 //        System.exit(0);
     }
 }

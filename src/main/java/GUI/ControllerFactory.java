@@ -1,8 +1,13 @@
 package GUI;
 
+import GUI.LoginScreen.LogOnForm;
+import GUI.LoginScreen.Login;
+import GUI.LoginScreen.LoginForm;
+
 public class ControllerFactory {
 
     private static TestController testController;
+    private static StartScreen startScreenController;
     private static Login loginController;
     private static LoginForm loginFormController;
     private static LogOnForm logOnFormController;
@@ -15,6 +20,13 @@ public class ControllerFactory {
         ControllerFactory.testController = testController;
     }
 
+    public static StartScreen getStartScreenController() {
+        return startScreenController;
+    }
+
+    public static void setStartScreenController(StartScreen startScreenController) {
+        ControllerFactory.startScreenController = startScreenController;
+    }
 
     public static Login getLoginController() {
         return loginController;

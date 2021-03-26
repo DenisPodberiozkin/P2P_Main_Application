@@ -1,5 +1,9 @@
-package GUI;
+package GUI.LoginScreen;
 
+import GUI.ControllerFactory;
+import GUI.GUI_Util;
+import GUI.Navigators.LoginSideBarNavigator;
+import GUI.Navigators.NavigablePane;
 import javafx.fxml.FXML;
 import javafx.fxml.Initializable;
 import javafx.scene.image.ImageView;
@@ -26,7 +30,7 @@ public class Login implements Initializable {
         ControllerFactory.setLoginController(this);
         LoginSideBarNavigator.setLoginController(this);
         img.fitHeightProperty().bind(borderPane.widthProperty());
-        LoginSideBarNavigator.changeSideBar(LoginSideBarNavigator.LOGIN_FORM_XML);
+        LoginSideBarNavigator.changeSideBar(NavigablePane.LOGIN_FORM_XML);
     }
 
 

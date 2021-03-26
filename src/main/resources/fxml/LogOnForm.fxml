@@ -3,7 +3,8 @@
 <?import javafx.scene.control.*?>
 <?import javafx.scene.layout.*?>
 <?import java.net.URL?>
-<BorderPane xmlns:fx="http://javafx.com/fxml/1" xmlns="http://javafx.com/javafx/8.0.171" fx:controller="GUI.LogOnForm">
+<BorderPane xmlns:fx="http://javafx.com/fxml/1" xmlns="http://javafx.com/javafx/8.0.171"
+            fx:controller="GUI.LoginScreen.LogOnForm">
     <center>
         <GridPane alignment="CENTER" prefHeight="303.0" prefWidth="407.0">
             <columnConstraints>
@@ -13,6 +14,7 @@
                 <RowConstraints maxHeight="190.0" minHeight="10.0" prefHeight="75.0" vgrow="SOMETIMES"/>
             </rowConstraints>
             <VBox prefHeight="152.0" prefWidth="252.0" spacing="15.0">
+                <TextField fx:id="usernameField" promptText="Username"/>
                 <PasswordField fx:id="passField" promptText="Password"/>
                 <ProgressBar fx:id="passProgressBar" prefHeight="18.0" prefWidth="252.0" progress="0.0"/>
                 <PasswordField fx:id="repeatPasswordField" promptText="Repeat Password"/>

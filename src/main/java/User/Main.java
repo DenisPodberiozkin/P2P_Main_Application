@@ -38,7 +38,7 @@ public class Main extends Application {
     public void start(Stage primaryStage) throws Exception {
         Platform.setImplicitExit(true);
 //        Parent root = FXMLLoader.load(getClass().getResource("../fxml/Test.fxml"));
-        Parent root = FXMLLoader.load(getClass().getResource("../fxml/Login.fxml"));
+        Parent root = FXMLLoader.load(getClass().getResource("../fxml/StartScreen.fxml"));
         primaryStage.setTitle("Westwood v0.1");
         Scene mainScene = new Scene(root);
         mainScene.getStylesheets().add(getClass().getResource("../styles/CSS/style.css").toExternalForm());

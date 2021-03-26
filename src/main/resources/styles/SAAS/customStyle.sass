@@ -3,7 +3,7 @@ $accent: #373e43
 
 .text-field
   -fx-font-size: 20px
-  -fx-background-color: transparent, -fx-box-border, -fx-control-inner-background
+  //-fx-background-color: transparent, -fx-box-border, -fx-control-inner-background
 
 .text-field-red
   -fx-border-style: solid
@@ -12,6 +12,7 @@ $accent: #373e43
 .button
   -fx-font-size: 20px
   -fx-min-width: 100px
+//-fx-background-color: $accent, $accent, $accent
 
 .title-label
   -fx-font-size: 35px
@@ -25,7 +26,8 @@ $accent: #373e43
 .side-bar
   -fx-background-color: $accent
 
-.login-button-wrapper, .logon-button-wrapper
+
+.login-button-wrapper, .logon-button-wrapper, .carousel-button-wrapper
   -fx-alignment: center
   -fx-spacing: 15px
 
@@ -47,3 +49,12 @@ $accent: #373e43
 
 .text-field-red-text
   -fx-text-fill: red
+
+.carousel-pagination-label
+  -fx-font-size: 45px
+
+.main-screen
+  -fx-pref-width: 800px
+  -fx-pref-height: 600px
+  -fx-min-width: 800px
+  -fx-min-height: 600px

@@ -2,6 +2,7 @@ package GUI;
 
 import javafx.beans.value.ChangeListener;
 import javafx.collections.ObservableList;
+import javafx.scene.Node;
 import javafx.scene.control.PasswordField;
 import javafx.scene.control.ProgressBar;
 import javafx.scene.control.TextInputControl;
@@ -15,11 +16,23 @@ public class GUI_Util {
     private static final String RED_BORDER_STYLE = "text-field-red";
 
     public static void setChildToParentAnchorPane(Pane parent, Pane child) {
+        setAnchors(child);
+        parent.getChildren().setAll(child);
+    }
+
+    public static void addChildToParentAnchorPane(Pane parent, Pane child) {
+        setAnchors(child);
+        final ObservableList<Node> children = parent.getChildren();
+        final LinkedList<Node> linkedList = new LinkedList<>(children);
+        linkedList.addFirst(child);
+        children.setAll(linkedList);
+    }
+
+    private static void setAnchors(Pane child) {
         AnchorPane.setBottomAnchor(child, 0.0);
         AnchorPane.setTopAnchor(child, 0.0);
         AnchorPane.setLeftAnchor(child, 0.0);
         AnchorPane.setRightAnchor(child, 0.0);
-        parent.getChildren().setAll(child);
     }
 
     public static boolean checkMandatoryFields(LinkedList<TextInputControl> mandatoryFields) {

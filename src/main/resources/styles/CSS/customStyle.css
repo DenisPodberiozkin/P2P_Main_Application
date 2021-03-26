@@ -1,6 +1,5 @@
 .text-field {
-  -fx-font-size: 20px;
-  -fx-background-color: transparent, -fx-box-border, -fx-control-inner-background; }
+  -fx-font-size: 20px; }
 
 .text-field-red {
   -fx-border-style: solid;
@@ -22,7 +21,7 @@
 .side-bar {
   -fx-background-color: #373e43; }
 
-.login-button-wrapper, .logon-button-wrapper {
+.login-button-wrapper, .logon-button-wrapper, .carousel-button-wrapper {
   -fx-alignment: center;
   -fx-spacing: 15px; }
 
@@ -43,5 +42,14 @@
 
 .text-field-red-text {
   -fx-text-fill: red; }
+
+.carousel-pagination-label {
+  -fx-font-size: 45px; }
+
+.main-screen {
+  -fx-pref-width: 800px;
+  -fx-pref-height: 600px;
+  -fx-min-width: 800px;
+  -fx-min-height: 600px; }
 
 /*# sourceMappingURL=customStyle.css.map */

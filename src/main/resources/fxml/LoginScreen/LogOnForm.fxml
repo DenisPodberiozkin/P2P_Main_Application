@@ -31,7 +31,7 @@
         <Label styleClass="title-label" text="Log on" BorderPane.alignment="CENTER"/>
     </top>
     <stylesheets>
-        <URL value="@../styles/CSS/style.css"/>
-        <URL value="@../styles/CSS/customStyle.css"/>
+        <URL value="@../../styles/CSS/style.css"/>
+        <URL value="@../../styles/CSS/customStyle.css"/>
     </stylesheets>
 </BorderPane>

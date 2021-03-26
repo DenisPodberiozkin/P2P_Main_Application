@@ -28,8 +28,8 @@
         </GridPane>
     </center>
     <stylesheets>
-        <URL value="@../styles/CSS/style.css"/>
-        <URL value="@../styles/CSS/customStyle.css"/>
+        <URL value="@../../styles/CSS/style.css"/>
+        <URL value="@../../styles/CSS/customStyle.css"/>
     </stylesheets>
     <top>
         <Label styleClass="title-label" text="Login" BorderPane.alignment="CENTER"/>

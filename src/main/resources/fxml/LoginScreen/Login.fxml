@@ -23,12 +23,12 @@
                 <BorderPane.margin>
                     <Insets left="15.0" right="15.0"/>
                 </BorderPane.margin>
-                <Image url="@../img/logo.png"/>
+                <Image url="@../../img/logo.png"/>
             </ImageView>
         </center>
     </BorderPane>
     <stylesheets>
-        <URL value="@../styles/CSS/style.css"/>
-        <URL value="@../styles/CSS/customStyle.css"/>
+        <URL value="@../../styles/CSS/style.css"/>
+        <URL value="@../../styles/CSS/customStyle.css"/>
     </stylesheets>
 </AnchorPane>

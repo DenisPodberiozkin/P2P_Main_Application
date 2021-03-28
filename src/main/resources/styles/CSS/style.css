@@ -1,5 +1,5 @@
 
-.root {
+.root, .dialog-pane .button {
     -fx-accent: #1e74c6;
     -fx-base: #373e43;
     -fx-control-inner-background: derive(-fx-base, 35%);
@@ -36,7 +36,7 @@
     -fx-font-size: 18px;
 }
 
-.button {
+.button, .dialog-pane .button {
     -fx-focus-traversable: false;
 }
 
@@ -84,4 +84,12 @@
 .table-row-cell {
     -fx-border-color: transparent;
     -fx-table-cell-border-color: transparent;
+}
+
+.dialog-pane > .content.label {
+    -fx-font-size: 18px;
+}
+
+.dialog-pane .header-panel .label {
+    -fx-font-size: 21px;
 }

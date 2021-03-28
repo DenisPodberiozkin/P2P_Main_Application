@@ -12,6 +12,7 @@ public abstract class Navigator {
     private static Pane logonForm;
     private static Pane registrationCarousel;
     private static Pane loginScreen;
+    private static Pane settingsPane;
 
     protected static Pane loadPane(NavigablePane pane) throws IllegalArgumentException {
         final String paneXml = pane.getXml();
@@ -37,8 +38,14 @@ public abstract class Navigator {
                         loginScreen = FXMLLoader.load(LoginSideBarNavigator.class.getResource(paneXml));
                     }
                     return loginScreen;
+                case SETTINGS_XML:
+                    if (settingsPane == null) {
+                        settingsPane = FXMLLoader.load(LoginSideBarNavigator.class.getResource(paneXml));
+                    }
+                    return settingsPane;
             }
         } catch (IOException ioException) {
+            ioException.printStackTrace();
             LOGGER.severe("Unable to load navigable pane" + pane + ". Reason " + ioException.toString());
         }
         throw new IllegalArgumentException("There is no fxml - " + paneXml);

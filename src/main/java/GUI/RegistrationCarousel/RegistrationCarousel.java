@@ -1,5 +1,6 @@
 package GUI.RegistrationCarousel;
 
+import GUI.ControllerFactory;
 import GUI.GUI_Util;
 import GUI.Navigators.NavigablePane;
 import GUI.Navigators.StartScreenNavigator;
@@ -25,7 +26,7 @@ public class RegistrationCarousel implements Initializable {
 
 
     private static final double SCREEN_WIDTH = Screen.getPrimary().getBounds().getWidth();
-    private final Stack<Pane> slides = new Stack<>();
+    private final Stack<Slide> slides = new Stack<>();
     @FXML
     private Label paginationLabel;
     @FXML
@@ -34,15 +35,17 @@ public class RegistrationCarousel implements Initializable {
     private Button prevBtn;
     @FXML
     private Button nextBtn;
+
     private int current = 0;
 
     @Override
     public void initialize(URL location, ResourceBundle resources) {
         try {
-            addSlide(FXMLLoader.load(RegistrationCarousel.class.getResource("../fxml/Slide1.fxml")));
-            addSlide(FXMLLoader.load(RegistrationCarousel.class.getResource("../fxml/Slide2.fxml")));
-            addSlide(FXMLLoader.load(RegistrationCarousel.class.getResource("../fxml/Slide3.fxml")));
-            checkButtons();
+            ControllerFactory.setRegistrationCarouselController(this);
+            addSlide("../../fxml/RegistrationCarousel/InformationSlide.fxml");
+            addSlide("../../fxml/RegistrationCarousel/SecretPasswordSlide.fxml");
+            addSlide("../../fxml/RegistrationCarousel/FinishSlide.fxml");
+            setUpSlidesBackground();
             setPaginationText(current);
         } catch (IOException ioException) {
             ioException.printStackTrace();
@@ -52,16 +55,18 @@ public class RegistrationCarousel implements Initializable {
 
     @FXML
     private void prev() {
-        translateAnimation(0.5, slides.get(current - 1), SCREEN_WIDTH);
+        translateAnimation(0.5, slides.get(current - 1).getPane(), SCREEN_WIDTH);
         decreaseCurrentPage();
         checkButtons();
+        notifyCurrentSlideController();
     }
 
     @FXML
     private void next() {
-        translateAnimation(0.5, slides.get(current), -SCREEN_WIDTH);
+        translateAnimation(0.5, slides.get(current).getPane(), -SCREEN_WIDTH);
         increaseCurrentPage();
         checkButtons();
+        notifyCurrentSlideController();
 
     }
 
@@ -70,6 +75,39 @@ public class RegistrationCarousel implements Initializable {
         StartScreenNavigator.changeMainScreen(NavigablePane.LOGIN_XML);
         while (current > 0) {
             prev();
+        }
+        notifyCancelToSlides();
+
+    }
+
+    private void notifyCurrentSlideController() {
+        slides.get(current).getController().notifyCurrentSlide();
+    }
+
+    private void notifyCancelToSlides() {
+        for (Slide slide : slides) {
+            slide.getController().notifyCancel();
+        }
+    }
+
+    public void disableContinueButton() {
+        nextBtn.setDisable(true);
+    }
+
+    public void enableContinueButton() {
+        nextBtn.setDisable(false);
+    }
+
+    private void setUpSlidesBackground() {
+        int i = 1;
+        for (Slide slide : slides) {
+            final Pane pane = slide.getPane();
+            if (i % 2 == 0) {
+                pane.getStyleClass().add("slide-dark");
+            } else {
+                pane.getStyleClass().add("slide-grey");
+            }
+            i++;
         }
     }
 
@@ -80,14 +118,17 @@ public class RegistrationCarousel implements Initializable {
     }
 
     private void checkButtons() {
-        System.out.println(current);
         nextBtn.setDisable(current >= slides.size() - 1);
         prevBtn.setDisable(current <= 0);
     }
 
-    private void addSlide(Pane pane) {
-        GUI_Util.addChildToParentAnchorPane(parentPane, pane);
-        slides.push(pane);
+    private void addSlide(String fxml) throws IOException {
+        FXMLLoader loader = new FXMLLoader(getClass().getResource(fxml));
+        Pane pane = loader.load();
+        SlideController controller = loader.getController();
+        Slide slide = new Slide(pane, controller);
+        GUI_Util.addChildToParentAnchorPane(parentPane, slide.getPane());
+        slides.push(slide);
     }
 
     private void increaseCurrentPage() {

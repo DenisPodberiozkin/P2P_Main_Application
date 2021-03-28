@@ -4,6 +4,7 @@ import GUI.ControllerFactory;
 import GUI.GUI_Util;
 import GUI.Navigators.LoginSideBarNavigator;
 import GUI.Navigators.NavigablePane;
+import GUI.Navigators.StartScreenNavigator;
 import javafx.fxml.FXML;
 import javafx.fxml.Initializable;
 import javafx.scene.image.ImageView;
@@ -36,5 +37,11 @@ public class Login implements Initializable {
 
     public void setSideBar(Pane child) {
         GUI_Util.setChildToParentAnchorPane(sideBar, child);
+    }
+
+
+    @FXML
+    public void showSettings() {
+        StartScreenNavigator.changeMainScreen(NavigablePane.SETTINGS_XML);
     }
 }

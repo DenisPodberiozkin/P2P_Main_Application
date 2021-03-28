@@ -1,0 +1,35 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<?import javafx.scene.control.*?>
+<?import javafx.scene.layout.*?>
+<?import java.net.URL?>
+<AnchorPane xmlns:fx="http://javafx.com/fxml/1" prefHeight="577.0" prefWidth="600.0"
+            xmlns="http://javafx.com/javafx/8.0.171" fx:controller="GUI.RegistrationCarousel.InformationSlide">
+   <stylesheets>
+      <URL value="@../../styles/CSS/style.css"/>
+      <URL value="@../../styles/CSS/customStyle.css"/>
+   </stylesheets>
+   <children>
+      <BorderPane layoutX="74.0" layoutY="86.0" prefHeight="400.0" prefWidth="600.0" AnchorPane.bottomAnchor="0.0"
+                  AnchorPane.leftAnchor="0.0" AnchorPane.rightAnchor="0.0" AnchorPane.topAnchor="0.0">
+         <top>
+            <Label styleClass="title-label" text="General Information" BorderPane.alignment="CENTER"/>
+         </top>
+         <center>
+            <VBox alignment="CENTER_LEFT" prefHeight="200.0" prefWidth="100.0" styleClass="information-wrapper"
+                  BorderPane.alignment="CENTER">
+               <children>
+                  <Label styleClass="information-label"
+                         text="⚫ A specified username will not be visible to anyone outside this system. Any active member of this chat will not be able to send you messages unless provided by you with your ID (address) available after registration. The username is used to indetify you only within your system."/>
+                  <Label styleClass="information-label"
+                         text="⚫ All your messages will be stored only on your and another conversation member's system."/>
+                  <Label styleClass="information-label"
+                         text="⚫ You can send/receive messages only if the recipient is online; all messages sent to the offline recipient will not be delivered or saved."/>
+                  <Label styleClass="information-label"
+                         text="⚫ It is impossible to recover any information stored within this application without providing personal and secret passwords since all your data is encrypted and stored locally."/>
+               </children>
+            </VBox>
+         </center>
+      </BorderPane>
+   </children>
+</AnchorPane>

@@ -1,5 +1,6 @@
 $dark: #2B2B2B
 $accent: #373e43
+$grey: derive($accent, 35%)
 
 .text-field
   -fx-font-size: 20px
@@ -27,7 +28,17 @@ $accent: #373e43
   -fx-background-color: $accent
 
 
-.login-button-wrapper, .logon-button-wrapper, .carousel-button-wrapper
+.settings-button
+  -fx-pref-width: -1px
+  -fx-pref-height: -1px
+  -fx-min-width: -1px
+
+  & .glyph-icon
+    -fx-fill: white
+    -fx-size: 35px
+
+
+.login-button-wrapper, .logon-button-wrapper, .carousel-button-wrapper, .settings-button-wrapper
   -fx-alignment: center
   -fx-spacing: 15px
 
@@ -55,6 +66,44 @@ $accent: #373e43
 
 .main-screen
   -fx-pref-width: 800px
-  -fx-pref-height: 600px
+  -fx-pref-height: 850px
   -fx-min-width: 800px
-  -fx-min-height: 600px
+  -fx-min-height: 850px
+
+
+.slide-dark
+  -fx-background-color: $dark
+
+.slide-grey
+  -fx-background-color: $grey
+
+.information-wrapper
+  -fx-spacing: 15px
+  -fx-font-size: 18px
+  -fx-padding: 15 30px
+  -fx-border-insets: 15 30px
+  -fx-background-insets: 15 30px
+//-fx-alignment: center_left
+
+.settings-pane
+  -fx-font-size: 13px
+  -fx-background-color: $dark
+
+.information-label
+  -fx-wrap-text: true
+
+.secret-password-field
+  -fx-alignment: center
+  -fx-border-color: red
+  -fx-border-width: 3px
+
+.summary-info-wrapper
+  -fx-pref-height: -1px
+  -fx-spacing: 100px
+  -fx-vgap: 30px
+
+.port-field
+  -fx-pref-width: 100px
+
+.ip-field
+  -fx-pref-width: 180px

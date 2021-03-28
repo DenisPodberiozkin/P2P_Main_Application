@@ -1,0 +1,163 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<?import javafx.scene.control.*?>
+<?import javafx.scene.layout.*?>
+<?import java.net.URL?>
+<AnchorPane xmlns:fx="http://javafx.com/fxml/1" prefHeight="830.0" prefWidth="800.0"
+            xmlns="http://javafx.com/javafx/8.0.171" fx:controller="GUI.LoginScreen.Settings">
+   <stylesheets>
+      <URL value="@../../styles/CSS/style.css"/>
+      <URL value="@../../styles/CSS/customStyle.css"/>
+   </stylesheets>
+   <children>
+      <BorderPane layoutX="208.0" layoutY="119.0" prefHeight="400.0" prefWidth="600.0" AnchorPane.bottomAnchor="0.0"
+                  AnchorPane.leftAnchor="0.0" AnchorPane.rightAnchor="0.0" AnchorPane.topAnchor="0.0">
+         <top>
+            <Label styleClass="title-label" text="Settings" BorderPane.alignment="CENTER"/>
+         </top>
+         <center>
+            <TabPane fx:id="tabs" prefHeight="200.0" prefWidth="200.0" styleClass="settings-pane"
+                     tabClosingPolicy="UNAVAILABLE" BorderPane.alignment="CENTER">
+               <tabs>
+                  <Tab closable="false" text="Application Settings">
+                     <content>
+                        <AnchorPane minHeight="0.0" minWidth="0.0" prefHeight="180.0" prefWidth="200.0"
+                                    styleClass="information-wrapper">
+                           <children>
+                              <VBox layoutX="-7.0" layoutY="30.0" prefHeight="166.0" prefWidth="600.0" spacing="15.0"
+                                    AnchorPane.bottomAnchor="0.0" AnchorPane.leftAnchor="0.0"
+                                    AnchorPane.rightAnchor="0.0" AnchorPane.topAnchor="0.0">
+                                 <children>
+                                    <Label styleClass="information-label"
+                                           text="Specify application port (default port is 4444). Other users will use this port to transfer or send messages to/through you."/>
+                                    <GridPane>
+                                       <columnConstraints>
+                                          <ColumnConstraints hgrow="SOMETIMES" maxWidth="265.0" minWidth="10.0"
+                                                             prefWidth="194.0"/>
+                                          <ColumnConstraints hgrow="SOMETIMES" maxWidth="407.0" minWidth="10.0"
+                                                             prefWidth="346.0"/>
+                                       </columnConstraints>
+                                       <rowConstraints>
+                                          <RowConstraints minHeight="10.0" prefHeight="30.0" vgrow="SOMETIMES"/>
+                                       </rowConstraints>
+                                       <children>
+                                          <Label text="Application IP:Port"/>
+                                          <FlowPane alignment="CENTER" GridPane.columnIndex="1"
+                                                    GridPane.halignment="CENTER" GridPane.valignment="CENTER">
+                                             <children>
+                                                <TextField disable="true" editable="false" prefHeight="44.0"
+                                                           prefWidth="179.0" styleClass="ip-field"
+                                                           text="123.123.123.123"/>
+                                                <Label text=":"/>
+                                                <TextField fx:id="applicationPortField" prefHeight="44.0"
+                                                           prefWidth="78.0" styleClass="port-field"/>
+                                             </children>
+                                          </FlowPane>
+                                       </children>
+                                    </GridPane>
+                                 </children>
+                              </VBox>
+                           </children>
+                        </AnchorPane>
+                     </content>
+                  </Tab>
+                  <Tab closable="false" text="Connection Settings">
+                     <content>
+                        <AnchorPane minHeight="0.0" minWidth="0.0" prefHeight="180.0" prefWidth="200.0"
+                                    styleClass="information-wrapper">
+                           <children>
+                              <VBox prefHeight="166.0" prefWidth="600.0" spacing="15.0" AnchorPane.bottomAnchor="0.0"
+                                    AnchorPane.leftAnchor="0.0" AnchorPane.rightAnchor="0.0" AnchorPane.topAnchor="0.0">
+                                 <children>
+                                    <Label styleClass="information-label"
+                                           text="Here you have several options to chose to determine how you want to connect to the network.  "/>
+                                    <Label styleClass="information-label"
+                                           text="1)  You can connect to the local server to retrieve the last connected user information and then use that user to connect to the network. "/>
+                                    <Label styleClass="information-label"
+                                           text="2)  If you know the IP address and port of any online users, you can use that user to connect to the network bypassing the local server's connection."/>
+                                    <Label styleClass="information-label"
+                                           text="3) You can combine the two connection options explained above in the following way - First, you try to connect to the existing online user; if that user is unreachable, then you connect to the local server"/>
+                                    <RadioButton fx:id="localServerOptionRadioBtn" mnemonicParsing="false"
+                                                 onAction="#radioBtnAction" selected="true"
+                                                 text="Connect to the Local server">
+                                       <toggleGroup>
+                                          <ToggleGroup fx:id="connectionToggle"/>
+                                       </toggleGroup>
+                                    </RadioButton>
+                                    <GridPane>
+                                       <columnConstraints>
+                                          <ColumnConstraints hgrow="SOMETIMES" maxWidth="265.0" minWidth="10.0"
+                                                             prefWidth="194.0"/>
+                                          <ColumnConstraints hgrow="SOMETIMES" maxWidth="407.0" minWidth="10.0"
+                                                             prefWidth="346.0"/>
+                                       </columnConstraints>
+                                       <rowConstraints>
+                                          <RowConstraints minHeight="10.0" prefHeight="30.0" vgrow="SOMETIMES"/>
+                                       </rowConstraints>
+                                       <children>
+                                          <Label text="Local server IP:Port"/>
+                                          <FlowPane alignment="CENTER" GridPane.columnIndex="1"
+                                                    GridPane.halignment="CENTER" GridPane.valignment="CENTER">
+                                             <children>
+                                                <TextField fx:id="localServerIpField" prefHeight="44.0"
+                                                           prefWidth="246.0" styleClass="ip-field"/>
+                                                <Label text=":"/>
+                                                <TextField fx:id="localServerPortField" prefHeight="44.0"
+                                                           prefWidth="103.0" styleClass="port-field"/>
+                                             </children>
+                                          </FlowPane>
+                                       </children>
+                                    </GridPane>
+                                    <RadioButton fx:id="userOptionRadioBtn" mnemonicParsing="false"
+                                                 onAction="#radioBtnAction" text="Connect to existing online user"
+                                                 toggleGroup="$connectionToggle"/>
+                                    <GridPane>
+                                       <columnConstraints>
+                                          <ColumnConstraints hgrow="SOMETIMES" maxWidth="265.0" minWidth="10.0"
+                                                             prefWidth="194.0"/>
+                                          <ColumnConstraints hgrow="SOMETIMES" maxWidth="407.0" minWidth="10.0"
+                                                             prefWidth="346.0"/>
+                                       </columnConstraints>
+                                       <rowConstraints>
+                                          <RowConstraints minHeight="10.0" prefHeight="30.0" vgrow="SOMETIMES"/>
+                                       </rowConstraints>
+                                       <children>
+                                          <Label text="Exsiting user IP:Port"/>
+                                          <FlowPane alignment="CENTER" GridPane.columnIndex="1"
+                                                    GridPane.halignment="CENTER" GridPane.valignment="CENTER">
+                                             <children>
+                                                <TextField fx:id="existingUserIpField" prefHeight="44.0"
+                                                           prefWidth="246.0" styleClass="ip-field"/>
+                                                <Label text=":"/>
+                                                <TextField fx:id="existingUserPortField" prefHeight="44.0"
+                                                           prefWidth="78.0" styleClass="port-field"/>
+                                             </children>
+                                          </FlowPane>
+                                       </children>
+                                    </GridPane>
+                                    <RadioButton fx:id="bothOptionRadioBtn" mnemonicParsing="false"
+                                                 onAction="#radioBtnAction"
+                                                 text="Try to connect to the existing user first, then to the Local server"
+                                                 toggleGroup="$connectionToggle"/>
+                                 </children>
+                              </VBox>
+                           </children>
+                        </AnchorPane>
+                     </content>
+                  </Tab>
+               </tabs>
+            </TabPane>
+         </center>
+         <bottom>
+            <HBox alignment="CENTER" prefHeight="100.0" prefWidth="200.0" styleClass="settings-button-wrapper"
+                  BorderPane.alignment="CENTER">
+               <children>
+                  <Button mnemonicParsing="false" onAction="#applyBtnAction" text="Apply"/>
+                  <Button mnemonicParsing="false" onAction="#okBtnAction" text="OK"/>
+                  <Button mnemonicParsing="false" onAction="#cancelBtnAction" text="Cancel"/>
+               </children>
+            </HBox>
+         </bottom>
+      </BorderPane>
+   </children>
+</AnchorPane>

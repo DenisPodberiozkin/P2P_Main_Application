@@ -5,6 +5,8 @@ import GUI.GUI_Util;
 import GUI.Navigators.LoginSideBarNavigator;
 import GUI.Navigators.NavigablePane;
 import GUI.Navigators.StartScreenNavigator;
+import User.RegistrationModel;
+import User.RegistrationModelBuilder;
 import javafx.event.ActionEvent;
 import javafx.fxml.FXML;
 import javafx.fxml.Initializable;
@@ -40,8 +42,18 @@ public class LogOnForm implements Initializable {
 
     @FXML
     private void logOn(ActionEvent actionEvent) {
-        if (GUI_Util.checkMandatoryFields(mandatoryFields) && passField.getText().equals(repeatPasswordField.getText())) {
+        final String password = passField.getText();
+        final String repeatPassword = repeatPasswordField.getText();
+        final String username = usernameField.getText();
+
+        if (GUI_Util.checkMandatoryFields(mandatoryFields) && password.equals(repeatPassword)) {
             StartScreenNavigator.changeMainScreen(NavigablePane.REGISTRATION_CAROUSEL_XML);
+            RegistrationModel registrationModel = new RegistrationModelBuilder()
+                    .setPassword(password)
+                    .setUsername(username)
+                    .createRegistrationModel();
+            ControllerFactory.getSecretPasswordSlideController().setRegistrationModel(registrationModel);
+            ControllerFactory.getFinishSlideController().setRegistrationModel(registrationModel);
         }
     }
 

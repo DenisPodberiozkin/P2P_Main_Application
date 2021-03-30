@@ -36,6 +36,10 @@ public class Main extends Application {
 
     @Override
     public void start(Stage primaryStage) throws Exception {
+        final IMainController mainController = MainController.getInstance();
+        mainController.initSettings();
+
+
         Platform.setImplicitExit(true);
 //        Parent root = FXMLLoader.load(getClass().getResource("../fxml/Test.fxml"));
         Parent root = FXMLLoader.load(getClass().getResource("../fxml/StartScreen.fxml"));
@@ -51,7 +55,6 @@ public class Main extends Application {
 //        Runtime.getRuntime().addShutdownHook(new Thread(() -> System.out.println("Before closing")));
 
         setDebugLevel(Level.FINE);
-//        final MainController mainController = MainController.getInstance();
 //        mainController.connectToRing();
 //        System.exit(0);
     }

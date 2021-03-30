@@ -1,4 +1,4 @@
-package GUI.LoginScreen;
+package GUI.Exceptions;
 
 public class IpValidationException extends Exception {
     public IpValidationException(String ip) {

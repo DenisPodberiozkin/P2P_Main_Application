@@ -1,5 +1,7 @@
 package GUI.LoginScreen;
 
+import GUI.Dialogs.ErrorAlert;
+import GUI.Exceptions.IpValidationException;
 import GUI.GUI_Util;
 import GUI.Navigators.NavigablePane;
 import GUI.Navigators.StartScreenNavigator;
@@ -73,13 +75,7 @@ public class Settings implements Initializable {
                 StartScreenNavigator.changeMainScreen(NavigablePane.LOGIN_XML);
             }
         } catch (IpValidationException e) {
-            Alert alert = new Alert(Alert.AlertType.ERROR);
-            alert.setTitle("IP validation Error");
-            alert.setHeaderText("Unable to apply settings");
-            alert.setContentText(e.getMessage());
-            alert.getDialogPane().getStylesheets().add(getClass().getResource("../../styles/CSS/style.css").toExternalForm());
-            alert.getDialogPane().getStylesheets().add(getClass().getResource("../../styles/CSS/customStyle.css").toExternalForm());
-            alert.showAndWait();
+            new ErrorAlert("IP validation Error", "Unable to apply settings", e.getMessage()).show();
         }
     }
 

@@ -10,16 +10,15 @@ class MainControllerTest {
         IMainController mainController = MainController.getInstance();
 
         final String password = "123156";
-        final String secretPassword = mainController.createAccount(password);
-        System.out.println(secretPassword);
+//         mainController.createAccount(password, "132", "Denis");
     }
 
     @Test
     void loginToAccount() {
         IMainController mainController = MainController.getInstance();
         final String password = "123156";
-        final String secretPassword = "m/4HibxszkM9XyYLrffCt1UKntC3qDEF7YsmO01tm38=";
-        mainController.loginToAccount(password, secretPassword);
+        final String secretPassword = "132";
+//        mainController.loginToAccount(password, secretPassword, "Denis");
     }
 
 

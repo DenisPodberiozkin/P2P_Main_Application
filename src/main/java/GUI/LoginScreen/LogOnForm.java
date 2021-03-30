@@ -66,6 +66,7 @@ public class LogOnForm implements Initializable {
     }
 
     private void clearFields() {
+        usernameField.clear();
         passField.clear();
         repeatPasswordField.clear();
     }

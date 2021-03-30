@@ -1,14 +1,34 @@
 package User.Settings;
 
+import User.Database.DAO.ApplicationSettingsDAO;
+
+import java.sql.Connection;
+
 public class ApplicationSettingsModel {
-    private static int applicationPort = 4444; //Default Port is 4444
+	public static final int DEFAULT_APPLICATION_PORT = 4444;
 
-    public static int getApplicationPort() {
-        return applicationPort;
-    }
+	private static int applicationPort;
+	private static ApplicationSettingsDAO applicationSettingsDAO;
 
-    public static void setApplicationPort(int applicationPort) {
-        ApplicationSettingsModel.applicationPort = applicationPort;
-    }
+
+	public static int getApplicationPort() {
+		return applicationPort;
+	}
+
+	public static void setApplicationSettingsDAO(ApplicationSettingsDAO applicationSettingsDAO) {
+		ApplicationSettingsModel.applicationSettingsDAO = applicationSettingsDAO;
+	}
+
+	public static void setApplicationPort(int applicationPort) {
+		ApplicationSettingsModel.applicationPort = applicationPort;
+		if (applicationSettingsDAO != null) {
+			applicationSettingsDAO.setApplicationPort(applicationPort);
+		}
+	}
+
+	public static void initSettings(Connection connection) {
+		applicationSettingsDAO = new ApplicationSettingsDAO(connection);
+		applicationPort = applicationSettingsDAO.getApplicationPort();
+	}
 
 }

@@ -1,6 +1,10 @@
 package GUI.RegistrationCarousel;
 
 import GUI.ControllerFactory;
+import GUI.Dialogs.ErrorAlert;
+import User.Database.DatabaseExceptions.DatabaseInitException;
+import User.IMainController;
+import User.MainController;
 import User.RegistrationModel;
 import javafx.fxml.FXML;
 import javafx.fxml.Initializable;
@@ -8,7 +12,9 @@ import javafx.scene.control.CheckBox;
 import javafx.scene.control.PasswordField;
 import javafx.scene.control.TextField;
 
+import java.io.IOException;
 import java.net.URL;
+import java.sql.SQLException;
 import java.util.LinkedList;
 import java.util.ResourceBundle;
 
@@ -90,7 +96,18 @@ public class FinishSlide implements Initializable, SlideController {
 
     @FXML
     void finishAction() {
-        System.out.println("Registration");
-        //TODO registration
+        try {
+            final IMainController mainController = MainController.getInstance();
+            final String password = registrationModel.getPassword();
+            final String secretePassword = registrationModel.getSecretePassword();
+            final String username = registrationModel.getUsername();
+            mainController.createAccount(password, secretePassword, username);
+        } catch (IOException ioException) {
+            new ErrorAlert("Database Error", "Unable to create database", "Unable to create database to store user data. Reason - " + ioException.getMessage()).show();
+        } catch (SQLException throwables) {
+            new ErrorAlert("Database Error", "Unable to connect to database", "Unable to connect to user database. Reason - " + throwables.getMessage()).show();
+        } catch (DatabaseInitException e) {
+            new ErrorAlert("Database Error", "Unable to initialize database", "Unable to initialize user database. Reason - " + e.getMessage()).show();
+        }
     }
 }

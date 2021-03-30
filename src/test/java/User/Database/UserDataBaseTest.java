@@ -2,12 +2,12 @@ package User.Database;
 
 import org.junit.jupiter.api.Test;
 
-class DatabaseTest {
+class UserDataBaseTest {
 
-    @Test
-    void connect() {
+	@Test
+	void connect() {
 //        Database database = Database.getInstance();
 
-//        database.connect("test");
-    }
+//        database.connectToUserDatabase("test");
+	}
 }

@@ -59,8 +59,8 @@ public class User extends Node {
         initialiseIP();
         User.instance = this;
         this.updater = new Updater(this);
-        ControllerFactory.getTestController().setNodeNameLabelText(getId());
-        ControllerFactory.getTestController().setPortLabelText(getPort());
+//        ControllerFactory.getTestController().setNodeNameLabelText(getId()); TODO uncomment later
+//        ControllerFactory.getTestController().setPortLabelText(getPort());
     }
 
     public User() { // TODO delete later
@@ -268,7 +268,7 @@ public class User extends Node {
             setPredecessor(predecessor);
 
         } catch (IOException ioException) {
-            LOGGER.warning("Unable to connect to predecessor node");
+            LOGGER.warning("Unable to connectToUserDatabase to predecessor node");
         } finally {
             readWriteLock.writeLock().unlock();
         }
@@ -348,7 +348,7 @@ public class User extends Node {
             }
             nodes.put(node.getId(), node);
         } catch (IOException ioException) {
-            LOGGER.warning("Unable to connect to node " + node.getIp() + ":" + node.getPort() + ". Reason " + ioException.toString());
+            LOGGER.warning("Unable to connectToUserDatabase to node " + node.getIp() + ":" + node.getPort() + ". Reason " + ioException.toString());
         } finally {
             readWriteLock.writeLock().unlock();
         }

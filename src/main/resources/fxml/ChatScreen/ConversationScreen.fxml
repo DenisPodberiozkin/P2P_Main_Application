@@ -1,0 +1,48 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<?import de.jensd.fx.glyphs.fontawesome.FontAwesomeIconView?>
+<?import javafx.scene.control.*?>
+<?import javafx.scene.layout.*?>
+<?import java.net.URL?>
+<AnchorPane xmlns:fx="http://javafx.com/fxml/1" prefHeight="400.0" prefWidth="814.0"
+            xmlns="http://javafx.com/javafx/8.0.171" fx:controller="GUI.Chat.ConversationScreen">
+    <children>
+        <BorderPane layoutX="100.0" layoutY="50.0" prefHeight="400.0" prefWidth="600.0" styleClass="conversation-main"
+                    AnchorPane.bottomAnchor="0.0" AnchorPane.leftAnchor="0.0" AnchorPane.rightAnchor="0.0"
+                    AnchorPane.topAnchor="0.0">
+            <bottom>
+                <AnchorPane styleClass="conversation-control-wrapper" BorderPane.alignment="CENTER">
+                    <children>
+                        <TextArea fx:id="sendField" layoutY="15.0" maxHeight="1.7976931348623157E308" prefHeight="104.0"
+                                  prefWidth="663.0" styleClass="conversation-text-area" wrapText="true"
+                                  AnchorPane.leftAnchor="0.0" AnchorPane.rightAnchor="121.0"/>
+                        <Button alignment="CENTER" layoutX="684.0" layoutY="45.0" mnemonicParsing="false"
+                                onAction="#sendBtnAction" prefHeight="32.0" prefWidth="82.0" styleClass="send-button"
+                                text="Send" AnchorPane.rightAnchor="0.0"/>
+                    </children>
+                </AnchorPane>
+            </bottom>
+            <center>
+                <ListView fx:id="chatList" prefHeight="200.0" prefWidth="200.0" BorderPane.alignment="CENTER"/>
+            </center>
+            <top>
+                <AnchorPane prefHeight="33.0" prefWidth="600.0" styleClass="conversation-top"
+                            BorderPane.alignment="CENTER">
+                    <children>
+                        <Label fx:id="chatTitle" layoutX="14.0" layoutY="4.0" styleClass="conversation-title"
+                               text="Chat name" AnchorPane.leftAnchor="14.0"/>
+                        <Button layoutX="736.0" layoutY="12.0" mnemonicParsing="false" AnchorPane.rightAnchor="0.0">
+                            <graphic>
+                                <FontAwesomeIconView glyphName="EDIT" size="20" styleClass="edit-icon"/>
+                            </graphic>
+                        </Button>
+                    </children>
+                </AnchorPane>
+            </top>
+        </BorderPane>
+    </children>
+    <stylesheets>
+        <URL value="@../../styles/CSS/style.css"/>
+        <URL value="@../../styles/CSS/customStyle.css"/>
+    </stylesheets>
+</AnchorPane>

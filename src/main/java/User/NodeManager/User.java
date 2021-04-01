@@ -489,14 +489,14 @@ public class User extends Node {
 
     }
 
-    public void addMessage(String participantId, String senderId, String text) {
+    public void addMessage(String participantId, String senderId, String text, boolean isSentByUser) {
         Conversation conversation = getConversation(senderId);
         if (conversation == null) {
             conversation = createNewConversation(participantId);
         }
         readWriteLock.writeLock().lock();
         try {
-            conversation.addMessage(senderId, text);
+            conversation.addMessage(senderId, text, isSentByUser);
         } finally {
             readWriteLock.writeLock().unlock();
         }
@@ -516,7 +516,7 @@ public class User extends Node {
             String userId = getId();
             final String reply = createOutboundMessageSession(receiverId, text).get();
             if (reply.equals("OK")) {
-                addMessage(receiverId, userId, text);
+                addMessage(receiverId, userId, text, true);
                 LOGGER.info("Message " + text + " to " + receiverId + " was delivered successfully");
             } else if (reply.equals("NF")) {
                 LOGGER.warning("Message undelivered. Reason - recipient not found.");

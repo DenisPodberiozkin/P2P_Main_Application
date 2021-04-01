@@ -46,6 +46,7 @@ public class LogOnForm implements Initializable {
         final String repeatPassword = repeatPasswordField.getText();
         final String username = usernameField.getText();
 
+
         if (GUI_Util.checkMandatoryFields(mandatoryFields) && password.equals(repeatPassword)) {
             StartScreenNavigator.changeMainScreen(NavigablePane.REGISTRATION_CAROUSEL_XML);
             RegistrationModel registrationModel = new RegistrationModelBuilder()
@@ -54,6 +55,7 @@ public class LogOnForm implements Initializable {
                     .createRegistrationModel();
             ControllerFactory.getSecretPasswordSlideController().setRegistrationModel(registrationModel);
             ControllerFactory.getFinishSlideController().setRegistrationModel(registrationModel);
+            clearFields();
         }
     }
 

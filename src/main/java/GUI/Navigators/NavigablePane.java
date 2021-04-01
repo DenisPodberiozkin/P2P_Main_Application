@@ -6,7 +6,9 @@ public enum NavigablePane {
     LOG_ON_FORM_XML("../../fxml/LoginScreen/LogonForm.fxml"),
     REGISTRATION_CAROUSEL_XML("../../fxml/RegistrationCarousel/RegistrationCarousel.fxml"),
     LOGIN_XML("../../fxml/LoginScreen/Login.fxml"),
-    SETTINGS_XML("../../fxml/LoginScreen/Settings.fxml");
+    SETTINGS_XML("../../fxml/LoginScreen/Settings.fxml"),
+    CHAT_SCREEN_XML("../../fxml/ChatScreen/ChatScreen.fxml"),
+    CONVERSATION_XML("../../fxml/ChatScreen/ConversationScreen.fxml");
 
     private final String xml;
 

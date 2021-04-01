@@ -1,11 +1,8 @@
 package GUI.Dialogs;
 
-import javafx.scene.control.Alert;
+public class TextInputDialog extends javafx.scene.control.TextInputDialog {
 
-public class InformationDialog extends Alert {
-
-	public InformationDialog(String title, String header, String content) {
-		super(AlertType.INFORMATION);
+	public TextInputDialog(String title, String header, String content) {
 		setTitle(title);
 		setHeaderText(header);
 		setContentText(content);

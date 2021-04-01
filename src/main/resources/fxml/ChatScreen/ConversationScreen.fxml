@@ -23,7 +23,8 @@
                 </AnchorPane>
             </bottom>
             <center>
-                <ListView fx:id="chatList" prefHeight="200.0" prefWidth="200.0" BorderPane.alignment="CENTER"/>
+                <ListView fx:id="chatList" focusTraversable="false" prefHeight="200.0" prefWidth="200.0"
+                          styleClass="message-list" BorderPane.alignment="CENTER"/>
             </center>
             <top>
                 <AnchorPane prefHeight="33.0" prefWidth="600.0" styleClass="conversation-top"
@@ -31,7 +32,8 @@
                     <children>
                         <Label fx:id="chatTitle" layoutX="14.0" layoutY="4.0" styleClass="conversation-title"
                                text="Chat name" AnchorPane.leftAnchor="14.0"/>
-                        <Button layoutX="736.0" layoutY="12.0" mnemonicParsing="false" AnchorPane.rightAnchor="0.0">
+                        <Button layoutX="736.0" layoutY="12.0" mnemonicParsing="false" onAction="#editConversationName"
+                                AnchorPane.rightAnchor="0.0">
                             <graphic>
                                 <FontAwesomeIconView glyphName="EDIT" size="20" styleClass="edit-icon"/>
                             </graphic>

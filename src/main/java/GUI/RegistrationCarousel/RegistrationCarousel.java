@@ -73,11 +73,15 @@ public class RegistrationCarousel implements Initializable {
     @FXML
     private void cancel(ActionEvent actionEvent) {
         StartScreenNavigator.changeMainScreen(NavigablePane.LOGIN_XML);
+        resetCarousel();
+
+    }
+
+    public void resetCarousel() {
         while (current > 0) {
             prev();
         }
         notifyCancelToSlides();
-
     }
 
     private void notifyCurrentSlideController() {

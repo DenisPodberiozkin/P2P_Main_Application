@@ -29,7 +29,7 @@ public class InboundMessageSession extends MessageSession {
         final String[] decryptedPayloadTokens = encryptionController.decryptStringByAES(secretKey, messageText).split(" ");
         final String senderId = decryptedPayloadTokens[0];
         messageText = decryptedPayloadTokens[1];
-        user.addMessage(senderId, senderId, messageText);
+        user.addMessage(senderId, senderId, messageText, false);
         LOGGER.info("Received message " + messageText + " from " + senderId);
         return "OK";
 

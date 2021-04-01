@@ -13,6 +13,8 @@ public abstract class Navigator {
     private static Pane registrationCarousel;
     private static Pane loginScreen;
     private static Pane settingsPane;
+    private static Pane chatScreen;
+    private static Pane conversationPane;
 
     protected static Pane loadPane(NavigablePane pane) throws IllegalArgumentException {
         final String paneXml = pane.getXml();
@@ -43,6 +45,16 @@ public abstract class Navigator {
                         settingsPane = FXMLLoader.load(LoginSideBarNavigator.class.getResource(paneXml));
                     }
                     return settingsPane;
+                case CHAT_SCREEN_XML:
+                    if (chatScreen == null) {
+                        chatScreen = FXMLLoader.load(LoginSideBarNavigator.class.getResource(paneXml));
+                    }
+                    return chatScreen;
+                case CONVERSATION_XML:
+                    if (conversationPane == null) {
+                        conversationPane = FXMLLoader.load(LoginSideBarNavigator.class.getResource(paneXml));
+                    }
+                    return conversationPane;
             }
         } catch (IOException ioException) {
             ioException.printStackTrace();

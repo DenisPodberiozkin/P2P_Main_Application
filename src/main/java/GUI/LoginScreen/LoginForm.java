@@ -4,6 +4,7 @@ import GUI.Dialogs.ErrorAlert;
 import GUI.GUI_Util;
 import GUI.Navigators.LoginSideBarNavigator;
 import GUI.Navigators.NavigablePane;
+import GUI.Navigators.StartScreenNavigator;
 import User.IMainController;
 import User.MainController;
 import javafx.fxml.FXML;
@@ -51,6 +52,7 @@ public class LoginForm implements Initializable {
                 IMainController mainController = MainController.getInstance();
 
                 mainController.loginToAccount(password, secretPassword, username);
+                StartScreenNavigator.changeMainScreen(NavigablePane.CHAT_SCREEN_XML);
             }
         } catch (FileNotFoundException fileNotFoundException) {
             new ErrorAlert("User not found", "Username " + username + " not found", "User with username " + username + " does not exist").show();

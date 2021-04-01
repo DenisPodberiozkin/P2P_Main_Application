@@ -28,9 +28,9 @@
                                                      AnchorPane.topAnchor="2.0"/>
                             </AnchorPane>
                         </FlowPane>
-                        <ListView fx:id="chatList" layoutX="24.0" layoutY="74.0" prefHeight="455.0" prefWidth="500.0"
-                                  AnchorPane.bottomAnchor="31.0" AnchorPane.leftAnchor="0.0"
-                                  AnchorPane.rightAnchor="0.0" AnchorPane.topAnchor="74.0"/>
+                        <ListView fx:id="conversationList" layoutX="24.0" layoutY="74.0" prefHeight="455.0"
+                                  prefWidth="500.0" styleClass="conversation-list" AnchorPane.bottomAnchor="31.0"
+                                  AnchorPane.leftAnchor="0.0" AnchorPane.rightAnchor="0.0" AnchorPane.topAnchor="74.0"/>
                     </AnchorPane>
                 </center>
                 <top>
@@ -44,9 +44,9 @@
                 </padding>
             </BorderPane>
         </left>
-        <right>
+        <center>
             <AnchorPane fx:id="chatScreenCenter" prefHeight="631.0" prefWidth="567.0" BorderPane.alignment="CENTER"/>
-        </right>
+        </center>
     </BorderPane>
     <stylesheets>
         <URL value="@../../styles/CSS/style.css"/>

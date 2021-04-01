@@ -5,22 +5,29 @@
 <?import javafx.scene.layout.*?>
 <?import javafx.scene.text.Font?>
 <?import java.net.URL?>
-<AnchorPane xmlns:fx="http://javafx.com/fxml/1" fx:id="msgRoot" maxHeight="-Infinity" maxWidth="-Infinity"
-            minHeight="-Infinity" minWidth="-Infinity" nodeOrientation="LEFT_TO_RIGHT" styleClass="message-card"
-            xmlns="http://javafx.com/javafx/8.0.171" fx:controller="GUI.Chat.MessageCard">
+<AnchorPane xmlns:fx="http://javafx.com/fxml/1" fx:id="msgRoot" maxHeight="-Infinity" maxWidth="500.0"
+            minHeight="-Infinity" minWidth="-Infinity" nodeOrientation="RIGHT_TO_LEFT" styleClass="message-card"
+            xmlns="http://javafx.com/javafx/8.0.171">
     <children>
-        <AnchorPane fx:id="msgBackground" layoutX="14.0" layoutY="22.0" nodeOrientation="LEFT_TO_RIGHT"
-                    AnchorPane.bottomAnchor="0.0" AnchorPane.leftAnchor="0.0" AnchorPane.rightAnchor="0.0"
-                    AnchorPane.topAnchor="0.0">
+        <AnchorPane fx:id="msgBackground" layoutX="14.0" layoutY="22.0" styleClass="message-card-wrapper">
             <children>
-                <VBox nodeOrientation="LEFT_TO_RIGHT" prefWidth="500.0" styleClass="message-card-wrapper">
+                <VBox nodeOrientation="LEFT_TO_RIGHT" prefWidth="500.0" styleClass="message-card-content-wrapper"
+                      AnchorPane.bottomAnchor="0.0" AnchorPane.leftAnchor="0.0" AnchorPane.rightAnchor="0.0"
+                      AnchorPane.topAnchor="0.0">
                     <children>
-                        <Label fx:id="msgName" text="Username" textFill="WHITE">
-                            <font>
-                                <Font size="18.0"/>
-                            </font>
-                        </Label>
-                        <Label fx:id="msgText" text="Message goes here" textFill="WHITE" wrapText="true">
+                        <Pane fx:id="usernameWrapper" nodeOrientation="RIGHT_TO_LEFT" prefHeight="27.0"
+                              prefWidth="428.0">
+                            <children>
+                                <Label fx:id="msgName" styleClass="message-card-username" text="Username"
+                                       textFill="WHITE">
+                                    <font>
+                                        <Font size="18.0"/>
+                                    </font>
+                                </Label>
+                            </children>
+                        </Pane>
+                        <Label fx:id="msgText" text="dddddddddddddddddddddddddddddddddddddddddddddddddd"
+                               textFill="WHITE" wrapText="true">
                             <VBox.margin>
                                 <Insets/>
                             </VBox.margin>

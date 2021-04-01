@@ -1,12 +1,40 @@
 package User.NodeManager;
 
 
-public class Message {
-    private final String text;
-    private final String senderId;
+import javafx.beans.property.SimpleStringProperty;
+import javafx.beans.property.StringProperty;
 
-    public Message(String text, String senderId) {
-        this.text = text;
+public class Message {
+    private final StringProperty text = new SimpleStringProperty();
+    private final String senderId;
+    private final StringProperty senderName = new SimpleStringProperty();
+    private final boolean isSentByUser;
+
+    public Message(String text, String senderId, String senderName, boolean isSentByUser) {
+        this.text.setValue(text);
         this.senderId = senderId;
+        this.senderName.set(senderName);
+        this.isSentByUser = isSentByUser;
+    }
+
+
+    public String getText() {
+        return text.get();
+    }
+
+    public StringProperty getTextProperty() {
+        return text;
+    }
+
+    public StringProperty getSenderNameProperty() {
+        return senderName;
+    }
+
+    public void setSenderName(String senderName) {
+        this.senderName.set(senderName);
+    }
+
+    public boolean isSentByUser() {
+        return isSentByUser;
     }
 }

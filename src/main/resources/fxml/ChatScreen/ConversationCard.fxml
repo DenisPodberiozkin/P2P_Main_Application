@@ -5,8 +5,7 @@
 <?import javafx.scene.text.Font?>
 <?import java.net.URL?>
 <AnchorPane xmlns:fx="http://javafx.com/fxml/1" fx:id="conversationCard" prefHeight="115.0" prefWidth="450.0"
-            styleClass="conversation-card" xmlns="http://javafx.com/javafx/8.0.171"
-            fx:controller="GUI.Chat.ConversationCard">
+            styleClass="conversation-card" xmlns="http://javafx.com/javafx/8.0.171">
     <VBox layoutX="10.0" layoutY="10.0" prefHeight="115.0" prefWidth="459.0" styleClass="conversation-card-wrapper"
           AnchorPane.bottomAnchor="0.0" AnchorPane.leftAnchor="0.0" AnchorPane.rightAnchor="0.0"
           AnchorPane.topAnchor="0.0">

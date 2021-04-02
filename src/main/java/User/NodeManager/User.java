@@ -3,6 +3,7 @@ package User.NodeManager;
 import GUI.ControllerFactory;
 import User.CommunicationUnit.Server.IServerController;
 import User.CommunicationUnit.Server.ServerController;
+import User.Database.DAO.ConversationDAO;
 import User.NodeManager.Exceptions.ConversationException;
 import User.NodeManager.Exceptions.InboundMessageSessionNotFound;
 import User.NodeManager.Exceptions.MessageException;
@@ -16,11 +17,13 @@ import javafx.application.Platform;
 import javafx.collections.FXCollections;
 import javafx.collections.ObservableList;
 
+import javax.crypto.SecretKey;
 import java.io.IOException;
 import java.security.GeneralSecurityException;
 import java.security.KeyPair;
 import java.security.PrivateKey;
 import java.security.PublicKey;
+import java.sql.Connection;
 import java.util.*;
 import java.util.concurrent.ExecutionException;
 import java.util.concurrent.ExecutorService;
@@ -47,10 +50,12 @@ public class User extends Node {
     private final ObservableList<Conversation> conversations = FXCollections.observableArrayList();
     private final HashMap<Long, OutboundMessageSession> outboundMessageSessions = new HashMap<>();
     private final HashMap<Long, InboundMessageSession> inboundMessageSessions = new HashMap<>();
+    private ConversationDAO conversationDAO;
     private String username;
     private Node predecessor;
     private Node successor;
     private PrivateKey privateKey;
+    private SecretKey secretKey;
 
     public User(KeyPair keyPair) {
         this(keyPair.getPublic());
@@ -469,8 +474,9 @@ public class User extends Node {
             if (conversations.contains(conversation)) {
                 throw new ConversationException("Conversation with " + participantId + " is already exists");
             }
+            conversation.setConversationDAO(conversationDAO);
             Platform.runLater(() -> conversations.add(conversation));
-
+            conversationDAO.addConversation(conversation);
             return conversation;
         } finally {
             readWriteLock.writeLock().unlock();
@@ -491,6 +497,7 @@ public class User extends Node {
     public void removeConversation(Conversation conversation) {
         readWriteLock.writeLock().lock();
         try {
+            conversationDAO.removeConversation(conversation);
             conversation.removeAllMessages();
             conversations.remove(conversation);
         } finally {
@@ -560,6 +567,9 @@ public class User extends Node {
             }
         } catch (InterruptedException | ExecutionException e) {
             LOGGER.warning("Unable to get reply from outbound message session due to " + e.toString());
+            if (e.getCause() instanceof SecureMessageChannelException) {
+                throw new SecureMessageChannelException(e.getCause().getMessage());
+            }
         }
     }
 
@@ -652,5 +662,20 @@ public class User extends Node {
 
 
         return findResult;
+    }
+
+
+    public void initConversations(Connection connection) {
+        conversationDAO = new ConversationDAO(connection, secretKey);
+        final List<Conversation> allConversations = conversationDAO.getAllConversations(getId());
+        this.conversations.addAll(allConversations);
+    }
+
+    public SecretKey getSecretKey() {
+        return secretKey;
+    }
+
+    public void setSecretKey(SecretKey secretKey) {
+        this.secretKey = secretKey;
     }
 }

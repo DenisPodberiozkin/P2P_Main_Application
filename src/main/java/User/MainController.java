@@ -73,31 +73,32 @@ public class MainController implements IMainController {
 
 	@Override
 	public void loginToAccount(String password, String secretPassword, String username) throws FileNotFoundException, SQLException, GeneralSecurityException {
-		try (Connection connection = dataBaseController.connectToUserDatabase(username, new UserDataBase())) {
-			UserDAO userDAO = new UserDAO(connection);
-			User user = userDAO.retrieveUserPublicData();
-			user.setUsername(username);
-			byte[] encryptedPrivateKeyData = userDAO.retrieveEncryptedPrivateKey();
+		final Connection connection = dataBaseController.connectToUserDatabase(username, new UserDataBase());
+		final UserDAO userDAO = new UserDAO(connection);
+		final User user = userDAO.retrieveUserPublicData();
+		user.setUsername(username);
+		final byte[] encryptedPrivateKeyData = userDAO.retrieveEncryptedPrivateKey();
 
-			SecretKey secretKey = encryptionController.generateAESKey(password, secretPassword);
+		final SecretKey secretKey = encryptionController.generateAESKey(password, secretPassword);
+		user.setSecretKey(secretKey);
+		final byte[] decryptedPrivateKeyData = encryptionController.decryptDataByAES(secretKey, encryptedPrivateKeyData);
 
-			byte[] decryptedPrivateKeyData = encryptionController.decryptDataByAES(secretKey, encryptedPrivateKeyData);
+		final PrivateKey privateKey = encryptionController.getPrivateKeyFromBytes(decryptedPrivateKeyData);
+		user.setPrivateKey(privateKey);
 
-			PrivateKey privateKey = encryptionController.getPrivateKeyFromBytes(decryptedPrivateKeyData);
-			user.setPrivateKey(privateKey);
+		user.initConversations(connection);
+		serverController.startServer(user.getPort());
 
-			serverController.startServer(user.getPort());
-			connectToRing();
-		}
+		connectToRing();
+
 	}
 
 	@Override
 	public void connectToRing() {
-//		User user = new User(); //TODO delete later
 		System.out.println("Inside");
 		try (OutboundConnection serverConnection = clientController.connect(ConnectionSettingsModel.getLocalServerIp(), ConnectionSettingsModel.getLocalServerPort())) {
 
-			User user = User.getInstance(); //TODO uncomment later
+			User user = User.getInstance();
 			boolean isLastConnectedNodeReachable = false;
 			boolean isLastConnectedNodePresent = false;
 			do {

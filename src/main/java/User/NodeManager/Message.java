@@ -30,6 +30,10 @@ public class Message {
         return senderName;
     }
 
+    public String getSenderId() {
+        return senderId;
+    }
+
     public void setSenderName(String senderName) {
         this.senderName.set(senderName);
     }

@@ -1,5 +1,7 @@
 package User;
 
+import GUI.ControllerFactory;
+import GUI.Debugger;
 import javafx.application.Application;
 import javafx.application.Platform;
 import javafx.fxml.FXMLLoader;
@@ -19,7 +21,7 @@ public class Main extends Application {
 
     public static void main(String[] args) {
 //        Security.addProvider(new BouncyCastleProvider());
-        ConnectionsData.setUserServerPort(Integer.parseInt(args[0]));
+//        ConnectionsData.setUserServerPort(Integer.parseInt(args[0]));
         launch(args);
     }
 
@@ -42,17 +44,28 @@ public class Main extends Application {
 
         Platform.setImplicitExit(true);
 //        Parent root = FXMLLoader.load(getClass().getResource("../fxml/Test.fxml"));
-        Parent root = FXMLLoader.load(getClass().getResource("../fxml/StartScreen.fxml"));
+        final Parent mainRoot = FXMLLoader.load(getClass().getResource("../fxml/StartScreen.fxml"));
         primaryStage.setTitle("Westwood v0.1");
-        Scene mainScene = new Scene(root);
+        final Scene mainScene = new Scene(mainRoot);
         mainScene.getStylesheets().add(getClass().getResource("../styles/CSS/style.css").toExternalForm());
         mainScene.getStylesheets().add(getClass().getResource("../styles/CSS/customStyle.css").toExternalForm());
         primaryStage.setScene(mainScene);
         primaryStage.show();
+        primaryStage.setOnCloseRequest(e -> System.exit(0));
 
+        final Stage debugStage = new Stage();
+        FXMLLoader loader = new FXMLLoader(getClass().getResource("../fxml/Debugger.fxml"));
+        final Parent debugRoot = loader.load();
+        final Scene debugScene = new Scene(debugRoot);
+        debugScene.getStylesheets().add(getClass().getResource("../styles/CSS/style.css").toExternalForm());
+        debugScene.getStylesheets().add(getClass().getResource("../styles/CSS/customStyle.css").toExternalForm());
+        debugStage.setTitle("Westwood debugger");
+        debugStage.setScene(debugScene);
+        Debugger debugger = loader.getController();
+        debugger.setStage(debugStage);
+        debugStage.setOnCloseRequest(e -> ControllerFactory.getChatScreenController().enableDebugToggle());
 
         Security.setProperty("crypto.policy", "unlimited");
-//        Runtime.getRuntime().addShutdownHook(new Thread(() -> System.out.println("Before closing")));
 
         setDebugLevel(Level.FINE);
 //        mainController.connectToRing();

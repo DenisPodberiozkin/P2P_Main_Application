@@ -1,6 +1,6 @@
 package User.NodeManager.Lookup;
 
-import User.NodeManager.InboundMessageSessionNotFound;
+import User.NodeManager.Exceptions.InboundMessageSessionNotFound;
 import User.NodeManager.Node;
 import User.NodeManager.User;
 

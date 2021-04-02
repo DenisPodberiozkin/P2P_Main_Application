@@ -94,25 +94,41 @@
   -fx-pref-width: 100px; }
 
 .ip-field {
-  -fx-pref-width: 180px; }
+    -fx-pref-width: 180px;
+}
 
-.conversation-screen {
-  -fx-border-width: 0 5px 0 0;
-  -fx-border-color: #2B2B2B;
-  -fx-border-style: solid; }
+.conversation-screen, .chat-side-bar {
+    -fx-border-width: 0 5px 0 0;
+    -fx-border-color: #2B2B2B;
+    -fx-border-style: solid;
+}
 
 .chat-title, .conversation-title {
-  -fx-font-size: 30px; }
+    -fx-font-size: 30;
+}
+
+.chat-side-bar .button, .chat-side-bar .toggle-button {
+    -fx-min-height: 70px;
+    -fx-min-width: 70px;
+    -fx-icon-size: 35px;
+}
+
+.chat-side-bar .button .glyph-icon, .chat-side-bar .toggle-button .glyph-icon {
+    -fx-fill: white;
+    -glyph-size: 35px;
+}
 
 .search-icon, .edit-icon {
-  -fx-fill: white;
-  -fx-size: 35px; }
+    -fx-fill: white;
+    -fx-size: 35px;
+}
 
 .conversation-text-area {
-  -fx-font-size: 18px; }
+    -fx-font-size: 18px;
+}
 
 .conversation-main {
-  -fx-padding: 0 15px 0 15px;
+    -fx-padding: 0 15px 0 15px;
   -fx-border-insets: 0 15px 0 15px;
   -fx-background-insets: 0 15px 0 15px; }
 
@@ -162,13 +178,19 @@
   -fx-background-color: #373e43; }
 
 .message-card-username {
-  -fx-font-size: 22px;
-  -fx-text-fill: white; }
+    -fx-font-size: 22px;
+    -fx-text-fill: white;
+}
 
 .message-card-content-wrapper {
-  -fx-padding: 20 50 20 40px;
-  -fx-border-insets: 20 6 20 20px;
-  -fx-background-insets: 20 6 20 20px;
-  -fx-spacing: 15px; }
+    -fx-padding: 20 50 20 40px;
+    -fx-border-insets: 20 6 20 20px;
+    -fx-background-insets: 20 6 20 20px;
+    -fx-spacing: 15px;
+}
+
+.dialog-content {
+    -fx-font-size: 18px;
+}
 
 /*# sourceMappingURL=customStyle.css.map */

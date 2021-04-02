@@ -59,6 +59,7 @@ public class MainController implements IMainController {
 	public void createAccount(String password, String secretPassword, String username) throws IOException, SQLException, DatabaseInitException {
 		KeyPair keyPair = encryptionController.generateRSAKeyPair();
 		User user = new User(keyPair);
+		user.setUsername(username);
 		SecretKey secretKey = encryptionController.generateAESKey(password, secretPassword);
 		byte[] encryptedPrivateKey = encryptionController.encryptDataByAES(secretKey, user.getPrivateKey().getEncoded());
 
@@ -75,7 +76,7 @@ public class MainController implements IMainController {
 		try (Connection connection = dataBaseController.connectToUserDatabase(username, new UserDataBase())) {
 			UserDAO userDAO = new UserDAO(connection);
 			User user = userDAO.retrieveUserPublicData();
-
+			user.setUsername(username);
 			byte[] encryptedPrivateKeyData = userDAO.retrieveEncryptedPrivateKey();
 
 			SecretKey secretKey = encryptionController.generateAESKey(password, secretPassword);
@@ -86,17 +87,17 @@ public class MainController implements IMainController {
 			user.setPrivateKey(privateKey);
 
 			serverController.startServer(user.getPort());
-
+			connectToRing();
 		}
 	}
 
 	@Override
 	public void connectToRing() {
-		User user = new User(); //TODO delete later
+//		User user = new User(); //TODO delete later
 		System.out.println("Inside");
-		try (OutboundConnection serverConnection = clientController.connect(ConnectionsData.getLocalServerIp(), ConnectionsData.getLocalServerPort())) {
+		try (OutboundConnection serverConnection = clientController.connect(ConnectionSettingsModel.getLocalServerIp(), ConnectionSettingsModel.getLocalServerPort())) {
 
-//                User user = User.getInstance(); //TODO uncomment later
+			User user = User.getInstance(); //TODO uncomment later
 			boolean isLastConnectedNodeReachable = false;
 			boolean isLastConnectedNodePresent = false;
 			do {
@@ -105,7 +106,7 @@ public class MainController implements IMainController {
 					if (lastConnectedNode != null) {
 						isLastConnectedNodePresent = true;
 						try {
-							lastConnectedNode.connectToNode(false);
+							lastConnectedNode.connectToNode();
 							isLastConnectedNodeReachable = true;
 							if (lastConnectedNode.hasNeighbours()) {
 								final String successorJson = lastConnectedNode.findNode(user.getId());
@@ -127,7 +128,8 @@ public class MainController implements IMainController {
 						if (!isLastConnectedNodePresent) {
 							user.join();
 						} else {
-							LOGGER.severe("ALL last connected nodes are unreachable");
+							LOGGER.severe("ALL last connected nodes are unreachable. Creating the new Sub-ring");
+							user.join();
 							isLastConnectedNodePresent = false;
 						}
 					}

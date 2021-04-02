@@ -55,12 +55,17 @@ public abstract class Navigator {
                         conversationPane = FXMLLoader.load(LoginSideBarNavigator.class.getResource(paneXml));
                     }
                     return conversationPane;
+                default:
+                    throw new IllegalArgumentException("There is no fxml - " + paneXml);
             }
         } catch (IOException ioException) {
             ioException.printStackTrace();
             LOGGER.severe("Unable to load navigable pane" + pane + ". Reason " + ioException.toString());
+            throw new IllegalArgumentException("Unable to load navigable pane" + pane + ". Reason " + ioException.toString());
+
         }
-        throw new IllegalArgumentException("There is no fxml - " + paneXml);
+
+
     }
 
 }

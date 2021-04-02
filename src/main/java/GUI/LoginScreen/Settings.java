@@ -22,8 +22,12 @@ public class Settings implements Initializable {
     private final LinkedList<TextInputControl> localServerOptionMandatoryFields = new LinkedList<>();
     private final LinkedList<TextInputControl> existingUserOptionMandatoryFields = new LinkedList<>();
     private final LinkedList<TextInputControl> applicationSettingsMandatoryFields = new LinkedList<>();
+
+
     @FXML
     private TabPane tabs;
+    @FXML
+    private TextField applicationIpField;
     @FXML
     private TextField applicationPortField;
     @FXML
@@ -45,6 +49,8 @@ public class Settings implements Initializable {
 
     @Override
     public void initialize(URL location, ResourceBundle resources) {
+        applicationIpField.setText(ApplicationSettingsModel.getApplicationIp());
+
         localServerOptionMandatoryFields.add(localServerIpField);
         localServerOptionMandatoryFields.add(localServerPortField);
 

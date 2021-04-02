@@ -1,9 +1,13 @@
 package GUI.Chat;
 
 import GUI.ControllerFactory;
-import GUI.Dialogs.TextInputDialog;
+import GUI.Dialogs.ErrorAlert;
+import GUI.Dialogs.TextInputPopUp;
 import User.NodeManager.Conversation;
+import User.NodeManager.Exceptions.MessageException;
+import User.NodeManager.Exceptions.SecureMessageChannelException;
 import User.NodeManager.Message;
+import User.NodeManager.User;
 import javafx.fxml.FXML;
 import javafx.fxml.Initializable;
 import javafx.scene.control.Label;
@@ -53,15 +57,34 @@ public class ConversationScreen implements Initializable {
 
 	@FXML
 	void editConversationName() {
-		TextInputDialog textInputDialog = new TextInputDialog("Conversation edition", "Change conversation name to the new?", "Enter the new conversation name");
-		Optional<String> result = textInputDialog.showAndWait();
+		TextInputPopUp textInputPopUp = new TextInputPopUp("Conversation edition", "Change conversation name to the new?", "Enter the new conversation name");
+		Optional<String> result = textInputPopUp.showAndWait();
 		result.ifPresent(conversationName -> conversation.setConversationName(conversationName));
 	}
 
 	@FXML
 	void sendBtnAction() {
-		conversation.addMessage(sendField.getText(), "123", true); //TODO chanhe later
-		sendField.clear();
+		User user = User.getInstance();
+		try {
+			user.sendMessage(conversation.getParticipantId(), sendField.getText());
+			chatList.scrollTo(chatList.getItems().size());
+			sendField.clear();
+		} catch (MessageException e) {
+			new ErrorAlert("Message error",
+					"Message could not reach its destination",
+					"Message was not delivered to the recipient - " +
+							conversation.getConversationNameProperty().get() +
+							" . Reason - " + e.getMessage())
+					.show();
+		} catch (SecureMessageChannelException e) {
+			new ErrorAlert("Secure Message Session Error",
+					"Unable to create secure message session",
+					"Secure message session with recipient - " +
+							conversation.getConversationNameProperty().get() +
+							" could not be established. Reason - " + e.getMessage())
+					.show();
+
+		}
 	}
 
 	private void updateContent() {
@@ -84,5 +107,6 @@ public class ConversationScreen implements Initializable {
 		updateBindings(conversation);
 		this.conversation = conversation;
 		updateContent();
+		chatList.scrollTo(chatList.getItems().size());
 	}
 }

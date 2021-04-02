@@ -45,9 +45,8 @@
                                           <FlowPane alignment="CENTER" GridPane.columnIndex="1"
                                                     GridPane.halignment="CENTER" GridPane.valignment="CENTER">
                                              <children>
-                                                <TextField disable="true" editable="false" prefHeight="44.0"
-                                                           prefWidth="179.0" styleClass="ip-field"
-                                                           text="123.123.123.123"/>
+                                                <TextField fx:id="applicationIpField" disable="true" editable="false"
+                                                           prefHeight="44.0" prefWidth="179.0" styleClass="ip-field"/>
                                                 <Label text=":"/>
                                                 <TextField fx:id="applicationPortField" prefHeight="44.0"
                                                            prefWidth="78.0" styleClass="port-field"/>

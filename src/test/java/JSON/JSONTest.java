@@ -3,7 +3,6 @@ package JSON;
 import User.JSON.NodeDeserializer;
 import User.JSON.NodeSerializer;
 import User.NodeManager.Node;
-import User.NodeManager.User;
 import com.fasterxml.jackson.core.Version;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.module.SimpleModule;
@@ -22,9 +21,9 @@ public class JSONTest {
 //        node.setIp("123.123.123.123");
 //        node.setPublicIp("456.456.456.456");
 
-        User user = new User();
-        final String path = "src/main/resources/JSON/node.json";
-        System.out.println(user.getJSONString());
+//        User user = new User();
+//        final String path = "src/main/resources/JSON/node.json";
+//        System.out.println(user.getJSONString());
 //        try {
 //            objectMapper.writeValue(new File(path), user);
 //            System.out.println(objectMapper.writeValueAsString(user));

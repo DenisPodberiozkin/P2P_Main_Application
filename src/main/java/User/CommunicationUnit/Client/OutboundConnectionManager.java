@@ -38,7 +38,7 @@ public class OutboundConnectionManager {
 
     public void closeConnection(OutboundConnection outboundConnection) {
         outboundConnections.remove(outboundConnection);
-        ControllerFactory.getTestController().removeOutboundConnection(outboundConnection);
+        ControllerFactory.getDebuggerController().removeOutboundConnection(outboundConnection);
     }
 
 }

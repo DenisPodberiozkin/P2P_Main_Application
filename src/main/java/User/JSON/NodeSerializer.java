@@ -22,7 +22,6 @@ public class NodeSerializer extends StdSerializer<Node> {
         jsonGenerator.writeStartObject();
         jsonGenerator.writeStringField("id", node.getId());
         jsonGenerator.writeStringField("ip", node.getIp());
-        jsonGenerator.writeStringField("public_ip", node.getPublicIp());
         jsonGenerator.writeNumberField("port", node.getPort());
         jsonGenerator.writeBinaryField("public_key", node.getPublicKey().getEncoded());
         jsonGenerator.writeEndObject();

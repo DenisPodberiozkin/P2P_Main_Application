@@ -26,7 +26,6 @@ public class Node implements AutoCloseable {
     private final PublicKey publicKey;
     private final IClientController clientController;
     private String ip;
-    private String publicIp;
     private int port;
     private OutboundConnection connection;
 
@@ -76,14 +75,6 @@ public class Node implements AutoCloseable {
         this.ip = ip;
     }
 
-    public String getPublicIp() {
-        return publicIp;
-    }
-
-    public void setPublicIp(String publicIp) {
-        this.publicIp = publicIp;
-    }
-
     public PublicKey getPublicKey() {
         return publicKey;
     }
@@ -128,8 +119,7 @@ public class Node implements AutoCloseable {
         }
     }
 
-    public OutboundConnection connectToNode(boolean isPublicConnection) throws IOException {
-        String ip = isPublicConnection ? this.publicIp : this.ip;
+    public OutboundConnection connectToNode() throws IOException {
         this.connection = clientController.connect(ip, port, this);
         return this.connection;
     }
@@ -158,7 +148,7 @@ public class Node implements AutoCloseable {
             } catch (RejectedExecutionException e) {
                 LOGGER.warning("Connection to node " + getIp() + ":" + getPort() + " is closed, trying to reconnect");
                 try {
-                    connection = connectToNode(false);
+                    connection = connectToNode();
                     return clientController.getPredecessor(connection);
                 } catch (IOException ioException) {
                     LOGGER.warning("Reconnection to node " + getIp() + ":" + getPort() + " is failed");

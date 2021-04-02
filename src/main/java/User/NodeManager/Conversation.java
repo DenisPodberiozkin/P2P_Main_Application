@@ -1,9 +1,12 @@
 package User.NodeManager;
 
+import javafx.application.Platform;
 import javafx.beans.property.SimpleStringProperty;
 import javafx.beans.property.StringProperty;
 import javafx.collections.FXCollections;
 import javafx.collections.ObservableList;
+
+import java.util.Objects;
 
 public class Conversation {
     private final ObservableList<Message> messages = FXCollections.observableArrayList();
@@ -18,11 +21,13 @@ public class Conversation {
     }
 
     public Message addMessage(String text, String senderId, boolean isSentByUser) {
-        String senderName = isSentByUser ? "username" : conversationName.get(); //TODO change later username to user.getUsername()
+        final User user = User.getInstance();
+        String senderName = isSentByUser ? user.getUsername() : conversationName.get();
 
         Message message = new Message(text, senderId, senderName, isSentByUser);
-        messages.add(message);
-        lastMessage.set(text);
+        Platform.runLater(() -> messages.add(message));
+        Platform.runLater(() -> lastMessage.set(text));
+
         return message;
     }
 
@@ -43,6 +48,10 @@ public class Conversation {
 
     }
 
+    public void removeAllMessages() {
+        messages.clear();
+    }
+
     public StringProperty getLastMessageProperty() {
         return lastMessage;
     }
@@ -61,5 +70,22 @@ public class Conversation {
 
     public void setDraftMessage(String draftMessage) {
         this.draftMessage = draftMessage;
+    }
+
+    public String getParticipantId() {
+        return participantId;
+    }
+
+    @Override
+    public boolean equals(Object o) {
+        if (this == o) return true;
+        if (!(o instanceof Conversation)) return false;
+        Conversation that = (Conversation) o;
+        return participantId.equals(that.participantId);
+    }
+
+    @Override
+    public int hashCode() {
+        return Objects.hash(participantId);
     }
 }

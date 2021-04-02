@@ -28,17 +28,14 @@ public class NodeDeserializer extends StdDeserializer<Node> {
         JsonNode jsonNode = codec.readTree(jsonParser);
 
         JsonNode ipNode = jsonNode.get("ip");
-        JsonNode publicIpNode = jsonNode.get("public_ip");
         JsonNode portNode = jsonNode.get("port");
         JsonNode publicKeyNode = jsonNode.get("public_key");
         String ip = ipNode.asText();
-        String publicIp = publicIpNode.asText();
         int port = portNode.asInt();
         byte[] publicKeyData = publicKeyNode.binaryValue();
         IEncryptionController encryptionController = EncryptionController.getInstance();
         PublicKey publicKey = encryptionController.getPublicKeyFromBytes(publicKeyData);
         Node node = new Node(publicKey, port);
-        node.setPublicIp(publicIp);
         node.setIp(ip);
 
         return node;

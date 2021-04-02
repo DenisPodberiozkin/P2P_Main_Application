@@ -1,21 +1,22 @@
 package User.NodeManager;
 
-import Encryption.EncryptionController;
 import GUI.ControllerFactory;
 import User.CommunicationUnit.Server.IServerController;
 import User.CommunicationUnit.Server.ServerController;
-import User.ConnectionsData;
+import User.NodeManager.Exceptions.ConversationException;
+import User.NodeManager.Exceptions.InboundMessageSessionNotFound;
+import User.NodeManager.Exceptions.MessageException;
+import User.NodeManager.Exceptions.SecureMessageChannelException;
 import User.NodeManager.Lookup.*;
 import User.NodeManager.MessageSession.InboundMessageSession;
 import User.NodeManager.MessageSession.OutboundMessageSession;
 import User.NodeManager.MessageSession.OutboundMessageSessionBuilder;
+import User.Settings.ApplicationSettingsModel;
+import javafx.application.Platform;
+import javafx.collections.FXCollections;
+import javafx.collections.ObservableList;
 
-import java.io.BufferedReader;
 import java.io.IOException;
-import java.io.InputStreamReader;
-import java.net.DatagramSocket;
-import java.net.InetAddress;
-import java.net.URL;
 import java.security.GeneralSecurityException;
 import java.security.KeyPair;
 import java.security.PrivateKey;
@@ -42,9 +43,11 @@ public class User extends Node {
     private final Updater updater;
     private final Deque<Node> successorsQueue = new LinkedList<>();
     private final IServerController serverController = ServerController.getInstance();
-    private final HashMap<String, Conversation> conversations = new HashMap<>();
+    //    private final HashMap<String, Conversation> conversations = new HashMap<>();
+    private final ObservableList<Conversation> conversations = FXCollections.observableArrayList();
     private final HashMap<Long, OutboundMessageSession> outboundMessageSessions = new HashMap<>();
     private final HashMap<Long, InboundMessageSession> inboundMessageSessions = new HashMap<>();
+    private String username;
     private Node predecessor;
     private Node successor;
     private PrivateKey privateKey;
@@ -55,49 +58,41 @@ public class User extends Node {
     }
 
     public User(PublicKey publicKey) {
-        super(publicKey, ConnectionsData.getUserServerPort());
-        initialiseIP();
+        super(publicKey, ApplicationSettingsModel.getApplicationPort());
+
+        setIp(ApplicationSettingsModel.getApplicationIp());
         User.instance = this;
         this.updater = new Updater(this);
-//        ControllerFactory.getTestController().setNodeNameLabelText(getId()); TODO uncomment later
-//        ControllerFactory.getTestController().setPortLabelText(getPort());
+        ControllerFactory.getDebuggerController().setNodeNameLabelText(getId());
+        ControllerFactory.getDebuggerController().setPortLabelText(getPort());
     }
 
-    public User() { // TODO delete later
-        super(EncryptionController.getInstance().generateRSAKeyPair().getPublic(), ConnectionsData.getUserServerPort());
-        initialiseIP();
-        User.instance = this;
-        this.updater = new Updater(this);
-        ControllerFactory.getTestController().setNodeNameLabelText(getId());
-        ControllerFactory.getTestController().setPortLabelText(getPort());
+//    public User() { // TODO delete later
+//        super(EncryptionController.getInstance().generateRSAKeyPair().getPublic(), ConnectionsData.getUserServerPort());
+//        initialiseIP();
+//        User.instance = this;
+//        this.updater = new Updater(this);
+//        ControllerFactory.getDebuggerController().setNodeNameLabelText(getId());
+//        ControllerFactory.getDebuggerController().setPortLabelText(getPort());
+//
+//    }
 
+
+    public String getUsername() {
+        return username;
+    }
+
+    public void setUsername(String username) {
+        this.username = username;
     }
 
     public static User getInstance() {
         return instance;
     }
 
-    private void initialiseIP() {
-        try (final DatagramSocket socket = new DatagramSocket()) {
-            socket.connect(InetAddress.getByName("8.8.8.8"), 10002);
-            String ip = socket.getLocalAddress().getHostAddress();
-            String publicIp = initialisePublicIp();
-            setIp(ip);
-            setPublicIp(publicIp);
-        } catch (IOException e) {
-            e.printStackTrace();
-        }
-    }
-
-    private String initialisePublicIp() throws IOException {
-        URL whatIsMyIp = new URL("http://checkip.amazonaws.com");
-        try (final BufferedReader in = new BufferedReader(new InputStreamReader(whatIsMyIp.openStream()))) {
-            return in.readLine();
-        }
-    }
 
     public void join(Node successorNode) {
-        serverController.startServer(ConnectionsData.getUserServerPort());
+        serverController.startServer(ApplicationSettingsModel.getApplicationPort());
         readWriteLock.writeLock().lock();
         try {
             setSuccessorAndConnect(successorNode);
@@ -109,7 +104,7 @@ public class User extends Node {
     }
 
     public void join() {
-        serverController.startServer(ConnectionsData.getUserServerPort());
+        serverController.startServer(ApplicationSettingsModel.getApplicationPort());
         executorService.execute(updater);
         LOGGER.info("Joined to ring");
     }
@@ -238,10 +233,10 @@ public class User extends Node {
             this.predecessor = predecessor;
 
             if (this.predecessor != null) {
-                ControllerFactory.getTestController().setPredecessorLabelText(this.predecessor.getId());
+                ControllerFactory.getDebuggerController().setPredecessorLabelText(this.predecessor.getId());
                 LOGGER.info("The new predecessor of node " + getId() + " is node " + predecessor.getId());
             } else {
-                ControllerFactory.getTestController().setPredecessorLabelText("");
+                ControllerFactory.getDebuggerController().setPredecessorLabelText("");
                 LOGGER.info("Predecessor is removed");
             }
 
@@ -263,7 +258,7 @@ public class User extends Node {
                 if (predecessor.equals(currentSuccessor)) {
                     predecessor = predecessor.clone();
                 }
-                predecessor.connectToNode(false);
+                predecessor.connectToNode();
             }
             setPredecessor(predecessor);
 
@@ -311,7 +306,7 @@ public class User extends Node {
 
 
                 LOGGER.info("The new successor of node " + getId() + " is node " + newSuccessor.getId());
-                ControllerFactory.getTestController().setSuccessorLabelText(newSuccessor.getId());
+                ControllerFactory.getDebuggerController().setSuccessorLabelText(newSuccessor.getId());
             } else {
                 setNewSuccessorFromSuccessorsQueue();
             }
@@ -342,9 +337,9 @@ public class User extends Node {
     public void addNodeToTableAndConnect(Node node) {
         readWriteLock.writeLock().lock();
         try {
-            ControllerFactory.getTestController().addNodeToFingerTable(node);
+            ControllerFactory.getDebuggerController().addNodeToFingerTable(node);
             if (!node.isConnected()) {
-                node.connectToNode(false);
+                node.connectToNode();
             }
             nodes.put(node.getId(), node);
         } catch (IOException ioException) {
@@ -357,7 +352,7 @@ public class User extends Node {
     public void removeNodeFromTableAndDisconnect(Node node) {
         readWriteLock.writeLock().lock();
         try {
-            ControllerFactory.getTestController().removeNodeFromFIngerTable(node);
+            ControllerFactory.getDebuggerController().removeNodeFromFIngerTable(node);
             nodes.remove(node.getId());
             if (node.isConnected()) {
                 node.closeConnection();
@@ -372,7 +367,7 @@ public class User extends Node {
         try {
             successorsQueue.pollFirst();
             successorsQueue.offerFirst(node);
-            ControllerFactory.getTestController().updateSuccessorsData(this.successorsQueue);
+            ControllerFactory.getDebuggerController().updateSuccessorsData(this.successorsQueue);
         } finally {
             readWriteLock.writeLock().unlock();
         }
@@ -389,8 +384,8 @@ public class User extends Node {
             } else {
                 this.successor = null;
                 LOGGER.info("Current successor is removed");
-                ControllerFactory.getTestController().setSuccessorLabelText("");
-                ControllerFactory.getTestController().updateSuccessorsData(successorsQueue);
+                ControllerFactory.getDebuggerController().setSuccessorLabelText("");
+                ControllerFactory.getDebuggerController().updateSuccessorsData(successorsQueue);
             }
         } finally {
             readWriteLock.writeLock().unlock();
@@ -440,7 +435,7 @@ public class User extends Node {
             readWriteLock.writeLock().unlock();
         }
 
-        ControllerFactory.getTestController().updateSuccessorsData(this.successorsQueue);
+        ControllerFactory.getDebuggerController().updateSuccessorsData(this.successorsQueue);
 
     }
 
@@ -467,15 +462,44 @@ public class User extends Node {
         }
     }
 
-    public Conversation createNewConversation(String participantId) {
+    public Conversation createNewConversation(String participantId) throws ConversationException {
         readWriteLock.writeLock().lock();
         try {
             final Conversation conversation = new Conversation(participantId);
-            conversations.put(participantId, conversation);
+            if (conversations.contains(conversation)) {
+                throw new ConversationException("Conversation with " + participantId + " is already exists");
+            }
+            Platform.runLater(() -> conversations.add(conversation));
+
             return conversation;
         } finally {
             readWriteLock.writeLock().unlock();
         }
+    }
+
+    public Conversation createNewConversation(String participantId, String conversationName) throws ConversationException {
+        readWriteLock.writeLock().lock();
+        try {
+            Conversation conversation = createNewConversation(participantId);
+            conversation.setConversationName(conversationName);
+            return conversation;
+        } finally {
+            readWriteLock.writeLock().unlock();
+        }
+    }
+
+    public void removeConversation(Conversation conversation) {
+        readWriteLock.writeLock().lock();
+        try {
+            conversation.removeAllMessages();
+            conversations.remove(conversation);
+        } finally {
+            readWriteLock.writeLock().unlock();
+        }
+    }
+
+    public ObservableList<Conversation> getConversations() {
+        return conversations;
     }
 
     public void processMessage(String payload) throws InboundMessageSessionNotFound {
@@ -490,28 +514,37 @@ public class User extends Node {
     }
 
     public void addMessage(String participantId, String senderId, String text, boolean isSentByUser) {
-        Conversation conversation = getConversation(senderId);
-        if (conversation == null) {
-            conversation = createNewConversation(participantId);
-        }
-        readWriteLock.writeLock().lock();
         try {
-            conversation.addMessage(senderId, text, isSentByUser);
-        } finally {
-            readWriteLock.writeLock().unlock();
+            Conversation conversation = getConversation(participantId);
+            if (conversation == null) {
+                conversation = createNewConversation(participantId);
+            }
+            readWriteLock.writeLock().lock();
+            try {
+                conversation.addMessage(text, senderId, isSentByUser);
+            } finally {
+                readWriteLock.writeLock().unlock();
+            }
+        } catch (ConversationException e) {
+            LOGGER.warning("Attempt to create conversation duplicate");
         }
     }
 
     private Conversation getConversation(String senderId) {
         readWriteLock.readLock().lock();
         try {
-            return conversations.get(senderId);
+            for (Conversation conversation : conversations) {
+                if (conversation.getParticipantId().equals(senderId)) {
+                    return conversation;
+                }
+            }
+            return null;
         } finally {
             readWriteLock.readLock().unlock();
         }
     }
 
-    public void sendMessage(String receiverId, String text) {
+    public void sendMessage(String receiverId, String text) throws MessageException, SecureMessageChannelException {
         try {
             String userId = getId();
             final String reply = createOutboundMessageSession(receiverId, text).get();
@@ -520,8 +553,10 @@ public class User extends Node {
                 LOGGER.info("Message " + text + " to " + receiverId + " was delivered successfully");
             } else if (reply.equals("NF")) {
                 LOGGER.warning("Message undelivered. Reason - recipient not found.");
+                throw new MessageException("Recipient not found/offline");
             } else if (reply.contains("Error")) {
                 LOGGER.warning("Message undelivered due to Error - " + reply);
+                throw new MessageException("Error occurred - " + reply);
             }
         } catch (InterruptedException | ExecutionException e) {
             LOGGER.warning("Unable to get reply from outbound message session due to " + e.toString());

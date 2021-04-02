@@ -8,7 +8,10 @@
 
 package GUI;
 
+import GUI.Dialogs.ErrorAlert;
 import User.CommunicationUnit.Client.OutboundConnection;
+import User.NodeManager.Exceptions.MessageException;
+import User.NodeManager.Exceptions.SecureMessageChannelException;
 import User.NodeManager.Node;
 import User.NodeManager.User;
 import javafx.application.Platform;
@@ -22,16 +25,18 @@ import javafx.scene.control.TableColumn;
 import javafx.scene.control.TableView;
 import javafx.scene.control.TextField;
 import javafx.scene.control.cell.PropertyValueFactory;
+import javafx.stage.Stage;
 
 import java.net.URL;
 import java.util.Queue;
 import java.util.ResourceBundle;
 
-public class TestController implements Initializable {
+public class Debugger implements Initializable {
 
     private final ObservableList<OutboundConnection> outboundConnectionsTableData = FXCollections.observableArrayList();
     private final ObservableList<Node> fingerTableData = FXCollections.observableArrayList();
     private final ObservableList<Node> successorsTableData = FXCollections.observableArrayList();
+    private Stage debugStage;
 
     @FXML
     private TextField receiverIdField;
@@ -73,7 +78,8 @@ public class TestController implements Initializable {
 
     @Override
     public void initialize(URL location, ResourceBundle resources) {
-        ControllerFactory.setTestController(this);
+        ControllerFactory.setDebuggerController(this);
+
 
         outID.setCellValueFactory(cellData -> {
             final Node assignedNode = cellData.getValue().getAssignedNode();
@@ -149,6 +155,24 @@ public class TestController implements Initializable {
     private void sendButtonAction() {
         String receiverId = receiverIdField.getText();
         String text = messageField.getText();
-        User.getInstance().sendMessage(receiverId, text);
+        try {
+            User.getInstance().sendMessage(receiverId, text);
+        } catch (MessageException e) {
+            new ErrorAlert("Message error", "Message could not reach its destination", "Message was not delivered to the recipient. Reason - " + e.getMessage()).show();
+        } catch (SecureMessageChannelException e) {
+            new ErrorAlert("Secure Message Session Error", "Unable to create secure message session", "Secure message session with recipient could not be established. Reason - " + e.getMessage()).show();
+        }
+    }
+
+    public void setStage(Stage debugStage) {
+        this.debugStage = debugStage;
+    }
+
+    public void showDebug() {
+        debugStage.show();
+    }
+
+    public void hideDebug() {
+        debugStage.hide();
     }
 }

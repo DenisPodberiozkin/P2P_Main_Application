@@ -1,52 +1,91 @@
 <?xml version="1.0" encoding="UTF-8"?>
 
-<?import de.jensd.fx.glyphs.fontawesome.FontAwesomeIconView?>
+<?import de.jensd.fx.glyphs.fontawesome.*?>
 <?import javafx.geometry.Insets?>
-<?import javafx.scene.control.Label?>
-<?import javafx.scene.control.ListView?>
-<?import javafx.scene.control.TextField?>
+<?import javafx.scene.control.*?>
 <?import javafx.scene.layout.*?>
 <?import java.net.URL?>
 <AnchorPane xmlns:fx="http://javafx.com/fxml/1" prefHeight="631.0" prefWidth="1088.0"
             xmlns="http://javafx.com/javafx/8.0.171" fx:controller="GUI.Chat.ChatScreen">
-    <BorderPane layoutX="113.0" layoutY="100.0" prefHeight="400.0" prefWidth="600.0" AnchorPane.bottomAnchor="0.0"
-                AnchorPane.leftAnchor="0.0" AnchorPane.rightAnchor="0.0" AnchorPane.topAnchor="0.0">
-        <left>
-            <BorderPane styleClass="conversation-screen" BorderPane.alignment="CENTER">
-                <center>
-                    <AnchorPane>
-                        <BorderPane.margin>
-                            <Insets left="15.0" right="15.0" top="10.0"/>
-                        </BorderPane.margin>
-                        <FlowPane AnchorPane.leftAnchor="0.0" AnchorPane.rightAnchor="0.0">
-                            <TextField fx:id="searchField" prefHeight="44.0" prefWidth="450.0"/>
-                            <AnchorPane nodeOrientation="LEFT_TO_RIGHT" prefWidth="45.0">
-                                <FontAwesomeIconView glyphName="SEARCH" layoutX="4.0" layoutY="30.0" size="30"
-                                                     styleClass="search-icon" textAlignment="CENTER"
-                                                     wrappingWidth="49.464284896850586" AnchorPane.bottomAnchor="0.0"
-                                                     AnchorPane.leftAnchor="0.0" AnchorPane.rightAnchor="0.0"
-                                                     AnchorPane.topAnchor="2.0"/>
+    <BorderPane AnchorPane.bottomAnchor="0.0" AnchorPane.leftAnchor="0.0" AnchorPane.rightAnchor="0.0"
+                AnchorPane.topAnchor="0.0">
+        <center>
+            <BorderPane prefHeight="400.0" prefWidth="600.0">
+                <left>
+                    <BorderPane styleClass="conversation-screen" BorderPane.alignment="CENTER">
+                        <center>
+                            <AnchorPane>
+                                <BorderPane.margin>
+                                    <Insets left="15.0" right="15.0" top="10.0"/>
+                                </BorderPane.margin>
+                                <FlowPane AnchorPane.leftAnchor="0.0" AnchorPane.rightAnchor="0.0">
+                                    <TextField fx:id="searchField" prefHeight="44.0" prefWidth="450.0"/>
+                                    <AnchorPane nodeOrientation="LEFT_TO_RIGHT" prefWidth="45.0">
+                                        <FontAwesomeIconView glyphName="SEARCH" layoutX="4.0" layoutY="30.0" size="30"
+                                                             styleClass="search-icon" textAlignment="CENTER"
+                                                             wrappingWidth="49.464284896850586"
+                                                             AnchorPane.bottomAnchor="0.0" AnchorPane.leftAnchor="0.0"
+                                                             AnchorPane.rightAnchor="0.0" AnchorPane.topAnchor="2.0"/>
+                                    </AnchorPane>
+                                </FlowPane>
+                                <ListView fx:id="conversationList" layoutX="24.0" layoutY="74.0" prefHeight="455.0"
+                                          prefWidth="500.0" styleClass="conversation-list"
+                                          AnchorPane.bottomAnchor="31.0" AnchorPane.leftAnchor="0.0"
+                                          AnchorPane.rightAnchor="0.0" AnchorPane.topAnchor="74.0"/>
                             </AnchorPane>
-                        </FlowPane>
-                        <ListView fx:id="conversationList" layoutX="24.0" layoutY="74.0" prefHeight="455.0"
-                                  prefWidth="500.0" styleClass="conversation-list" AnchorPane.bottomAnchor="31.0"
-                                  AnchorPane.leftAnchor="0.0" AnchorPane.rightAnchor="0.0" AnchorPane.topAnchor="74.0"/>
-                    </AnchorPane>
+                        </center>
+                        <top>
+                            <Label styleClass="chat-title" text="Chats" BorderPane.alignment="CENTER"/>
+                        </top>
+                        <BorderPane.margin>
+                            <Insets/>
+                        </BorderPane.margin>
+                        <padding>
+                            <Insets top="10.0"/>
+                        </padding>
+                    </BorderPane>
+                </left>
+                <center>
+                    <AnchorPane fx:id="chatScreenCenter" prefHeight="631.0" prefWidth="567.0"
+                                BorderPane.alignment="CENTER"/>
+                </center>
+            </BorderPane>
+        </center>
+        <left>
+            <BorderPane styleClass="chat-side-bar" BorderPane.alignment="CENTER">
+                <center>
+                    <VBox alignment="CENTER" prefHeight="543.0">
+                        <children>
+                            <Button mnemonicParsing="false" onAction="#addConversation">
+                                <graphic>
+                                    <FontAwesomeIconView glyphName="PLUS"/>
+                                </graphic>
+                            </Button>
+                            <Button mnemonicParsing="false" onAction="#deleteConversation">
+                                <graphic>
+                                    <FontAwesomeIconView glyphName="TRASH_ALT"/>
+                                </graphic>
+                            </Button>
+                        </children>
+                    </VBox>
                 </center>
                 <top>
-                    <Label styleClass="chat-title" text="Chats" BorderPane.alignment="CENTER"/>
+                    <Button mnemonicParsing="false" onAction="#showUserAccount" BorderPane.alignment="CENTER">
+                        <graphic>
+                            <FontAwesomeIconView glyphName="USER" size="15" style="-fx-icon-size: 35;"/>
+                        </graphic>
+                    </Button>
                 </top>
-                <BorderPane.margin>
-                    <Insets/>
-                </BorderPane.margin>
-                <padding>
-                    <Insets top="10.0"/>
-                </padding>
+                <bottom>
+                    <ToggleButton fx:id="debugBtn" mnemonicParsing="false" onAction="#showDebug"
+                                  BorderPane.alignment="CENTER">
+                        <graphic>
+                            <FontAwesomeIconView glyphName="GEARS"/>
+                        </graphic>
+                    </ToggleButton>
+                </bottom>
             </BorderPane>
         </left>
-        <center>
-            <AnchorPane fx:id="chatScreenCenter" prefHeight="631.0" prefWidth="567.0" BorderPane.alignment="CENTER"/>
-        </center>
     </BorderPane>
     <stylesheets>
         <URL value="@../../styles/CSS/style.css"/>

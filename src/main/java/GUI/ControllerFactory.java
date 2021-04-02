@@ -1,5 +1,6 @@
 package GUI;
 
+import GUI.Chat.AddConversationDialogContent;
 import GUI.Chat.ChatScreen;
 import GUI.Chat.ConversationScreen;
 import GUI.LoginScreen.LogOnForm;
@@ -11,7 +12,7 @@ import GUI.RegistrationCarousel.SecretPasswordSlide;
 
 public class ControllerFactory {
 
-	private static TestController testController;
+	private static Debugger debuggerController;
 	private static StartScreen startScreenController;
 	private static Login loginController;
 	private static LoginForm loginFormController;
@@ -21,32 +22,33 @@ public class ControllerFactory {
 	private static FinishSlide finishSlideController;
 	private static ChatScreen chatScreenController;
 	private static ConversationScreen conversationScreenController;
+	private static AddConversationDialogContent addConversationDialogContentController;
 
-	public static TestController getTestController() {
-		return testController;
+	public static Debugger getDebuggerController() {
+		return debuggerController;
 	}
 
-	public static void setTestController(TestController testController) {
-		ControllerFactory.testController = testController;
+	public static void setDebuggerController(Debugger debugger) {
+		ControllerFactory.debuggerController = debugger;
 	}
 
 	public static StartScreen getStartScreenController() {
-        return startScreenController;
-    }
+		return startScreenController;
+	}
 
-    public static void setStartScreenController(StartScreen startScreenController) {
-        ControllerFactory.startScreenController = startScreenController;
-    }
+	public static void setStartScreenController(StartScreen startScreenController) {
+		ControllerFactory.startScreenController = startScreenController;
+	}
 
-    public static Login getLoginController() {
-        return loginController;
-    }
+	public static Login getLoginController() {
+		return loginController;
+	}
 
-    public static void setLoginController(Login loginController) {
-        ControllerFactory.loginController = loginController;
-    }
+	public static void setLoginController(Login loginController) {
+		ControllerFactory.loginController = loginController;
+	}
 
-    public static LoginForm getLoginFormController() {
+	public static LoginForm getLoginFormController() {
         return loginFormController;
     }
 
@@ -100,5 +102,13 @@ public class ControllerFactory {
 
 	public static void setConversationScreenController(ConversationScreen conversationScreenController) {
 		ControllerFactory.conversationScreenController = conversationScreenController;
+	}
+
+	public static AddConversationDialogContent getAddConversationDialogContentController() {
+		return addConversationDialogContentController;
+	}
+
+	public static void setAddConversationDialogContentController(AddConversationDialogContent addConversationDialogContentController) {
+		ControllerFactory.addConversationDialogContentController = addConversationDialogContentController;
 	}
 }

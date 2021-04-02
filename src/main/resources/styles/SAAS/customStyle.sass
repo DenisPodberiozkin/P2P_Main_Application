@@ -109,13 +109,23 @@ $grey: derive($accent, 35%)
   -fx-pref-width: 180px
 
 
-.conversation-screen
+.conversation-screen, .chat-side-bar
   -fx-border-width: 0 5px 0 0
   -fx-border-color: $dark
   -fx-border-style: solid
 
 .chat-title, .conversation-title
-  -fx-font-size: 30px
+  -fx-font-size: 30
+
+.chat-side-bar
+  & .button, .toggle-button
+    -fx-min-height: 70px
+    -fx-min-width: 70px
+    -fx-icon-size: 35px
+
+    & .glyph-icon
+      -fx-fill: white
+      -glyph-size: 35px
 
 .search-icon, .edit-icon
   -fx-fill: white
@@ -189,4 +199,7 @@ $grey: derive($accent, 35%)
   -fx-border-insets: 20 6 20 20px
   -fx-background-insets: 20 6 20 20px
   -fx-spacing: 15px
+
+.dialog-content
+  -fx-font-size: 18px
 

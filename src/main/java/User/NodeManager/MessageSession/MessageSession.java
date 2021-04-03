@@ -9,7 +9,7 @@ import java.util.concurrent.Callable;
 public abstract class MessageSession implements Callable<String> {
     private static long GLOBAL_ID = 0L;
     protected final IEncryptionController encryptionController = EncryptionController.getInstance();
-    protected long id;
+    protected final long id;
     protected String participantNodeId;
     protected long participantMessageSessionId;
     protected String messageText;

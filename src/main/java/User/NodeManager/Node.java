@@ -86,14 +86,6 @@ public class Node implements AutoCloseable {
 		this.port = port;
 	}
 
-	public OutboundConnection getConnection() {
-		return connection;
-	}
-
-	public void removeConnection() {
-		this.connection = null;
-	}
-
 	public String findNode(String id) {
 		return clientController.lookUp(connection, id);
 	}

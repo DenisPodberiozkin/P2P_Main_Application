@@ -76,10 +76,4 @@ public class UserDataBase extends Database {
 
 	}
 
-	private void createUserDirectory(String username) {
-		File file = new File(path + username);
-		if (!file.exists()) {
-			file.mkdir();
-		}
-	}
 }

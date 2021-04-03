@@ -5,18 +5,16 @@ import java.util.concurrent.ExecutionException;
 
 public class Updater implements Runnable {
     private final User user;
-    private boolean isRunning;
 
     public Updater(User user) {
         this.user = user;
-        this.isRunning = true;
     }
 
 
     @Override
     public void run() {
         try {
-            while (isRunning) {
+            while (true) {
                 Thread.sleep(2000);
 
                 LinkedHashMap<String, Node> updatedNodes = user.checkConnections().get();
@@ -35,7 +33,4 @@ public class Updater implements Runnable {
     }
 
 
-    public void stopUpdater() {
-        this.isRunning = false;
-    }
 }

@@ -13,7 +13,7 @@ public class NodeStabilizer implements Callable<Boolean> {
 
 
     @Override
-    public Boolean call() throws Exception {
+    public Boolean call() {
         Node successor = user.getSuccessor();
         if (user.hasNeighbours()) {
 
@@ -27,12 +27,12 @@ public class NodeStabilizer implements Callable<Boolean> {
 
 
                 if (isBigger(x, user) && isBigger(successor, x)) { // Normal Case
-                    user.executeChanges(x, successor);
+                    user.setSuccessorAndConnect(x);
                 } else if (isBigger(user, successor)) { //verifies than this node is current max
                     // MIN or MAX case
                     if (isBigger(successor, x) /*then x is the new min */ ||
                             isBigger(x, user) /*then this node is max */) {
-                        user.executeChanges(x, successor);
+                        user.setSuccessorAndConnect(x);
                     }
                 }
             }

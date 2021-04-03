@@ -19,10 +19,6 @@ public class ApplicationSettingsModel {
 		return applicationPort;
 	}
 
-	public static void setApplicationSettingsDAO(ApplicationSettingsDAO applicationSettingsDAO) {
-		ApplicationSettingsModel.applicationSettingsDAO = applicationSettingsDAO;
-	}
-
 	public static void setApplicationPort(int applicationPort) {
 		ApplicationSettingsModel.applicationPort = applicationPort;
 		if (applicationSettingsDAO != null) {

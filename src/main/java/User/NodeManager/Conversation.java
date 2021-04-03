@@ -30,7 +30,7 @@ public class Conversation {
     }
 
 
-    public Message addMessage(String text, String senderId, boolean isSentByUser) {
+    public void addMessage(String text, String senderId, boolean isSentByUser) {
         final User user = User.getInstance();
         String senderName = isSentByUser ? user.getUsername() : conversationName.get();
 
@@ -39,7 +39,6 @@ public class Conversation {
         Platform.runLater(() -> messages.add(message));
         Platform.runLater(() -> lastMessage.set(text));
 
-        return message;
     }
 
     public void addAllMessages(LinkedList<Message> messages) {
@@ -69,19 +68,11 @@ public class Conversation {
 
     }
 
-    public StringProperty conversationNameProperty() {
-        return conversationName;
-    }
-
     public void removeAllMessages() {
         messages.clear();
     }
 
     public StringProperty getLastMessageProperty() {
-        return lastMessage;
-    }
-
-    public StringProperty lastMessageProperty() {
         return lastMessage;
     }
 

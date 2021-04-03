@@ -1,8 +1,6 @@
 package User.NodeManager;
 
 import GUI.ControllerFactory;
-import User.CommunicationUnit.Server.IServerController;
-import User.CommunicationUnit.Server.ServerController;
 import User.Database.DAO.ConversationDAO;
 import User.NodeManager.Exceptions.ConversationException;
 import User.NodeManager.Exceptions.InboundMessageSessionNotFound;
@@ -45,10 +43,7 @@ public class User extends Node {
     private final ExecutorService executorService = Executors.newCachedThreadPool();
     private final Updater updater;
     private final Deque<Node> successorsQueue = new LinkedList<>();
-    private final IServerController serverController = ServerController.getInstance();
-    //    private final HashMap<String, Conversation> conversations = new HashMap<>();
     private final ObservableList<Conversation> conversations = FXCollections.observableArrayList();
-    private final HashMap<Long, OutboundMessageSession> outboundMessageSessions = new HashMap<>();
     private final HashMap<Long, InboundMessageSession> inboundMessageSessions = new HashMap<>();
     private ConversationDAO conversationDAO;
     private String username;
@@ -72,16 +67,6 @@ public class User extends Node {
         ControllerFactory.getDebuggerController().setPortLabelText(getPort());
     }
 
-//    public User() { // TODO delete later
-//        super(EncryptionController.getInstance().generateRSAKeyPair().getPublic(), ConnectionsData.getUserServerPort());
-//        initialiseIP();
-//        User.instance = this;
-//        this.updater = new Updater(this);
-//        ControllerFactory.getDebuggerController().setNodeNameLabelText(getId());
-//        ControllerFactory.getDebuggerController().setPortLabelText(getPortProperty());
-//
-//    }
-
 
     public String getUsername() {
         return username;
@@ -97,7 +82,6 @@ public class User extends Node {
 
 
     public void join(Node successorNode) {
-//        serverController.startServer(ApplicationSettingsModel.getApplicationPort());
         readWriteLock.writeLock().lock();
         try {
             setSuccessorAndConnect(successorNode);
@@ -109,7 +93,6 @@ public class User extends Node {
     }
 
     public void join() {
-//        serverController.startServer(ApplicationSettingsModel.getApplicationPort());
         executorService.execute(updater);
         LOGGER.info("Joined to ring");
     }
@@ -122,15 +105,6 @@ public class User extends Node {
     public FutureTask<Boolean> stabilize() {
         NodeStabilizer stabilizer = new NodeStabilizer(this);
         return (FutureTask<Boolean>) executorService.submit(stabilizer);
-    }
-
-    public void executeChanges(Node x, Node successor) {
-        readWriteLock.writeLock().lock();
-        try {
-            setSuccessorAndConnect(x);
-        } finally {
-            readWriteLock.writeLock().unlock();
-        }
     }
 
     public void updateFingerTable(LinkedHashMap<String, Node> updatedNodes) {
@@ -445,25 +419,27 @@ public class User extends Node {
     }
 
     public void notifyDisconnection(Node disconnectedNode) {
-        readWriteLock.writeLock().lock();
-        try {
-            Node currentSuccessor = getSuccessor();
-            Node currentPredecessor = getPredecessor();
-            LOGGER.info(disconnectedNode + "");
-            if (disconnectedNode.equals(currentSuccessor)) {
-                LOGGER.info(currentSuccessor.getId());
-                setSuccessorAndConnect(null);
-            }
-            if (disconnectedNode.equals(currentPredecessor)) {
-                LOGGER.info(currentPredecessor.getId());
-                setPredecessorAndConnect(null);
-            }
+        if (disconnectedNode != null) {
+            readWriteLock.writeLock().lock();
+            try {
+                Node currentSuccessor = getSuccessor();
+                Node currentPredecessor = getPredecessor();
+                LOGGER.info(disconnectedNode + "");
+                if (disconnectedNode.equals(currentSuccessor)) {
+                    LOGGER.info(currentSuccessor.getId());
+                    setSuccessorAndConnect(null);
+                }
+                if (disconnectedNode.equals(currentPredecessor)) {
+                    LOGGER.info(currentPredecessor.getId());
+                    setPredecessorAndConnect(null);
+                }
 
-            if (!disconnectedNode.equals(currentPredecessor) && !disconnectedNode.equals(currentSuccessor)) {
-                removeNodeFromTableAndDisconnect(disconnectedNode);
+                if (!disconnectedNode.equals(currentPredecessor) && !disconnectedNode.equals(currentSuccessor)) {
+                    removeNodeFromTableAndDisconnect(disconnectedNode);
+                }
+            } finally {
+                readWriteLock.writeLock().unlock();
             }
-        } finally {
-            readWriteLock.writeLock().unlock();
         }
     }
 
@@ -483,12 +459,11 @@ public class User extends Node {
         }
     }
 
-    public Conversation createNewConversation(String participantId, String conversationName) throws ConversationException {
+    public void createNewConversation(String participantId, String conversationName) throws ConversationException {
         readWriteLock.writeLock().lock();
         try {
             Conversation conversation = createNewConversation(participantId);
             conversation.setConversationName(conversationName);
-            return conversation;
         } finally {
             readWriteLock.writeLock().unlock();
         }
@@ -577,12 +552,6 @@ public class User extends Node {
         OutboundMessageSession outboundMessageSession = new OutboundMessageSessionBuilder().setMessageText(text)
                 .setParticipantNodeId(receiverId)
                 .createOutboundMessageSession();
-        readWriteLock.writeLock().lock();
-        try {
-            outboundMessageSessions.put(outboundMessageSession.getId(), outboundMessageSession);
-        } finally {
-            readWriteLock.writeLock().unlock();
-        }
 
         return (FutureTask<String>) executorService.submit(outboundMessageSession);
     }
@@ -671,9 +640,6 @@ public class User extends Node {
         this.conversations.addAll(allConversations);
     }
 
-    public SecretKey getSecretKey() {
-        return secretKey;
-    }
 
     public void setSecretKey(SecretKey secretKey) {
         this.secretKey = secretKey;

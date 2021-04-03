@@ -7,7 +7,6 @@ import java.sql.PreparedStatement;
 import java.sql.SQLException;
 import java.sql.Statement;
 
-@SuppressWarnings("DuplicatedCode")
 public class ApplicationSettingsDAO {
     private final Connection connection;
 

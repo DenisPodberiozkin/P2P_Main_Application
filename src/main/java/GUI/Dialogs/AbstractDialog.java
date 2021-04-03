@@ -17,7 +17,7 @@ public abstract class AbstractDialog extends javafx.scene.control.Dialog<Pair<St
 		getDialogPane().setPrefWidth(dialogContent.getPrefWidth() + 20.0);
 	}
 
-	private AnchorPane loadDialogContent(String FXML) {
+	private void loadDialogContent(String FXML) {
 		try {
 			if (dialogContent == null) {
 				dialogContent = FXMLLoader.load(getClass().getResource(FXML));
@@ -25,6 +25,5 @@ public abstract class AbstractDialog extends javafx.scene.control.Dialog<Pair<St
 		} catch (IOException ioException) {
 			ioException.printStackTrace();
 		}
-		return dialogContent;
 	}
 }

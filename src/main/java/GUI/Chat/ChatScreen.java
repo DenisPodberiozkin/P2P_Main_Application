@@ -43,39 +43,6 @@ public class ChatScreen implements Initializable {
 
 
 	public ChatScreen() {
-//		Conversation conversation1 = new Conversation("123");
-//		conversation1.setConversationName("Denis");
-//		Conversation conversation2 = new Conversation("123");
-//		conversation2.setConversationName("Jegor");
-//		Conversation conversation3 = new Conversation("123");
-//		conversation3.setConversationName("Mama");
-//		Conversation conversation4 = new Conversation("123");
-//		conversation4.setConversationName("Papa");
-//
-//		conversationObservableList.add(conversation1);
-//		conversationObservableList.add(conversation2);
-//		conversationObservableList.add(conversation3);
-//		conversationObservableList.add(conversation4);
-//
-//		conversation4.addMessage("dnsadhuweifuiwenfuiewnfuiwenfuiwenfuiwenfuiwenfuiwenfuiwe", "dsds", true);
-//		conversation4.addMessage("dnsadhuweifuiwenfuiewnfuiwenfuiwenfuiwenfuiwenfuiwenfuiwe", "dsds", false);
-
-//		try {
-//			user.createNewConversation("1", "Denis");
-//			user.addMessage("1", "555", "Hellpo", true);
-//			user.addMessage("1", "555", "Mesg", true);
-//			user.addMessage("1", "555", "djsijdis", true);
-//			user.addMessage("1", "1", "djsijdis", false);
-//			user.createNewConversation("2", "Jegor");
-//			user.addMessage("2", "555", "AGA", true);
-//			user.addMessage("2", "555", "MANDA", true);
-//			user.addMessage("2", "555", "DA?", false);
-//			user.addMessage("2", "2", "PIZDA", true);
-//			user.createNewConversation("3", "Papa");
-//			user.createNewConversation("4", "Mama");
-//		} catch (ConversationException e) {
-//			e.printStackTrace();
-//		}
 
 	}
 

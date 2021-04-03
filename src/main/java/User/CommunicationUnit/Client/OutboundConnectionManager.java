@@ -4,15 +4,9 @@ import GUI.ControllerFactory;
 import User.NodeManager.Node;
 
 import java.io.IOException;
-import java.util.LinkedList;
 
 public class OutboundConnectionManager {
     private static OutboundConnectionManager instance;
-    private final LinkedList<OutboundConnection> outboundConnections;
-
-    public OutboundConnectionManager() {
-        outboundConnections = new LinkedList<>();
-    }
 
     public static OutboundConnectionManager getInstance() {
         if (instance == null) {
@@ -24,20 +18,17 @@ public class OutboundConnectionManager {
     public OutboundConnection createConnection(String ip, int port) throws IOException {
         OutboundConnection connection = new OutboundConnection(ip, port);
         connection.createConnection();
-        outboundConnections.add(connection);
         return connection;
     }
 
     public OutboundConnection createConnection(String ip, int port, Node assignedNode) throws IOException {
         OutboundConnection connection = new OutboundConnection(ip, port, assignedNode);
         connection.createConnection();
-        outboundConnections.add(connection);
         return connection;
     }
 
 
     public void closeConnection(OutboundConnection outboundConnection) {
-        outboundConnections.remove(outboundConnection);
         ControllerFactory.getDebuggerController().removeOutboundConnection(outboundConnection);
     }
 

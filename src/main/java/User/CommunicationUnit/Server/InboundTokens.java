@@ -18,16 +18,6 @@ public enum InboundTokens {
 		}
 		throw new IllegalArgumentException("No inbound token found by value " + value);
 	}
-/*
-    public InboundTokens getTest(String token){
-        InboundTokens returnToken;
-        switch (token){
-            case "HN": return InboundTokens.HAS_NEIGHBOURS;
-            default:
-                throw new IllegalStateException("Unexpected value: " + token);
-        }
-    }
-*/
 
 	public String getToken() {
 		return token;

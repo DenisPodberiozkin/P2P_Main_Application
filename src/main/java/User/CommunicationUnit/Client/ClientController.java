@@ -17,10 +17,8 @@ public class ClientController implements IClientController {
 
     private static final Logger LOGGER = Logger.getLogger(ClientController.class.getName());
     private static ClientController instance;
-    private final OutboundConnectionManager manager;
 
     public ClientController() {
-        this.manager = OutboundConnectionManager.getInstance();
     }
 
     public static ClientController getInstance() {

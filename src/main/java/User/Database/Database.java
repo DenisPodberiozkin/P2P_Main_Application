@@ -15,9 +15,6 @@ public abstract class Database {
         this.path = path;
     }
 
-    public Connection getConnection() {
-        return connection;
-    }
 
     protected void connect(String fullPath) throws SQLException, FileNotFoundException {
         final String fullURL = JDBC + fullPath;

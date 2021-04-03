@@ -5,7 +5,6 @@ import User.Settings.ConnectionSettingsModel;
 import java.sql.*;
 
 
-@SuppressWarnings("DuplicatedCode")
 public class ConnectionSettingsDAO {
 	private final Connection connection;
 

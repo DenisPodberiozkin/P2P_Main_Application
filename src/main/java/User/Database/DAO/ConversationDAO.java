@@ -9,7 +9,6 @@ import java.sql.*;
 import java.util.LinkedList;
 import java.util.List;
 
-@SuppressWarnings("DuplicatedCode")
 public class ConversationDAO {
 	private final Connection connection;
 	private final SecretKey secretKey;

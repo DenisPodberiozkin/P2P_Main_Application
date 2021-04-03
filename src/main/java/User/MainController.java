@@ -2,8 +2,6 @@ package User;
 
 import Encryption.EncryptionController;
 import Encryption.IEncryptionController;
-import User.CommunicationUnit.Client.ClientController;
-import User.CommunicationUnit.Client.IClientController;
 import User.CommunicationUnit.Server.IServerController;
 import User.CommunicationUnit.Server.ServerController;
 import User.Database.DAO.UserDAO;
@@ -23,19 +21,15 @@ import java.security.KeyPair;
 import java.security.PrivateKey;
 import java.sql.Connection;
 import java.sql.SQLException;
-import java.util.logging.Logger;
 
 public class MainController implements IMainController {
-	private static final Logger LOGGER = Logger.getLogger(MainController.class.getName());
 	private static MainController instance;
-	private final IClientController clientController;
 	private final IDataBaseController dataBaseController = DataBaseController.getInstance();
 	private final IEncryptionController encryptionController = EncryptionController.getInstance();
 	private final IServerController serverController = ServerController.getInstance();
 
 
 	public MainController() {
-		this.clientController = ClientController.getInstance();
 	}
 
 	public static MainController getInstance() {
@@ -89,7 +83,7 @@ public class MainController implements IMainController {
 
 			user.initConversations(connection);
 
-			connectToRing(user);
+			connectToRing();
 
 		} catch (SQLException throwables) {
 			serverController.stopServer();
@@ -104,7 +98,7 @@ public class MainController implements IMainController {
 
 	}
 
-	private void connectToRing(User user) throws IOException {
+	private void connectToRing() throws IOException {
 		final ConnectionLogic connectionLogic = ConnectionFactory.getConnectionLogic(ConnectionSettingsModel.getConnectionType());
 		connectionLogic.connect();
 

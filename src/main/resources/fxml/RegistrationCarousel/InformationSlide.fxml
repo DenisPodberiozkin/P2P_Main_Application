@@ -20,7 +20,7 @@
                   BorderPane.alignment="CENTER">
                <children>
                   <Label styleClass="information-label"
-                         text="⚫ A specified username will not be visible to anyone outside this system. Any active member of this chat will not be able to send you messages unless provided by you with your ID (address) available after registration. The username is used to indetify you only within your system."/>
+                         text="⚫ A specified username will not be visible to anyone outside this system. Any active member of this chat will not be able to send you messages unless provided by you with your ID (address) available after registration. The username is used to identify you only within your system."/>
                   <Label styleClass="information-label"
                          text="⚫ All your messages will be stored only on your and another conversation member's system."/>
                   <Label styleClass="information-label"

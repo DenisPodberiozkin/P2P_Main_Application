@@ -60,7 +60,6 @@ public class LookupEngine implements Callable<String> {
             }
         } catch (Exception e) {
             LOGGER.warning("Lookup not found. Reason: " + e.toString());
-            e.printStackTrace();
             return "NF";
         }
     }

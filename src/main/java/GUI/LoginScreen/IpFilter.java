@@ -1,15 +1,12 @@
 package GUI.LoginScreen;
 
-import javafx.scene.control.TextField;
 import javafx.scene.control.TextFormatter;
 
 import java.util.function.UnaryOperator;
 
 public class IpFilter implements UnaryOperator<TextFormatter.Change> {
-    private final TextField textField;
 
-    public IpFilter(TextField textField) {
-        this.textField = textField;
+    public IpFilter() {
     }
 
     @Override

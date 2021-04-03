@@ -66,7 +66,7 @@ public class Settings implements Initializable {
         localServerPortField.setTextFormatter(new TextFormatter<>(new PortFilter(localServerPortField)));
         existingUserPortField.setTextFormatter(new TextFormatter<>(new PortFilter(existingUserPortField)));
 
-        localServerIpField.setTextFormatter(new TextFormatter<>(new IpFilter(localServerIpField)));
+        localServerIpField.setTextFormatter(new TextFormatter<>(new IpFilter()));
 
     }
 
@@ -92,11 +92,6 @@ public class Settings implements Initializable {
         tabs.getSelectionModel().clearAndSelect(0);
         revertSettings();
         checkToggleFields(connectionToggle.getSelectedToggle());
-
-    }
-
-    @FXML
-    void okBtnAction() {
 
     }
 

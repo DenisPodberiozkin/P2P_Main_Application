@@ -20,7 +20,7 @@
                       BorderPane.alignment="CENTER">
                     <children>
                         <Label styleClass="information-label"
-                               text="Check your username and password bellow. Make sure you have saved your secret password. By cliscking Finish button, your account will be created."/>
+                               text="Check your username and password bellow. Make sure you have saved your secret password. By clicking Finish button, your account will be created."/>
                         <GridPane styleClass="summary-info-wrapper" vgap="40.0">
                             <columnConstraints>
                                 <ColumnConstraints hgrow="SOMETIMES" minWidth="10.0" prefWidth="100.0"/>

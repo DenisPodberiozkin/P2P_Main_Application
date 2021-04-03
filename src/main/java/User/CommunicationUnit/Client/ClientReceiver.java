@@ -1,7 +1,5 @@
 package User.CommunicationUnit.Client;
 
-import Encryption.EncryptionController;
-import Encryption.IEncryptionController;
 import User.CommunicationUnit.MessageReader;
 import User.NodeManager.User;
 
@@ -12,7 +10,6 @@ public class ClientReceiver implements Runnable {
     private static final Logger LOGGER = Logger.getLogger(ClientReceiver.class.getName());
     private final MessageReader reader;
     private final OutboundConnection connection;
-    private final IEncryptionController encryptionController = EncryptionController.getInstance();
     private boolean isRunning;
 
 

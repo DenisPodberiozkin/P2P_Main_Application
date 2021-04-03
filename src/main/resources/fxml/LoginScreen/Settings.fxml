@@ -121,7 +121,7 @@
                                           <RowConstraints minHeight="10.0" prefHeight="30.0" vgrow="SOMETIMES"/>
                                        </rowConstraints>
                                        <children>
-                                          <Label text="Exsiting user IP:Port"/>
+                                          <Label text="Existing user IP:Port"/>
                                           <FlowPane alignment="CENTER" GridPane.columnIndex="1"
                                                     GridPane.halignment="CENTER" GridPane.valignment="CENTER">
                                              <children>
@@ -152,7 +152,6 @@
                   BorderPane.alignment="CENTER">
                <children>
                   <Button mnemonicParsing="false" onAction="#applyBtnAction" text="Apply"/>
-                  <Button mnemonicParsing="false" onAction="#okBtnAction" text="OK"/>
                   <Button mnemonicParsing="false" onAction="#cancelBtnAction" text="Cancel"/>
                </children>
             </HBox>

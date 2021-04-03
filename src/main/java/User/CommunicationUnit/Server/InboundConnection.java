@@ -84,7 +84,6 @@ public class InboundConnection extends Thread {
             if (!clientSocket.isClosed()) {
                 clientSocket.close();
             }
-            server.removeConnection(this);
 
         } catch (IOException e) {
             e.printStackTrace();

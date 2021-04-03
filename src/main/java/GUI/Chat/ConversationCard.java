@@ -15,7 +15,6 @@ import java.util.ResourceBundle;
 public class ConversationCard extends ListCell<Conversation> implements Initializable {
 
 	private final static String CONVERSATION_CARD_XML = "../../fxml/ChatScreen/ConversationCard.fxml";
-	private final boolean checked = false;
 	@FXML
 	private AnchorPane conversationCard;
 	@FXML

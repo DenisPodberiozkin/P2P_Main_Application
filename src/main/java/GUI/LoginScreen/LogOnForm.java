@@ -33,7 +33,6 @@ public class LogOnForm implements Initializable {
 
     @Override
     public void initialize(URL location, ResourceBundle resources) {
-        ControllerFactory.setLogOnFormController(this);
         mandatoryFields.add(passField);
         mandatoryFields.add(repeatPasswordField);
         mandatoryFields.add(usernameField);

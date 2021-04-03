@@ -17,7 +17,6 @@ public class StartScreen implements Initializable {
 
     @Override
     public void initialize(URL location, ResourceBundle resources) {
-        ControllerFactory.setStartScreenController(this);
         StartScreenNavigator.setStartScreenController(this);
         StartScreenNavigator.changeMainScreen(NavigablePane.LOGIN_XML);
 

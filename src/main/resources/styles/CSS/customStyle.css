@@ -129,8 +129,9 @@
 
 .conversation-main {
     -fx-padding: 0 15px 0 15px;
-  -fx-border-insets: 0 15px 0 15px;
-  -fx-background-insets: 0 15px 0 15px; }
+    -fx-border-insets: 0 15px 0 15px;
+    -fx-background-insets: 0 15px 0 15px;
+}
 
 .conversation-control-wrapper {
   -fx-spacing: 15px;

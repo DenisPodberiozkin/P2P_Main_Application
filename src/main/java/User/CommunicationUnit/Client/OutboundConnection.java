@@ -55,7 +55,7 @@ public class OutboundConnection implements AutoCloseable {
     public void createConnection() throws IOException, SecurityException {
         if (ip.equals(User.getInstance().getIp()) && port == User.getInstance().getPort()) {
             LOGGER.warning("Trying to connect to yourself");
-            throw new IOException("rying to connect to yourself");
+            throw new IOException("Trying to connect to yourself");
         }
         socket = new Socket(ip, port);
         reader = new MessageReader(new InputStreamReader(socket.getInputStream()));

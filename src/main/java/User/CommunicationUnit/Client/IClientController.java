@@ -13,7 +13,6 @@ public interface IClientController {
 
 	OutboundConnection connect(String ip, int port) throws IOException;
 
-//    FutureTask<String> sendMessage(OutboundConnection connection, String message);
 
 	OutboundConnection connect(String ip, int port, Node assignedNode) throws IOException;
 

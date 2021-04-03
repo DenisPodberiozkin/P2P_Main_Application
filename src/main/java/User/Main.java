@@ -20,8 +20,6 @@ public class Main extends Application {
     }
 
     public static void main(String[] args) {
-//        Security.addProvider(new BouncyCastleProvider());
-//        ConnectionsData.setUserServerPort(Integer.parseInt(args[0]));
         launch(args);
     }
 
@@ -43,7 +41,6 @@ public class Main extends Application {
 
 
         Platform.setImplicitExit(true);
-//        Parent root = FXMLLoader.load(getClass().getResource("../fxml/Test.fxml"));
         final Parent mainRoot = FXMLLoader.load(getClass().getResource("../fxml/StartScreen.fxml"));
         primaryStage.setTitle("Westwood v0.1");
         final Scene mainScene = new Scene(mainRoot);
@@ -68,7 +65,5 @@ public class Main extends Application {
         Security.setProperty("crypto.policy", "unlimited");
 
         setDebugLevel(Level.FINE);
-//        mainController.connectToRing();
-//        System.exit(0);
     }
 }

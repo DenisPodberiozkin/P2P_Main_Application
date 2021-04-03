@@ -13,7 +13,6 @@ public class SynchronisedWriter extends PrintWriter {
 
     public synchronized void sendMessage(int clientSessionId, String message) {
         String reply = clientSessionId + " " + message;
-        //TODO encryption
         LOGGER.config("Message " + reply + " was sent");
         super.println(reply);
 

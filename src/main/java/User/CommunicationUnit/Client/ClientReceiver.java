@@ -29,10 +29,6 @@ public class ClientReceiver implements Runnable {
 
                 String message = reader.readLine();
                 if (message != null) {
-//                    final SecretKey secretKey = connection.getSecretKey();
-//                    if (secretKey != null) {
-//                        message = encryptionController.decryptStringByAES(secretKey, message);
-//                    }
 
                     LOGGER.info("Message " + message + " was received from " + connection.getIp() + ":" + connection.getPort());
                     String[] tokens = message.split(" ");
@@ -50,16 +46,9 @@ public class ClientReceiver implements Runnable {
             }
 
         } catch (IOException e) {
-            //System.err.println(e.toString() + " " + connection.toString() + " " + connection.getAssignedNode());
             if (!e.getMessage().equals("Socket closed")) {
                 LOGGER.warning("Connection was closed by host. Reason: " + e.toString());
-//                try {
                 User.getInstance().notifyDisconnection(connection.getAssignedNode());
-//                    connection.closeConnection();
-//                } catch (IOException ioException) {
-//                    LOGGER.severe("Error while closing connection");
-//                    ioException.printStackTrace();
-//                }
             }
 
         }

@@ -18,7 +18,7 @@ public class HeartBeatSender implements Runnable {
     @Override
     public void run() {
         try {
-//            Thread.sleep(1000);
+
             while (isRunning) {
                 String reply = connection.sendMessage(InboundTokens.PING.getToken(), true).get();
                 if (reply.equalsIgnoreCase("PING OK")) {

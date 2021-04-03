@@ -40,10 +40,6 @@ public class Node implements AutoCloseable {
 		objectMapper.registerModule(module);
 	}
 
-//	public Node(PublicKey publicKey, OutboundConnection connection) {
-//		this(publicKey);
-//		this.connection = connection;
-//	}
 
 	public Node(String ip, int port) {
 		this.ip = ip;
@@ -217,16 +213,6 @@ public class Node implements AutoCloseable {
 	}
 
 
-//    @Override
-//    public String toString() {
-//        return "Node{" +
-//                "id='" + id + '\'' +
-//                ", ip='" + ip + '\'' +
-//                ", publicIp='" + publicIp + '\'' +
-//                ", port=" + port +
-//                ", publicKey=" + Base64.getEncoder().encodeToString(publicKey.getEncoded()) +
-//                '}';
-//    }
 
 
 }

@@ -71,10 +71,7 @@ public class LookupEngine implements Callable<String> {
         final String[] arr = new String[size];
         userConnections.toArray(arr);
         int resId = binarySearch(arr, 0, size - 1, id);
-//        System.out.println("Highest is " + resId + " was choosen from");
-//        for(String s: arr){
-//            System.out.println(s);
-//        }
+
         if (resId < 0) { // < 0 if ID either bigger or smaller than every node in the finger table
             /*
             If successor of current node is bigger then we go to the maximum node in the finger table
@@ -98,7 +95,7 @@ public class LookupEngine implements Callable<String> {
     }
 
     private int binarySearch(String[] arr, int l, int r, String x) {
-//        System.out.println("Highest was choosen from");
+
 
         if (r >= l) {
             int mid = l + (r - l) / 2;

@@ -15,7 +15,6 @@ public class MessageReader extends BufferedReader {
     @Override
     public String readLine() throws IOException {
         String line = super.readLine();
-        //TODO decryption
         if (line != null) {
             LOGGER.config("Message " + line + " was received");
         }

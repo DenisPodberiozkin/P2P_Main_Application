@@ -95,10 +95,7 @@ public class OutboundConnection implements AutoCloseable {
 
     public void closeConnection() throws IOException {
         LOGGER.config("START Disconnected from " + ip + ":" + port);
-//        if (assignedNode != null) {
-//            this.assignedNode.removeConnection();
-//            User.getInstance().removeFromTable(assignedNode);
-//        }
+
 
         this.assignedNode = null;
         if (heartBeatSender != null) {
@@ -159,10 +156,6 @@ public class OutboundConnection implements AutoCloseable {
     public Node getAssignedNode() {
         return assignedNode;
     }
-
-//    public void setAssignedNode(Node assignedNode) {
-//        this.assignedNode = assignedNode;
-//    }
 
 
     public SecretKey getSecretKey() {

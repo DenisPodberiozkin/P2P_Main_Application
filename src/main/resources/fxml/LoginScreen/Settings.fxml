@@ -29,7 +29,7 @@
                                     AnchorPane.rightAnchor="0.0" AnchorPane.topAnchor="0.0">
                                  <children>
                                     <Label styleClass="information-label"
-                                           text="Specify application port (default port is 4444). Other users will use this port to transfer or send messages to/through you."/>
+                                           text="Specify application port (default port is 0). Other users will use this port to transfer or send messages to/through you. If the port is set to 0, then a system will assign any available port automatically."/>
                                     <GridPane>
                                        <columnConstraints>
                                           <ColumnConstraints hgrow="SOMETIMES" maxWidth="265.0" minWidth="10.0"

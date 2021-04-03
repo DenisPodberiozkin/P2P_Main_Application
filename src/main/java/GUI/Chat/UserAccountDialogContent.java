@@ -1,5 +1,6 @@
 package GUI.Chat;
 
+import User.CommunicationUnit.Server.ServerController;
 import User.NodeManager.User;
 import User.Settings.ApplicationSettingsModel;
 import javafx.fxml.FXML;
@@ -29,7 +30,7 @@ public class UserAccountDialogContent implements Initializable {
 	public void initialize(URL location, ResourceBundle resources) {
 		final User user = User.getInstance();
 		applicationIpField.setText(ApplicationSettingsModel.getApplicationIp());
-		applicationPortField.setText(ApplicationSettingsModel.getApplicationPort() + "");
+		applicationPortField.textProperty().bind(ServerController.getInstance().getServerPortProperty().asString());
 		idField.setText(user.getId());
 		usernameLabel.setText(user.getUsername());
 	}

@@ -78,7 +78,7 @@ public class User extends Node {
 //        User.instance = this;
 //        this.updater = new Updater(this);
 //        ControllerFactory.getDebuggerController().setNodeNameLabelText(getId());
-//        ControllerFactory.getDebuggerController().setPortLabelText(getPort());
+//        ControllerFactory.getDebuggerController().setPortLabelText(getPortProperty());
 //
 //    }
 
@@ -97,7 +97,7 @@ public class User extends Node {
 
 
     public void join(Node successorNode) {
-        serverController.startServer(ApplicationSettingsModel.getApplicationPort());
+//        serverController.startServer(ApplicationSettingsModel.getApplicationPort());
         readWriteLock.writeLock().lock();
         try {
             setSuccessorAndConnect(successorNode);
@@ -109,7 +109,7 @@ public class User extends Node {
     }
 
     public void join() {
-        serverController.startServer(ApplicationSettingsModel.getApplicationPort());
+//        serverController.startServer(ApplicationSettingsModel.getApplicationPort());
         executorService.execute(updater);
         LOGGER.info("Joined to ring");
     }

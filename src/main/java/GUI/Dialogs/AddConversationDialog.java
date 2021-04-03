@@ -24,15 +24,20 @@ public class AddConversationDialog extends AbstractDialog {
 		final TextField recipientIdField = addConversationDialogContentController.getRecipientIdField();
 		final TextField conversationNameField = addConversationDialogContentController.getConversationNameField();
 		//if recipient id is empty then add button is disabled.
-		recipientIdField.textProperty().addListener((observable, oldValue, newValue) -> addButton.setDisable(newValue.trim().isEmpty()));
+		recipientIdField.textProperty().addListener((observable, oldValue, newValue) -> {
+			final String address = newValue.trim().toUpperCase();
+			addButton.setDisable(address.isEmpty() || !address.matches("[A-F0-9]{40}"));
+		});
 
 		// dialog is result is converted to pair that contains recipient ID and conversation name
 		setResultConverter(button -> {
 			try {
 				if (button == addButtonType) {
-					final String recipientId = recipientIdField.getText();
+					final String recipientId = recipientIdField.getText().trim().toUpperCase();
 					final String conversationNameFieldText = conversationNameField.getText();
-					return new Pair<>(recipientId, conversationNameFieldText);
+					if (recipientId.matches("[A-F0-9]{40}")) {
+						return new Pair<>(recipientId, conversationNameFieldText);
+					}
 				}
 				return null;
 			} finally {

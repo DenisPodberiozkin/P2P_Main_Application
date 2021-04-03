@@ -8,7 +8,7 @@ import java.net.InetAddress;
 import java.sql.Connection;
 
 public class ApplicationSettingsModel {
-	public static final int DEFAULT_APPLICATION_PORT = 4444;
+	public static final int DEFAULT_APPLICATION_PORT = 0;
 
 	private static int applicationPort;
 	private static final String applicationIp = initIp();

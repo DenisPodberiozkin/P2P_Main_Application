@@ -4,7 +4,6 @@ import Encryption.EncryptionController;
 import Encryption.IEncryptionController;
 import User.CommunicationUnit.Client.ClientController;
 import User.CommunicationUnit.Client.IClientController;
-import User.CommunicationUnit.Client.OutboundConnection;
 import User.CommunicationUnit.Server.IServerController;
 import User.CommunicationUnit.Server.ServerController;
 import User.Database.DAO.UserDAO;
@@ -12,7 +11,6 @@ import User.Database.DataBaseController;
 import User.Database.DatabaseExceptions.DatabaseInitException;
 import User.Database.IDataBaseController;
 import User.Database.UserDataBase;
-import User.NodeManager.Node;
 import User.NodeManager.User;
 import User.Settings.ApplicationSettingsModel;
 import User.Settings.ConnectionSettingsModel;
@@ -72,77 +70,44 @@ public class MainController implements IMainController {
 	}
 
 	@Override
-	public void loginToAccount(String password, String secretPassword, String username) throws FileNotFoundException, SQLException, GeneralSecurityException {
-		final Connection connection = dataBaseController.connectToUserDatabase(username, new UserDataBase());
-		final UserDAO userDAO = new UserDAO(connection);
-		final User user = userDAO.retrieveUserPublicData();
-		user.setUsername(username);
-		final byte[] encryptedPrivateKeyData = userDAO.retrieveEncryptedPrivateKey();
+	public void loginToAccount(String password, String secretPassword, String username) throws IOException, SQLException, GeneralSecurityException {
+		try {
+			serverController.startServer(ApplicationSettingsModel.getApplicationPort());
+			final Connection connection = dataBaseController.connectToUserDatabase(username, new UserDataBase());
+			final UserDAO userDAO = new UserDAO(connection);
+			final User user = userDAO.retrieveUserPublicData();
+			user.setPort(serverController.getServer().getPort());
+			user.setUsername(username);
+			final byte[] encryptedPrivateKeyData = userDAO.retrieveEncryptedPrivateKey();
 
-		final SecretKey secretKey = encryptionController.generateAESKey(password, secretPassword);
-		user.setSecretKey(secretKey);
-		final byte[] decryptedPrivateKeyData = encryptionController.decryptDataByAES(secretKey, encryptedPrivateKeyData);
+			final SecretKey secretKey = encryptionController.generateAESKey(password, secretPassword);
+			user.setSecretKey(secretKey);
+			final byte[] decryptedPrivateKeyData = encryptionController.decryptDataByAES(secretKey, encryptedPrivateKeyData);
 
-		final PrivateKey privateKey = encryptionController.getPrivateKeyFromBytes(decryptedPrivateKeyData);
-		user.setPrivateKey(privateKey);
+			final PrivateKey privateKey = encryptionController.getPrivateKeyFromBytes(decryptedPrivateKeyData);
+			user.setPrivateKey(privateKey);
 
-		user.initConversations(connection);
-		serverController.startServer(user.getPort());
+			user.initConversations(connection);
 
-		connectToRing();
+			connectToRing(user);
+
+		} catch (SQLException throwables) {
+			serverController.stopServer();
+			throw new SQLException(throwables.getMessage());
+		} catch (GeneralSecurityException e) {
+			serverController.stopServer();
+			throw new GeneralSecurityException(e.getMessage());
+		} catch (IOException ioException) {
+			serverController.stopServer();
+			throw new IOException(ioException.getMessage());
+		}
 
 	}
 
-	@Override
-	public void connectToRing() {
-		System.out.println("Inside");
-		try (OutboundConnection serverConnection = clientController.connect(ConnectionSettingsModel.getLocalServerIp(), ConnectionSettingsModel.getLocalServerPort())) {
+	private void connectToRing(User user) throws IOException {
+		final ConnectionLogic connectionLogic = ConnectionFactory.getConnectionLogic(ConnectionSettingsModel.getConnectionType());
+		connectionLogic.connect();
 
-			User user = User.getInstance();
-			boolean isLastConnectedNodeReachable = false;
-			boolean isLastConnectedNodePresent = false;
-			do {
-				Node lastConnectedNode = clientController.getLastConnectedNode(serverConnection);
-				if (user != null) {
-					if (lastConnectedNode != null) {
-						isLastConnectedNodePresent = true;
-						try {
-							lastConnectedNode.connectToNode();
-							isLastConnectedNodeReachable = true;
-							if (lastConnectedNode.hasNeighbours()) {
-								final String successorJson = lastConnectedNode.findNode(user.getId());
-								if (successorJson.equals("NF")) {
-									throw new IOException("Successor not found");
-								}
-								Node successorNode = Node.getNodeFromJSONSting(successorJson);
-								lastConnectedNode.closeConnection();
-								user.join(successorNode);
-							} else {
-								user.join(lastConnectedNode);
-							}
-						} catch (IOException ioException) {
-							LOGGER.warning("Unable to connectToUserDatabase to last node. Reason " + ioException.toString());
-							isLastConnectedNodeReachable = false;
-							clientController.removeUnreachableLastConnectedNode(serverConnection, lastConnectedNode.getJSONString());
-						}
-					} else {
-						if (!isLastConnectedNodePresent) {
-							user.join();
-						} else {
-							LOGGER.severe("ALL last connected nodes are unreachable. Creating the new Sub-ring");
-							user.join();
-							isLastConnectedNodePresent = false;
-						}
-					}
-				} else {
-					LOGGER.warning("User undefined");
-				}
-			} while (isLastConnectedNodePresent && !isLastConnectedNodeReachable);
-			clientController.sendLastNodeToServer(serverConnection, user);
-
-		} catch (IOException ioException) {
-			LOGGER.warning("Unable to connectToUserDatabase to local server. Reason " + ioException.toString());
-		}
 	}
 
 

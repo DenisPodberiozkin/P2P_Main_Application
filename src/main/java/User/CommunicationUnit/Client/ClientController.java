@@ -91,6 +91,18 @@ public class ClientController implements IClientController {
     }
 
     @Override
+    public Node getNodeInformation(OutboundConnection connection) {
+        try {
+            final String token = InboundTokens.GET_NODE_INFORMATION.getToken();
+            final String reply = sendMessage(connection, token, true).get();
+            return Node.getNodeFromJSONSting(Objects.requireNonNull(verifyAndCleanTokens(reply, token))[0]);
+        } catch (InterruptedException | ExecutionException e) {
+            LOGGER.warning("Unable to receive reply from GNI message session. Reason: " + e.toString());
+        }
+        return null;
+    }
+
+    @Override
     public String lookUp(OutboundConnection connection, String id) {
         String reply = "NF";
         try {

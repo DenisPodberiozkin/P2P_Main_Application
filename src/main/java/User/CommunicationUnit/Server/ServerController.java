@@ -1,7 +1,5 @@
 package User.CommunicationUnit.Server;
 
-import javafx.beans.property.SimpleIntegerProperty;
-
 public class ServerController implements IServerController {
     private static ServerController instance;
     private Server server;
@@ -20,7 +18,14 @@ public class ServerController implements IServerController {
     }
 
     @Override
-    public SimpleIntegerProperty getServerPortProperty() {
-        return server.getPortProperty();
+    public void stopServer() {
+        if (server != null) {
+            server.stopServer();
+        }
+    }
+
+    @Override
+    public Server getServer() {
+        return server;
     }
 }

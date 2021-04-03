@@ -20,7 +20,6 @@ public class Server implements Runnable {
     public Server(int port) {
         this.inboundConnections = new LinkedList<>();
         openServerSocket(port);
-        System.out.println(serverSocket);
         this.isRunning = true;
     }
 
@@ -30,7 +29,6 @@ public class Server implements Runnable {
         LOGGER.info("User server has starter");
         while (isRunning) {
             try {
-                System.out.println(serverSocket);
                 Socket clientSocket = serverSocket.accept();
                 InboundConnection inboundConnection = new InboundConnection(clientSocket, this);
                 inboundConnections.add(inboundConnection);
@@ -55,12 +53,23 @@ public class Server implements Runnable {
         return port;
     }
 
+    public int getPort() {
+        return port.get();
+    }
+
+
     public void removeConnection(InboundConnection connection) {
         inboundConnections.remove(connection);
     }
 
     public void stopServer() {
+        try {
+            serverSocket.close();
+        } catch (IOException ioException) {
+            LOGGER.warning("Unable to stop server. Reason - " + ioException.getMessage());
+        }
         this.isRunning = false;
+        LOGGER.info("User server has stopped");
     }
 
 

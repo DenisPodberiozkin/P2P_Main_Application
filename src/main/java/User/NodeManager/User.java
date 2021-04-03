@@ -63,7 +63,7 @@ public class User extends Node {
     }
 
     public User(PublicKey publicKey) {
-        super(publicKey, ApplicationSettingsModel.getApplicationPort());
+        super(publicKey);
 
         setIp(ApplicationSettingsModel.getApplicationIp());
         User.instance = this;

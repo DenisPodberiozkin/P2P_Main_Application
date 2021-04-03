@@ -67,6 +67,10 @@ public class InboundSession implements Runnable {
                         }
                         send(response);
                         break;
+                    case GET_NODE_INFORMATION:
+                        response = requestToken + " " + user.getJSONString();
+                        send(response);
+                        break;
                     case PING:
                         connection.getHeartBeatManager().pingReceived();
                         response = requestToken + " OK";

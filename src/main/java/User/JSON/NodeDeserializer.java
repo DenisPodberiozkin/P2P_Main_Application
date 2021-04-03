@@ -35,7 +35,8 @@ public class NodeDeserializer extends StdDeserializer<Node> {
         byte[] publicKeyData = publicKeyNode.binaryValue();
         IEncryptionController encryptionController = EncryptionController.getInstance();
         PublicKey publicKey = encryptionController.getPublicKeyFromBytes(publicKeyData);
-        Node node = new Node(publicKey, port);
+        Node node = new Node(publicKey);
+        node.setPort(port);
         node.setIp(ip);
 
         return node;

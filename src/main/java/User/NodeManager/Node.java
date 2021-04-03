@@ -20,188 +20,201 @@ import java.util.concurrent.RejectedExecutionException;
 import java.util.logging.Logger;
 
 public class Node implements AutoCloseable {
-    private static final Logger LOGGER = Logger.getLogger(Node.class.getName());
-    private static ObjectMapper objectMapper;
-    private final String id;
-    private final PublicKey publicKey;
-    private final IClientController clientController;
-    private String ip;
-    private int port;
-    private OutboundConnection connection;
+	private static final Logger LOGGER = Logger.getLogger(Node.class.getName());
+	private static ObjectMapper objectMapper;
+	private final IClientController clientController = ClientController.getInstance();
+	private String id;
+	private PublicKey publicKey;
+	private String ip;
+	private int port;
+	private OutboundConnection connection;
 
-    public Node(PublicKey publicKey, int port) {
-        this.publicKey = publicKey;
-        this.id = generateId();
-        this.port = port;
-        this.clientController = ClientController.getInstance();
+	public Node(PublicKey publicKey) {
+		this.publicKey = publicKey;
+		this.id = generateId();
 
-        objectMapper = new ObjectMapper();
-        SimpleModule module = new SimpleModule("NodeSerializer", new Version(1, 0, 0, null, null, null));
-        module.addSerializer(Node.class, new NodeSerializer());
-        module.addDeserializer(Node.class, new NodeDeserializer());
-        objectMapper.registerModule(module);
-    }
+		objectMapper = new ObjectMapper();
+		SimpleModule module = new SimpleModule("NodeSerializer", new Version(1, 0, 0, null, null, null));
+		module.addSerializer(Node.class, new NodeSerializer());
+		module.addDeserializer(Node.class, new NodeDeserializer());
+		objectMapper.registerModule(module);
+	}
 
-    public Node(PublicKey publicKey, int port, OutboundConnection connection) {
-        this(publicKey, port);
-        this.connection = connection;
-    }
+//	public Node(PublicKey publicKey, OutboundConnection connection) {
+//		this(publicKey);
+//		this.connection = connection;
+//	}
 
-    public static Node getNodeFromJSONSting(String jsonString) {
-        Node node = null;
-        try {
-            node = objectMapper.readValue(jsonString, Node.class);
-        } catch (JsonProcessingException e) {
-            LOGGER.warning("Error while generating Node object from JSON string");
-            e.printStackTrace();
-        }
+	public Node(String ip, int port) {
+		this.ip = ip;
+		this.port = port;
+	}
 
-        return node;
-    }
+	public static Node getNodeFromJSONSting(String jsonString) {
+		Node node = null;
+		try {
+			node = objectMapper.readValue(jsonString, Node.class);
+		} catch (JsonProcessingException e) {
+			LOGGER.warning("Error while generating Node object from JSON string");
+			e.printStackTrace();
+		}
 
-    private String generateId() {
-        return EncryptionUtil.byteToHex(EncryptionController.getInstance().hash(publicKey.getEncoded()));
-    }
+		return node;
+	}
 
-    public String getId() {
-        return id;
-    }
+	private String generateId() {
+		return EncryptionUtil.byteToHex(EncryptionController.getInstance().hash(publicKey.getEncoded()));
+	}
 
-    public String getIp() {
-        return ip;
-    }
+	public String getId() {
+		return id;
+	}
 
-    public void setIp(String ip) {
-        this.ip = ip;
-    }
+	public String getIp() {
+		return ip;
+	}
 
-    public PublicKey getPublicKey() {
-        return publicKey;
-    }
+	public void setIp(String ip) {
+		this.ip = ip;
+	}
 
-    public int getPort() {
-        return port;
-    }
+	public PublicKey getPublicKey() {
+		return publicKey;
+	}
 
-    public void setPort(int port) {
-        this.port = port;
-    }
+	public int getPort() {
+		return port;
+	}
 
-    public OutboundConnection getConnection() {
-        return connection;
-    }
+	public void setPort(int port) {
+		this.port = port;
+	}
 
-    public void removeConnection() {
-        this.connection = null;
-    }
+	public OutboundConnection getConnection() {
+		return connection;
+	}
 
-    public String findNode(String id) {
-        return clientController.lookUp(connection, id);
-    }
+	public void removeConnection() {
+		this.connection = null;
+	}
 
-    public String getJSONString() {
-        String jsonString = "";
-        try {
-            jsonString = objectMapper.writeValueAsString(this);
-        } catch (JsonProcessingException e) {
-            LOGGER.warning("Error while generating JSON String");
-            e.printStackTrace();
-        }
-        return jsonString;
-    }
+	public String findNode(String id) {
+		return clientController.lookUp(connection, id);
+	}
 
-    // Sends notification to the Node saying that we are its new predecessor
-    public void notifyAboutNewPredecessor(User user) {
-        if (connection != null) {
-            clientController.sendNotificationAboutNewPredecessor(connection, user);
-        } else {
-            LOGGER.warning("Connection to node " + ip + ":" + port + " is not established to notify about new predecessor");
-        }
-    }
+	public String getJSONString() {
+		String jsonString = "";
+		try {
+			jsonString = objectMapper.writeValueAsString(this);
+		} catch (JsonProcessingException e) {
+			LOGGER.warning("Error while generating JSON String");
+			e.printStackTrace();
+		}
+		return jsonString;
+	}
 
-    public OutboundConnection connectToNode() throws IOException {
-        this.connection = clientController.connect(ip, port, this);
-        return this.connection;
-    }
+	// Sends notification to the Node saying that we are its new predecessor
+	public void notifyAboutNewPredecessor(User user) {
+		if (connection != null) {
+			clientController.sendNotificationAboutNewPredecessor(connection, user);
+		} else {
+			LOGGER.warning("Connection to node " + ip + ":" + port + " is not established to notify about new predecessor");
+		}
+	}
 
-    protected boolean isConnected() {
-        return connection != null;
+	public OutboundConnection connectToNode() throws IOException {
+		this.connection = clientController.connect(ip, port, this);
+		return this.connection;
+	}
 
-    }
+	protected boolean isConnected() {
+		return connection != null;
 
-    public void closeConnection() {
-        if (connection != null) {
-            try {
-                connection.closeConnection();
-                connection = null;
-            } catch (IOException ioException) {
-                LOGGER.warning("Unable to disconnect from " + ip + ":" + port + " Reason: " + ioException.toString());
-                ioException.printStackTrace();
-            }
-        }
-    }
+	}
 
-    protected Node getPredecessor() {
-        if (connection != null) {
-            try {
-                return clientController.getPredecessor(connection);
-            } catch (RejectedExecutionException e) {
-                LOGGER.warning("Connection to node " + getIp() + ":" + getPort() + " is closed, trying to reconnect");
-                try {
-                    connection = connectToNode();
-                    return clientController.getPredecessor(connection);
-                } catch (IOException ioException) {
-                    LOGGER.warning("Reconnection to node " + getIp() + ":" + getPort() + " is failed");
-                }
-            }
-        } else {
-            LOGGER.warning("Connection to node " + ip + ":" + port + " is not established to get predecessor");
-        }
-        return null;
-    }
+	public void closeConnection() {
+		if (connection != null) {
+			try {
+				connection.closeConnection();
+				connection = null;
+			} catch (IOException ioException) {
+				LOGGER.warning("Unable to disconnect from " + ip + ":" + port + " Reason: " + ioException.toString());
+				ioException.printStackTrace();
+			}
+		}
+	}
 
-    public boolean hasNeighbours() {
-        if (connection != null) {
-            return clientController.hasNeighbours(connection);
-        }
-        LOGGER.warning("Connection to node " + ip + ":" + port + " is not established to check if it has neighbours");
-        return false;
-    }
+	protected Node getPredecessor() {
+		if (connection != null) {
+			try {
+				return clientController.getPredecessor(connection);
+			} catch (RejectedExecutionException e) {
+				LOGGER.warning("Connection to node " + getIp() + ":" + getPort() + " is closed, trying to reconnect");
+				try {
+					connection = connectToNode();
+					return clientController.getPredecessor(connection);
+				} catch (IOException ioException) {
+					LOGGER.warning("Reconnection to node " + getIp() + ":" + getPort() + " is failed");
+				}
+			}
+		} else {
+			LOGGER.warning("Connection to node " + ip + ":" + port + " is not established to get predecessor");
+		}
+		return null;
+	}
 
-    public Deque<Node> getSuccessorsQueue() {
-        return clientController.getSuccessorsQueue(connection);
-    }
+	public boolean hasNeighbours() {
+		if (connection != null) {
+			return clientController.hasNeighbours(connection);
+		}
+		LOGGER.warning("Connection to node " + ip + ":" + port + " is not established to check if it has neighbours");
+		return false;
+	}
 
-    public String transferMessage(String receiverId, String payload) {
-        return clientController.transferMessage(connection, receiverId, payload);
-    }
+	public void initNodeInformation() {
+		if (connection != null) {
+			final Node node = clientController.getNodeInformation(connection);
+			this.id = node.getId();
+			this.publicKey = node.getPublicKey();
 
-    public String transferPublicKey(String receiverId, String publicKey64, long messageSessionId) {
-        return clientController.transferPublicKey(connection, publicKey64, receiverId, messageSessionId);
-    }
+		}
+		LOGGER.warning("Connection to node " + ip + ":" + port + " is not established to get its information");
+	}
 
-    @Override
-    public Node clone() {
-        return getNodeFromJSONSting(getJSONString());
-    }
+	public Deque<Node> getSuccessorsQueue() {
+		return clientController.getSuccessorsQueue(connection);
+	}
 
-    @Override
-    public void close() {
-        closeConnection();
-    }
+	public String transferMessage(String receiverId, String payload) {
+		return clientController.transferMessage(connection, receiverId, payload);
+	}
 
-    @Override
-    public boolean equals(Object o) {
-        if (this == o) return true;
-        if (!(o instanceof Node)) return false;
-        Node node = (Node) o;
-        return id.equals(node.id);
-    }
+	public String transferPublicKey(String receiverId, String publicKey64, long messageSessionId) {
+		return clientController.transferPublicKey(connection, publicKey64, receiverId, messageSessionId);
+	}
 
-    @Override
-    public int hashCode() {
-        return Objects.hash(id);
-    }
+	@Override
+	public Node clone() {
+		return getNodeFromJSONSting(getJSONString());
+	}
+
+	@Override
+	public void close() {
+		closeConnection();
+	}
+
+	@Override
+	public boolean equals(Object o) {
+		if (this == o) return true;
+		if (!(o instanceof Node)) return false;
+		Node node = (Node) o;
+		return id.equals(node.id);
+	}
+
+	@Override
+	public int hashCode() {
+		return Objects.hash(id);
+	}
 
 
 //    @Override

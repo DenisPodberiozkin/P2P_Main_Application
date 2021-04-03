@@ -11,25 +11,27 @@ import java.util.concurrent.RejectedExecutionException;
 
 public interface IClientController {
 
-    OutboundConnection connect(String ip, int port) throws IOException;
+	OutboundConnection connect(String ip, int port) throws IOException;
 
 //    FutureTask<String> sendMessage(OutboundConnection connection, String message);
 
-    OutboundConnection connect(String ip, int port, Node assignedNode) throws IOException;
+	OutboundConnection connect(String ip, int port, Node assignedNode) throws IOException;
 
-    Node getLastConnectedNode(OutboundConnection connection);
+	Node getLastConnectedNode(OutboundConnection connection);
 
-    boolean hasNeighbours(OutboundConnection connection);
+	boolean hasNeighbours(OutboundConnection connection);
 
-    String lookUp(OutboundConnection connection, String id);
+	Node getNodeInformation(OutboundConnection connection);
 
-    void sendLastNodeToServer(OutboundConnection connection, Node node);
+	String lookUp(OutboundConnection connection, String id);
 
-    void sendNotificationAboutNewPredecessor(OutboundConnection connection, Node node);
+	void sendLastNodeToServer(OutboundConnection connection, Node node);
 
-    Node getPredecessor(OutboundConnection connection) throws RejectedExecutionException;
+	void sendNotificationAboutNewPredecessor(OutboundConnection connection, Node node);
 
-    Deque<Node> getSuccessorsQueue(OutboundConnection connection);
+	Node getPredecessor(OutboundConnection connection) throws RejectedExecutionException;
+
+	Deque<Node> getSuccessorsQueue(OutboundConnection connection);
 
     void removeUnreachableLastConnectedNode(OutboundConnection connection, String nodeJSON);
 

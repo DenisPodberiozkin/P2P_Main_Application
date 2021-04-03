@@ -1,10 +1,10 @@
 package User.CommunicationUnit.Server;
 
-import javafx.beans.property.SimpleIntegerProperty;
-
 public interface IServerController {
 
-    void startServer(int port);
+	void startServer(int port);
 
-    SimpleIntegerProperty getServerPortProperty();
+	void stopServer();
+
+	Server getServer();
 }

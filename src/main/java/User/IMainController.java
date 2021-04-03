@@ -12,9 +12,8 @@ public interface IMainController {
 
     void createAccount(String password, String secretPassword, String username) throws IOException, SQLException, DatabaseInitException;
 
-    void loginToAccount(String password, String secretPassword, String username) throws FileNotFoundException, SQLException, GeneralSecurityException;
+    void loginToAccount(String password, String secretPassword, String username) throws IOException, SQLException, GeneralSecurityException;
 
-    void connectToRing();
 
 }
 

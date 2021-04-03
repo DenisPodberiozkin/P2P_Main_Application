@@ -26,20 +26,22 @@ public class LookupEngine implements Callable<String> {
 
     @Override
     public String call() {
-        //System.out.println("Node " + this.id + " is looking for node " + id);
-        try {
-//            System.out.println(this.id + " START LOOKUP id " + id);
 
-            if (isBigger(lookUpId, user.getId()) && (isBigger(successor.getId(), lookUpId)) || user.getId().equals(lookUpId)) {
-//            System.out.println("node " + this.id + "returns its successor" + getSuccessor().getId());
+        try {
+
+            if (lookUpId.equals(successor.getId())) {
+                return lookupLogic.proceed(successor);
+            }
+
+            if ((isBigger(lookUpId, user.getId()) && (isBigger(successor.getId(), lookUpId))) || user.getId().equals(lookUpId)) {
+
                 return lookupLogic.finish();
             } else {
                 final Node highestPredecessor = findHighestPredecessor(lookUpId);
-//                System.out.println("Highest predecessor is node " + highestPredecessor.getId());
-//            System.out.println("highest successor is " + highestPredecessor.getId());
+
                 //if highestPredecessor is the MAX node
                 if (highestPredecessor.equals(user)) {
-//                System.out.println("node " + this.id + " is a MAX node, returning its successor - min node " + highestPredecessor.getSuccessor().getId());
+
                     //if ID is either new MIN or MAX node then return current MIN node as ID's successor
                     if (isBigger(lookUpId, user.getId()) || isBigger(successor.getId(), lookUpId)) {
                         return lookupLogic.finish();
@@ -53,8 +55,6 @@ public class LookupEngine implements Callable<String> {
 
                 }
                 //if highest predecessor is the normal node then continues look up.
-//            System.out.println("node " + this.getId() + "sending lookup of node " + id + " to highest predecessor " + highestPredecessor.getId());
-//                return null;
                 return lookupLogic.proceed(highestPredecessor);
 
             }

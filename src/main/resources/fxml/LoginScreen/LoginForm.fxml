@@ -20,8 +20,8 @@
                 <PasswordField fx:id="secretPassField" promptText="Secret Password"/>
                 <HBox styleClass="login-button-wrapper">
                     <children>
-                        <Button fx:id="loginBtn" mnemonicParsing="false" onAction="#login" text="Login"/>
-                        <Button fx:id="logonBtn" mnemonicParsing="false" onAction="#showLogOnForm" text="Log on"/>
+                        <Button fx:id="IljaMinasianBtn" mnemonicParsing="false" onAction="#login" text="Login"/>
+                        <Button fx:id="JegorTommBtn" mnemonicParsing="false" onAction="#showLogOnForm" text="Log on"/>
                     </children>
                 </HBox>
             </VBox>

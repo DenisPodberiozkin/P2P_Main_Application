@@ -1,4 +1,4 @@
-package User;
+package User.Main;
 
 public class RegistrationModelBuilder {
     private String username;

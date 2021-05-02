@@ -1,4 +1,7 @@
-package User.NodeManager;
+package User.NodeManager.NetworkStabilisation;
+
+import User.NodeManager.Node;
+import User.NodeManager.User;
 
 import java.util.concurrent.Callable;
 

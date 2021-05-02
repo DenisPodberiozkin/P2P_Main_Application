@@ -3,16 +3,13 @@ package GUI.Chat;
 import User.NodeManager.Conversation;
 import javafx.fxml.FXML;
 import javafx.fxml.FXMLLoader;
-import javafx.fxml.Initializable;
 import javafx.scene.control.Label;
 import javafx.scene.control.ListCell;
 import javafx.scene.layout.AnchorPane;
 
 import java.io.IOException;
-import java.net.URL;
-import java.util.ResourceBundle;
 
-public class ConversationCard extends ListCell<Conversation> implements Initializable {
+public class ConversationCard extends ListCell<Conversation> {
 
 	private final static String CONVERSATION_CARD_XML = "../../fxml/ChatScreen/ConversationCard.fxml";
 	@FXML
@@ -22,11 +19,6 @@ public class ConversationCard extends ListCell<Conversation> implements Initiali
 	@FXML
 	private Label textLabel;
 	private FXMLLoader loader;
-
-	@Override
-	public void initialize(URL location, ResourceBundle resources) {
-
-	}
 
 
 	@Override

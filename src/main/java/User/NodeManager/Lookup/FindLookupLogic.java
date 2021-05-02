@@ -18,6 +18,6 @@ public class FindLookupLogic implements LookupLogic {
 
     @Override
     public String proceed(Node node) {
-        return successor.findNode(searchId);
+        return node.findNode(searchId);
     }
 }

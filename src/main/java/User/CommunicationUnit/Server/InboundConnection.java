@@ -20,7 +20,6 @@ public class InboundConnection extends Thread {
     private final ExecutorService executor;
     private final Socket clientSocket;
     private final HashMap<Integer, InboundSession> sessions;
-    private final Server server;
     private final HeartBeatManager heartBeatManager;
     private final int port;
     private final String ip;
@@ -28,9 +27,8 @@ public class InboundConnection extends Thread {
     private SecretKey secretKey;
 
 
-    public InboundConnection(Socket clientSocket, Server server) {
+    public InboundConnection(Socket clientSocket) {
         this.clientSocket = clientSocket;
-        this.server = server;
         this.isConnectionOpen = true;
         this.executor = Executors.newFixedThreadPool(MAX_THREAD);
         this.sessions = new HashMap<>();

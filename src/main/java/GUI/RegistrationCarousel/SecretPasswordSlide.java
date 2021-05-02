@@ -1,7 +1,7 @@
 package GUI.RegistrationCarousel;
 
 import GUI.ControllerFactory;
-import User.RegistrationModel;
+import User.Main.RegistrationModel;
 import javafx.fxml.FXML;
 import javafx.fxml.Initializable;
 import javafx.scene.control.CheckBox;

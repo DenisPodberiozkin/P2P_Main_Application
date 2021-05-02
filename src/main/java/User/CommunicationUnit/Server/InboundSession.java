@@ -53,9 +53,13 @@ public class InboundSession implements Runnable {
                     LOGGER.info("Inbound Session " + id + " was created to process request "
                             + request.getToken() + " from " + connection.getIp() + ":" + connection.getPort());
                 }
-
-
                 final String requestToken = request.getToken();
+
+                if (sk == null && request != InboundTokens.CREATE_SECURE_CHANNEL) {
+                    send(requestToken + " " + "Security ERROR");
+                }
+
+
                 String response;
                 final User user = User.getInstance();
                 switch (request) {

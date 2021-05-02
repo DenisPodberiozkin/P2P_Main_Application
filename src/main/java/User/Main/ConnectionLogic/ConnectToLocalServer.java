@@ -1,4 +1,4 @@
-package User;
+package User.Main.ConnectionLogic;
 
 import User.CommunicationUnit.Client.ClientController;
 import User.CommunicationUnit.Client.IClientController;

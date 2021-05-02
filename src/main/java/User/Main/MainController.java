@@ -1,4 +1,4 @@
-package User;
+package User.Main;
 
 import Encryption.EncryptionController;
 import Encryption.IEncryptionController;
@@ -9,6 +9,8 @@ import User.Database.DataBaseController;
 import User.Database.DatabaseExceptions.DatabaseInitException;
 import User.Database.IDataBaseController;
 import User.Database.UserDataBase;
+import User.Main.ConnectionLogic.ConnectionFactory;
+import User.Main.ConnectionLogic.ConnectionLogic;
 import User.NodeManager.User;
 import User.Settings.ApplicationSettingsModel;
 import User.Settings.ConnectionSettingsModel;

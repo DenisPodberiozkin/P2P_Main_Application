@@ -64,55 +64,60 @@ public class ConnectionSettingsDAO {
 				"WHERE connection_type " +
 				"IN(SELECT connection_type FROM Connection_Settings LIMIT 1);";
 
-		try (PreparedStatement preparedStatement = connection.prepareStatement(sql)) {
+		try {
 			connection.setAutoCommit(false);
-			if (data instanceof String) {
-				preparedStatement.setString(1, (String) data);
-			} else if (data instanceof Integer) {
-				preparedStatement.setInt(1, (Integer) data);
-			} else {
-				throw new SQLException("Unsupported insertion Type");
-			}
-			preparedStatement.executeUpdate();
-			connection.commit();
-		} catch (SQLException throwables) {
-			throwables.printStackTrace();
-			try {
-				connection.rollback();
-			} catch (SQLException e) {
-				e.printStackTrace();
-			}
-		} finally {
-			try {
-				connection.setAutoCommit(true);
+			try (PreparedStatement preparedStatement = connection.prepareStatement(sql)) {
+				if (data instanceof String) {
+					preparedStatement.setString(1, (String) data);
+				} else if (data instanceof Integer) {
+					preparedStatement.setInt(1, (Integer) data);
+				} else {
+					throw new SQLException("Unsupported insertion Type");
+				}
+				preparedStatement.executeUpdate();
+				connection.commit();
 			} catch (SQLException throwables) {
 				throwables.printStackTrace();
+
+				connection.rollback();
+
+			} finally {
+
+				connection.setAutoCommit(true);
+
 			}
+		} catch (SQLException throwables) {
+			throwables.printStackTrace();
 		}
+
+
 	}
 
 
 	private Object getSetting(String settingType) {
 		final String sql = "SELECT " + settingType + " FROM Connection_Settings LIMIT 1";
-		try (Statement statement = connection.createStatement()) {
+
+		try {
 			connection.setAutoCommit(false);
-			ResultSet resultSet = statement.executeQuery(sql);
-			connection.commit();
-			return resultSet.getObject(settingType);
-		} catch (SQLException throwables) {
-			throwables.printStackTrace();
-			try {
-				connection.rollback();
-			} catch (SQLException e) {
-				e.printStackTrace();
-			}
-		} finally {
-			try {
-				connection.setAutoCommit(true);
+			try (Statement statement = connection.createStatement()) {
+				ResultSet resultSet = statement.executeQuery(sql);
+				connection.commit();
+				return resultSet.getObject(settingType);
 			} catch (SQLException throwables) {
 				throwables.printStackTrace();
+
+				connection.rollback();
+
+			} finally {
+
+				connection.setAutoCommit(true);
+
 			}
+		} catch (SQLException throwables) {
+			throwables.printStackTrace();
 		}
+
+
 		return null; // TODO change later;
 	}
 

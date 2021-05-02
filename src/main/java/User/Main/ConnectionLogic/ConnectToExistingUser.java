@@ -1,4 +1,4 @@
-package User;
+package User.Main.ConnectionLogic;
 
 import User.NodeManager.Node;
 import User.NodeManager.User;

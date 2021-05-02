@@ -56,7 +56,7 @@
                               <Insets bottom="15.0" left="15.0" right="15.0" top="15.0"/>
                            </VBox.margin>
                            <center>
-                              <TableView fx:id="outboundTable" prefHeight="200.0" prefWidth="200.0">
+                              <TableView fx:id="outboundTable" prefHeight="239.0" prefWidth="695.0">
                                  <columns>
                                     <TableColumn fx:id="outID" prefWidth="448.3333435058594" text="ID"/>
                                     <TableColumn fx:id="outIP" prefWidth="153.66665649414062" text="IP"/>
@@ -76,33 +76,9 @@
                               </Label>
                            </top>
                         </BorderPane>
-                        <BorderPane prefHeight="287.0" prefWidth="725.0">
+                        <BorderPane prefHeight="318.0" prefWidth="725.0">
                            <center>
-                              <TableView fx:id="inboundTable" prefHeight="200.0" prefWidth="200.0">
-                                 <columns>
-                                    <TableColumn fx:id="inID" prefWidth="453.6666793823242" text="ID"/>
-                                    <TableColumn fx:id="inIP" prefWidth="167.33332061767578" text="IP"/>
-                                    <TableColumn fx:id="inPort" prefWidth="73.33331298828125" text="Port"/>
-                                 </columns>
-                                 <BorderPane.margin>
-                                    <Insets bottom="15.0" left="15.0" right="15.0" top="15.0"/>
-                                 </BorderPane.margin>
-                              </TableView>
-                           </center>
-                           <top>
-                              <Label text="Inbound Connections" BorderPane.alignment="CENTER">
-                                 <BorderPane.margin>
-                                    <Insets bottom="15.0" left="15.0" right="15.0" top="15.0"/>
-                                 </BorderPane.margin>
-                                 <font>
-                                    <Font size="18.0"/>
-                                 </font>
-                              </Label>
-                           </top>
-                        </BorderPane>
-                        <BorderPane prefHeight="287.0" prefWidth="725.0">
-                           <center>
-                              <TableView fx:id="successorsTable" prefHeight="200.0" prefWidth="200.0">
+                              <TableView fx:id="successorsTable" prefHeight="240.0" prefWidth="695.0">
                                  <columns>
                                     <TableColumn fx:id="successorID" prefWidth="453.6666793823242" text="ID"/>
                                     <TableColumn fx:id="successorIP" prefWidth="167.33332061767578" text="IP"/>

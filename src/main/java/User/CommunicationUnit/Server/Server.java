@@ -25,7 +25,7 @@ public class Server implements Runnable {
         while (isRunning) {
             try {
                 Socket clientSocket = serverSocket.accept();
-                InboundConnection inboundConnection = new InboundConnection(clientSocket, this);
+                InboundConnection inboundConnection = new InboundConnection(clientSocket);
                 inboundConnection.start();
             } catch (IOException e) {
                 e.printStackTrace();

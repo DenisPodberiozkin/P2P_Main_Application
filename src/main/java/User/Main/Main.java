@@ -1,4 +1,4 @@
-package User;
+package User.Main;
 
 import GUI.ControllerFactory;
 import GUI.Debugger;
@@ -41,21 +41,21 @@ public class Main extends Application {
 
 
         Platform.setImplicitExit(true);
-        final Parent mainRoot = FXMLLoader.load(getClass().getResource("../fxml/StartScreen.fxml"));
-        primaryStage.setTitle("Westwood v0.1");
+        final Parent mainRoot = FXMLLoader.load(getClass().getResource("../../fxml/StartScreen.fxml"));
+        primaryStage.setTitle("Westwood v0.3");
         final Scene mainScene = new Scene(mainRoot);
-        mainScene.getStylesheets().add(getClass().getResource("../styles/CSS/style.css").toExternalForm());
-        mainScene.getStylesheets().add(getClass().getResource("../styles/CSS/customStyle.css").toExternalForm());
+        mainScene.getStylesheets().add(getClass().getResource("../../styles/CSS/style.css").toExternalForm());
+        mainScene.getStylesheets().add(getClass().getResource("../../styles/CSS/customStyle.css").toExternalForm());
         primaryStage.setScene(mainScene);
         primaryStage.show();
         primaryStage.setOnCloseRequest(e -> System.exit(0));
 
         final Stage debugStage = new Stage();
-        FXMLLoader loader = new FXMLLoader(getClass().getResource("../fxml/Debugger.fxml"));
+        FXMLLoader loader = new FXMLLoader(getClass().getResource("../../fxml/Debugger.fxml"));
         final Parent debugRoot = loader.load();
         final Scene debugScene = new Scene(debugRoot);
-        debugScene.getStylesheets().add(getClass().getResource("../styles/CSS/style.css").toExternalForm());
-        debugScene.getStylesheets().add(getClass().getResource("../styles/CSS/customStyle.css").toExternalForm());
+        debugScene.getStylesheets().add(getClass().getResource("../../styles/CSS/style.css").toExternalForm());
+        debugScene.getStylesheets().add(getClass().getResource("../../styles/CSS/customStyle.css").toExternalForm());
         debugStage.setTitle("Westwood debugger");
         debugStage.setScene(debugScene);
         Debugger debugger = loader.getController();

@@ -1,6 +1,9 @@
-package User.NodeManager;
+package User.NodeManager.NetworkStabilisation;
 
 import Encryption.Hash;
+import User.NodeManager.Node;
+import User.NodeManager.NodeUtil;
+import User.NodeManager.User;
 
 import java.math.BigInteger;
 import java.util.LinkedHashMap;

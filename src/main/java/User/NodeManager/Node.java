@@ -132,7 +132,7 @@ public class Node implements AutoCloseable {
 		}
 	}
 
-	protected Node getPredecessor() {
+	public Node getPredecessor() {
 		if (connection != null) {
 			try {
 				return clientController.getPredecessor(connection);

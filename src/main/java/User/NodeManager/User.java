@@ -10,6 +10,9 @@ import User.NodeManager.Lookup.*;
 import User.NodeManager.MessageSession.InboundMessageSession;
 import User.NodeManager.MessageSession.OutboundMessageSession;
 import User.NodeManager.MessageSession.OutboundMessageSessionBuilder;
+import User.NodeManager.NetworkStabilisation.NodeStabilizer;
+import User.NodeManager.NetworkStabilisation.TableGenerator;
+import User.NodeManager.NetworkStabilisation.Updater;
 import User.Settings.ApplicationSettingsModel;
 import javafx.application.Platform;
 import javafx.collections.FXCollections;
@@ -64,7 +67,6 @@ public class User extends Node {
         User.instance = this;
         this.updater = new Updater(this);
         ControllerFactory.getDebuggerController().setNodeNameLabelText(getId());
-        ControllerFactory.getDebuggerController().setPortLabelText(getPort());
     }
 
 

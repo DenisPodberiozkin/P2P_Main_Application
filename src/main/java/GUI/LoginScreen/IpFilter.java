@@ -4,6 +4,13 @@ import javafx.scene.control.TextFormatter;
 
 import java.util.function.UnaryOperator;
 
+
+/**
+ * Idea From
+ *
+ * @author James_D (2015)
+ * From: https://stackoverflow.com/questions/32094296/javafx-textfield-ip-address
+ */
 public class IpFilter implements UnaryOperator<TextFormatter.Change> {
 
     public IpFilter() {

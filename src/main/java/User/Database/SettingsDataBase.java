@@ -21,8 +21,8 @@ public class SettingsDataBase extends Database {
 			super.connect(fullPath);
 		} catch (FileNotFoundException e) {
 			createDb(dbName);
-			initDb(connection);
 			super.connect(fullPath);
+			initDb(connection);
 		}
 		return connection;
 	}

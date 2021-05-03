@@ -6,7 +6,9 @@ import com.fasterxml.jackson.databind.SerializerProvider;
 import com.fasterxml.jackson.databind.ser.std.StdSerializer;
 
 import java.io.IOException;
-
+/**
+ * From library documentation
+ */
 public class NodeSerializer extends StdSerializer<Node> {
 
     public NodeSerializer(Class<Node> t) {

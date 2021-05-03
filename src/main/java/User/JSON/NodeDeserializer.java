@@ -12,6 +12,10 @@ import com.fasterxml.jackson.databind.deser.std.StdDeserializer;
 import java.io.IOException;
 import java.security.PublicKey;
 
+/**
+ * From library documentation
+ */
+
 public class NodeDeserializer extends StdDeserializer<Node> {
 
     public NodeDeserializer() {

@@ -13,6 +13,7 @@ public abstract class Database {
 
     public Database(String path) {
         this.path = path;
+        checkMainPath();
     }
 
 
@@ -23,6 +24,13 @@ public abstract class Database {
             connection.setTransactionIsolation(Connection.TRANSACTION_SERIALIZABLE);
         } else {
             throw new FileNotFoundException("File " + fullPath + " not found");
+        }
+    }
+
+    private void checkMainPath() {
+        final File file = new File(path);
+        if (!file.exists()) {
+            file.mkdirs();
         }
     }
 

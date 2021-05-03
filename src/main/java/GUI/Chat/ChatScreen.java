@@ -51,7 +51,12 @@ public class ChatScreen implements Initializable {
 		ControllerFactory.setChatScreenController(this);
 		ChatScreenNavigator.setChatScreenController(this);
 
-		// Search filter
+		/*
+		  Search filter
+		  Idea From
+		  Sedrick (2017)
+		  From: https://stackoverflow.com/questions/47559491/making-a-search-bar-in-javafx
+		 */
 		final FilteredList<Conversation> filteredList = new FilteredList<>(user.getConversations(), p -> true);
 		//Listener to search text field
 		searchField.textProperty().addListener((observable, oldValue, newValue) -> filteredList.setPredicate(conversation -> {
